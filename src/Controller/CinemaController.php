@@ -2,7 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\Cinema;
+use App\Entity\Seat;
+use App\Form\Type\CinemaBiggestScreeningRoomSizeType;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -10,7 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class CinemaController extends AbstractController
 {
     // view created cinemas
-    #[Route('/', name: 'app_cinema_create')]
+    #[Route('/', name: 'app_cinema')]
     public function index(): Response
     {
         return $this->render('cinema/index.html.twig', [
@@ -20,10 +25,41 @@ class CinemaController extends AbstractController
 
     // isGrantedAdmin
     #[Route('/create', name: 'app_cinema_create')]
-    public function create(): Response
-    {
-        return $this->render('cinema/index.html.twig', [
-            'controller_name' => 'CinemaController',
+    public function create(
+        Request $request,
+        EntityManagerInterface $em
+    ): Response {
+
+        $cinema =  new Cinema();
+
+        $form = $this->createForm(CinemaBiggestScreeningRoomSizeType::class, $cinema);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $maxRows = $form->get('max_rows')->getData();
+            $maxColumns = $form->get('max_columns')->getData();
+
+            for ($row = 1; $row <= $maxRows; $row++) {
+                for ($col = 1; $col <= $maxColumns; $col++) {
+                    $seat = new Seat();
+                    // chr(64 + $row) for A,B,C
+                    $seat->setRowNum($row);
+                    $seat->setColNum($col);
+
+                    $cinema->addSeat($seat);
+
+                    $em->persist($seat);
+                }
+            }
+            $em->persist($cinema);
+            $em->flush();
+
+            return $this->redirectToRoute("app_cinema_create");
+        }
+
+        return $this->render('cinema/screening_room_max_size.html.twig', [
+            "form" => $form
         ]);
     }
 

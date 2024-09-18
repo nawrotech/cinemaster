@@ -14,39 +14,43 @@ class Seat
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?int $row_number = null;
+    private ?string $colNum = null;
 
     #[ORM\Column]
-    private ?int $column_number = null;
+    private ?string $rowNum = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $type = null;
+    #[ORM\Column(length: 100)]
+    private ?string $type = "regular";
+
+    #[ORM\ManyToOne(inversedBy: 'Seats')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Cinema $cinema = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getRowNumber(): ?int
+    public function getColNum(): ?string
     {
-        return $this->row_number;
+        return $this->colNum;
     }
 
-    public function setRowNumber(int $row_number): static
+    public function setColNum(string $colNum): static
     {
-        $this->row_number = $row_number;
+        $this->colNum = $colNum;
 
         return $this;
     }
 
-    public function getColumnNumber(): ?int
+    public function getRowNum(): ?string
     {
-        return $this->column_number;
+        return $this->rowNum;
     }
 
-    public function setColumnNumber(int $column_number): static
+    public function setRowNum(string $rowNum): static
     {
-        $this->column_number = $column_number;
+        $this->rowNum = $rowNum;
 
         return $this;
     }
@@ -59,6 +63,18 @@ class Seat
     public function setType(string $type): static
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getCinema(): ?Cinema
+    {
+        return $this->cinema;
+    }
+
+    public function setCinema(?Cinema $cinema): static
+    {
+        $this->cinema = $cinema;
 
         return $this;
     }
