@@ -19,7 +19,7 @@ class ScreeningRoom
     private ?string $name = null;
 
     #[ORM\Column(length: 100)]
-    private ?string $status = null;
+    private ?string $status = "available";
 
     /**
      * @var Collection<int, ScreeningRoomSeat>

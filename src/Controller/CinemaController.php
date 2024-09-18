@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Cinema;
 use App\Entity\Seat;
 use App\Form\Type\CinemaBiggestScreeningRoomSizeType;
+use App\Form\Type\CinemaType;
+use App\Repository\CinemaRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,10 +18,12 @@ class CinemaController extends AbstractController
 {
     // view created cinemas
     #[Route('/', name: 'app_cinema')]
-    public function index(): Response
+    public function index(CinemaRepository $cinemaRepository): Response
     {
+
         return $this->render('cinema/index.html.twig', [
-            'controller_name' => 'CinemaController',
+            "cinemas" => $cinemaRepository->findAll()
+
         ]);
     }
 
@@ -32,13 +36,13 @@ class CinemaController extends AbstractController
 
         $cinema =  new Cinema();
 
-        $form = $this->createForm(CinemaBiggestScreeningRoomSizeType::class, $cinema);
+        $form = $this->createForm(CinemaType::class, $cinema);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $maxRows = $form->get('max_rows')->getData();
-            $maxColumns = $form->get('max_columns')->getData();
+            $maxRows = $form->get('screening_room_size')->get('max_rows')->getData();
+            $maxColumns = $form->get('screening_room_size')->get('max_columns')->getData();
 
             for ($row = 1; $row <= $maxRows; $row++) {
                 for ($col = 1; $col <= $maxColumns; $col++) {
@@ -55,20 +59,24 @@ class CinemaController extends AbstractController
             $em->persist($cinema);
             $em->flush();
 
-            return $this->redirectToRoute("app_cinema_create");
+            return $this->redirectToRoute("app_cinema");
         }
 
         return $this->render('cinema/screening_room_max_size.html.twig', [
             "form" => $form
         ]);
     }
+    #[Route('/{slug}/edit', name: "app_cinema_details")]
+    public function details(): Response
+    {
+        return $this->render('cinema/details.html.twig', []);
+    }
+
 
     // isGrantedAdmin, slug with cinema name
-    #[Route('/{slug}/edit', name: 'app_cinema_edit')]
+    #[Route('/{slug}/edit', name: "app_cinema_edit")]
     public function edit(): Response
     {
-        return $this->render('cinema/index.html.twig', [
-            'controller_name' => 'CinemaController',
-        ]);
+        return $this->render('cinema/details.html.twig', []);
     }
 }

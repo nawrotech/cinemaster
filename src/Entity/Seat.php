@@ -14,13 +14,13 @@ class Seat
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?string $colNum = null;
-
-    #[ORM\Column]
     private ?string $rowNum = null;
 
-    #[ORM\Column(length: 100)]
-    private ?string $type = "regular";
+
+    #[ORM\Column]
+    private ?string $colNum = null;
+
+
 
     #[ORM\ManyToOne(inversedBy: 'Seats')]
     #[ORM\JoinColumn(nullable: false)]
@@ -51,18 +51,6 @@ class Seat
     public function setRowNum(string $rowNum): static
     {
         $this->rowNum = $rowNum;
-
-        return $this;
-    }
-
-    public function getType(): ?string
-    {
-        return $this->type;
-    }
-
-    public function setType(string $type): static
-    {
-        $this->type = $type;
 
         return $this;
     }

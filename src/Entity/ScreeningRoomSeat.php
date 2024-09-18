@@ -14,7 +14,10 @@ class ScreeningRoomSeat
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
-    private ?string $seat_status = null;
+    private ?string $seatStatus = "available";
+
+    #[ORM\Column(length: 100)]
+    private ?string $seatType = "regular";
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -24,6 +27,10 @@ class ScreeningRoomSeat
     #[ORM\JoinColumn(nullable: false)]
     private ?ScreeningRoom $ScreeningRoom = null;
 
+
+
+
+
     public function getId(): ?int
     {
         return $this->id;
@@ -31,12 +38,12 @@ class ScreeningRoomSeat
 
     public function getSeatStatus(): ?string
     {
-        return $this->seat_status;
+        return $this->seatStatus;
     }
 
-    public function setSeatStatus(string $seat_status): static
+    public function setSeatStatus(string $seatStatus): static
     {
-        $this->seat_status = $seat_status;
+        $this->seatStatus = $seatStatus;
 
         return $this;
     }
@@ -61,6 +68,18 @@ class ScreeningRoomSeat
     public function setScreeningRoom(?ScreeningRoom $ScreeningRoom): static
     {
         $this->ScreeningRoom = $ScreeningRoom;
+
+        return $this;
+    }
+
+    public function getSeatType(): ?string
+    {
+        return $this->seatType;
+    }
+
+    public function setSeatType(string $seatType): static
+    {
+        $this->seatType = $seatType;
 
         return $this;
     }
