@@ -49,7 +49,7 @@ class ScreeningRoomSizeType extends AbstractType
                     "constraints" => [
                         new NotBlank(),
                         new GreaterThan(1),
-                        new LessThanOrEqual($maxColumnUpperLimit)
+                        new LessThanOrEqual((int) $maxColumnUpperLimit)
                     ]
                 ]
             )

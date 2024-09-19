@@ -4,6 +4,12 @@
 
 {% block body %}
 
+    {% for message in app.flashes("success") %}
+        <div class="flash-notice">
+            {{ message }}
+        </div>
+    {% endfor %}
+
 
     {% for cinema in cinemas %}
     <a href="{{path("app_cinema_details", {slug: cinema.name})}}" class="card">

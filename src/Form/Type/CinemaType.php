@@ -33,8 +33,8 @@ class CinemaType extends AbstractType
             ->add("screening_room_size", ScreeningRoomSizeType::class, [
                 "label" => false,
                 'mapped' => false,
-                "max_rows_label" => "What is the biggest number of rows your screening room has in cinema?",
-                "max_columns_label" => "What is the biggest number of seats in one row in your cinema?"
+                "max_row_label" => "What is the biggest number of rows your screening room has in cinema?",
+                "max_column_label" => "What is the biggest number of seats in one row in your cinema?"
 
             ])
             ->add('save', SubmitType::class)

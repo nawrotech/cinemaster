@@ -20,8 +20,6 @@ class Seat
     #[ORM\Column]
     private ?string $colNum = null;
 
-
-
     #[ORM\ManyToOne(inversedBy: 'Seats')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Cinema $cinema = null;

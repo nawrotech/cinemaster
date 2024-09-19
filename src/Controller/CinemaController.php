@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Cinema;
 use App\Entity\Seat;
-use App\Form\Type\CinemaBiggestScreeningRoomSizeType;
 use App\Form\Type\CinemaType;
 use App\Repository\CinemaRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,6 +27,7 @@ class CinemaController extends AbstractController
     }
 
     // isGrantedAdmin
+    // cinema name could be used in the url for cinema reference
     #[Route('/create', name: 'app_cinema_create')]
     public function create(
         Request $request,
@@ -59,6 +59,8 @@ class CinemaController extends AbstractController
             $em->persist($cinema);
             $em->flush();
 
+            $this->addFlash("success", "Cinema created");
+
             return $this->redirectToRoute("app_cinema");
         }
 
@@ -66,15 +68,19 @@ class CinemaController extends AbstractController
             "form" => $form
         ]);
     }
-    #[Route('/{slug}/edit', name: "app_cinema_details")]
+
+
+    #[Route('/{slug}/edit', name: "app_cinema_edit")]
     public function details(): Response
     {
+
+
         return $this->render('cinema/details.html.twig', []);
     }
 
 
     // isGrantedAdmin, slug with cinema name
-    #[Route('/{slug}/edit', name: "app_cinema_edit")]
+    #[Route('/{slug}/edit', name: "app_cinema_details")]
     public function edit(): Response
     {
         return $this->render('cinema/details.html.twig', []);

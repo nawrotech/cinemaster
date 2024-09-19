@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Created Rooms{% endblock %}
+
+{% block body %}
+    <h1>{{ room.name }}</h1>   
+
+    {% for roomRow in roomRows %}
+       <div class="row">
+    
+            <h1 class="col-1">{{roomRow}}</h1>
+            {% for seat in rowLine[roomRow]  %}
+                <div class="seat col-1">
+                    {{ seat.seatType }}
+                    <a href="">{{seat.seat.colNum}}</a>
+                    <form method="POST" action="{{path("app_screening_rooms_seat_type_change", {id: seat.seat.id})}}">
+                        <input type="hidden" name="seat_id" value="{{seat.seat.id}}" >
+                        <input type="hidden" name="room_id" value="{{room.id}}">
+                        <input type="text" name="seat_type" value="{{seat.seatType}}">
+                        <button class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            {% endfor %}
+       </div>
+    {% endfor %}
+
+    {{form(form)}}
+
+{% endblock %}
