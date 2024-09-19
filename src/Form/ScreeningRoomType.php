@@ -14,13 +14,26 @@ class ScreeningRoomType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        [
+            "maxColNum" => $maxColNum,
+            "maxRowNum" => $maxRowNum
+        ] = $options["max_room_sizes"];
+
         $builder
-            ->add('name', TextType::class)
+            ->add('name', TextType::class, [
+                "label" => "Screening room name",
+                "attr" => [
+                    "placeholder" => "e.g. Room A"
+                ]
+            ])
             ->add("screening_room_size", ScreeningRoomSizeType::class, [
                 "label" => false,
                 'mapped' => false,
-                "max_rows_label" => "What is the number of rows in your room?",
-                "max_columns_label" =>  "What is the number of columns in your room?",
+                "max_row_label" => "What is the number of rows in your room?",
+                "max_column_label" =>  "What is the number of seats in one row in your room?",
+                "max_column_constraints" => ["upper_limit" => $maxColNum],
+                "max_row_constraints" => ["upper_limit" => $maxRowNum],
+
             ])
             ->add('save', SubmitType::class);
     }
@@ -29,6 +42,7 @@ class ScreeningRoomType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => ScreeningRoom::class,
+            "max_room_sizes" => null
         ]);
     }
 }

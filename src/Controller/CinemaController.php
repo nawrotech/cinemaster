@@ -41,8 +41,8 @@ class CinemaController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $maxRows = $form->get('screening_room_size')->get('max_rows')->getData();
-            $maxColumns = $form->get('screening_room_size')->get('max_columns')->getData();
+            $maxRows = $form->get('screening_room_size')->get('max_row')->getData();
+            $maxColumns = $form->get('screening_room_size')->get('max_column')->getData();
 
             for ($row = 1; $row <= $maxRows; $row++) {
                 for ($col = 1; $col <= $maxColumns; $col++) {

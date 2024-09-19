@@ -28,9 +28,6 @@ class ScreeningRoomSeat
     private ?ScreeningRoom $ScreeningRoom = null;
 
 
-
-
-
     public function getId(): ?int
     {
         return $this->id;

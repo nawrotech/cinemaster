@@ -40,4 +40,13 @@ class SeatRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function findMax()
+    {
+        return $this->createQueryBuilder('s')
+            ->select("MAX(s.colNum) AS maxColNum", "MAX(s.rowNum) AS maxRowNum")
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }

@@ -7,44 +7,49 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\GreaterThan;
+use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ScreeningRoomSizeType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $maxRowsLabel = $options["max_rows_label"];
-        $maxColumnsLabel = $options["max_columns_label"];
+        $maxRowLabel = $options["max_row_label"];
+        $maxColumnLabel = $options["max_column_label"];
 
+        $maxRowUpperLimit = $options["max_row_constraints"]["upper_limit"] ?? 100;
+        $maxColumnUpperLimit = $options["max_column_constraints"]["upper_limit"] ?? 100;
 
         $builder
             ->add(
-                "max_rows",
+                "max_row",
                 NumberType::class,
                 [
                     "attr" => [
-                        "placeholder" => "Enter number of rows e.g. 6"
+                        "placeholder" => "e.g. 6"
                     ],
-                    "label" => $maxRowsLabel,
+                    "label" => $maxRowLabel,
                     "mapped" => false,
                     "constraints" => [
                         new NotBlank(),
-                        new GreaterThan(1)
+                        new GreaterThan(1),
+                        new LessThanOrEqual($maxRowUpperLimit)
                     ]
                 ]
             )
             ->add(
-                "max_columns",
+                "max_column",
                 NumberType::class,
                 [
                     "attr" => [
-                        "placeholder" => "Enter number of columns e.g. 6"
+                        "placeholder" => "e.g. 6"
                     ],
-                    "label" => $maxColumnsLabel,
+                    "label" => $maxColumnLabel,
                     "mapped" => false,
                     "constraints" => [
                         new NotBlank(),
-                        new GreaterThan(1)
+                        new GreaterThan(1),
+                        new LessThanOrEqual($maxColumnUpperLimit)
                     ]
                 ]
             )
@@ -55,8 +60,10 @@ class ScreeningRoomSizeType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => null,
-            "max_rows_label" => null,
-            "max_columns_label" => null
+            "max_row_label" => null,
+            "max_column_label" => null,
+            "max_row_constraints" => null,
+            "max_column_constraints" => null,
         ]);
     }
 }

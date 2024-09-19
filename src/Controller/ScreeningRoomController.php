@@ -32,15 +32,23 @@ class ScreeningRoomController extends AbstractController
     ): Response {
         $screeningRoom =  new ScreeningRoom();
 
-        $form = $this->createForm(ScreeningRoomType::class, $screeningRoom);
+        // find max number of 
+        [$maxRoomSizes] = $seatRepository->findMax();
+
+        $form = $this->createForm(ScreeningRoomType::class, $screeningRoom, [
+            "max_room_sizes" => $maxRoomSizes
+        ]);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
+            dd($form->getData());
+
             $em->persist($screeningRoom);
 
-            $maxRows = $form->get('screening_room_size')->get('max_rows')->getData();
-            $maxColumns = $form->get('screening_room_size')->get('max_columns')->getData();
+            $maxRows = $form->get('screening_room_size')->get('max_row')->getData();
+            $maxColumns = $form->get('screening_room_size')->get('max_column')->getData();
             for ($row = 1; $row <= $maxRows; $row++) {
                 for ($col = 1; $col <= $maxColumns; $col++) {
                     $roomSeat = new ScreeningRoomSeat();
