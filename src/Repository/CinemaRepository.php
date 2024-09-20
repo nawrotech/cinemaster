@@ -16,6 +16,17 @@ class CinemaRepository extends ServiceEntityRepository
         parent::__construct($registry, Cinema::class);
     }
 
+
+    public function findOrderedCinemas()
+    {
+        return $this->createQueryBuilder('c')
+            ->addSelect("s")
+            ->innerJoin("c.seats", "s")
+            ->orderBy("c.name", "DESC")
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Cinema[] Returns an array of Cinema objects
     //     */

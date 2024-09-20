@@ -19,10 +19,10 @@ class CinemaController extends AbstractController
     #[Route('/', name: 'app_cinema')]
     public function index(CinemaRepository $cinemaRepository): Response
     {
+        $cinemas = $cinemaRepository->findOrderedCinemas();
 
         return $this->render('cinema/index.html.twig', [
-            "cinemas" => $cinemaRepository->findAll()
-
+            "cinemas" => $cinemas
         ]);
     }
 
@@ -48,7 +48,7 @@ class CinemaController extends AbstractController
                 for ($col = 1; $col <= $maxColumns; $col++) {
                     $seat = new Seat();
                     // chr(64 + $row) for A,B,C
-                    $seat->setRowNum($row);
+                    $seat->setRowNum(chr(64 + $row));
                     $seat->setColNum($col);
 
                     $cinema->addSeat($seat);

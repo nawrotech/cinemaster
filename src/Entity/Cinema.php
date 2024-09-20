@@ -21,7 +21,7 @@ class Cinema
     /**
      * @var Collection<int, Seat>
      */
-    #[ORM\OneToMany(targetEntity: Seat::class, mappedBy: 'cinema')]
+    #[ORM\OneToMany(targetEntity: Seat::class, mappedBy: 'cinema', fetch: "EXTRA_LAZY")]
     private Collection $seats;
 
     public function __construct()
