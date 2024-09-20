@@ -36,7 +36,10 @@ class ScreeningRoomController extends AbstractController
         EntityManagerInterface $em,
         SeatRepository $seatRepository
     ): Response {
+
+
         $screeningRoom =  new ScreeningRoom();
+
 
         [$maxRoomSizes] = $seatRepository->findMax();
 

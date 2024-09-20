@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Cinema;
 use App\Entity\CinemaSeat;
-use App\Entity\Seat;
 use App\Form\Type\CinemaType;
 use App\Repository\CinemaRepository;
 use App\Repository\SeatRepository;
@@ -73,18 +72,21 @@ class CinemaController extends AbstractController
         ]);
     }
 
-
-    #[Route('/{slug}/edit', name: "app_cinema_edit")]
-    public function details(): Response
-    {
-        return $this->render('cinema/details.html.twig', []);
+    #[Route('/{slug}/details', name: "app_cinema_details")]
+    public function details(
+        Cinema $cinema
+    ): Response {
+        return $this->render('cinema/details.html.twig', [
+            "cinema" => $cinema
+        ]);
     }
-
 
     // isGrantedAdmin, slug with cinema name
-    #[Route('/{slug}/edit', name: "app_cinema_details")]
-    public function edit(): Response
-    {
-        return $this->render('cinema/details.html.twig', []);
-    }
+    // #[Route('/{slug}/edit', name: "app_cinema_edit")]
+    // public function edit(): Response
+    // {
+
+
+    //     return $this->render('cinema/details.html.twig', []);
+    // }
 }

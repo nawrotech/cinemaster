@@ -3,10 +3,12 @@
 namespace App\Entity;
 
 use App\Repository\CinemaRepository;
+use Cocur\Slugify\Slugify;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: CinemaRepository::class)]
 class Cinema
 {
@@ -17,6 +19,9 @@ class Cinema
 
     #[ORM\Column(length: 255)]
     private ?string $name = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $slug = null;
 
     /**
      * @var Collection<int, CinemaSeat>
@@ -30,10 +35,21 @@ class Cinema
     #[ORM\OneToMany(targetEntity: ScreeningRoom::class, mappedBy: 'cinema')]
     private Collection $screeningRooms;
 
+
+
     public function __construct()
     {
         $this->cinemaSeats = new ArrayCollection();
         $this->screeningRooms = new ArrayCollection();
+    }
+
+    #[ORM\PrePersist]
+    public function generateSlug(): void
+    {
+        if (empty($this->slug)) {
+            $slugify = new Slugify();
+            $this->slug = $slugify->slugify($this->name);
+        }
     }
 
     public function getId(): ?int
@@ -111,6 +127,18 @@ class Cinema
                 $screeningRoom->setCinema(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(?string $slug): static
+    {
+        $this->slug = $slug;
 
         return $this;
     }
