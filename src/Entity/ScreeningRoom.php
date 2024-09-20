@@ -27,6 +27,9 @@ class ScreeningRoom
     #[ORM\OneToMany(targetEntity: ScreeningRoomSeat::class, mappedBy: 'ScreeningRoom')]
     private Collection $screeningRoomSeats;
 
+    #[ORM\ManyToOne(inversedBy: 'screeningRooms')]
+    private ?Cinema $cinema = null;
+
     public function __construct()
     {
         $this->screeningRoomSeats = new ArrayCollection();
@@ -87,6 +90,18 @@ class ScreeningRoom
                 $screeningRoomSeat->setScreeningRoom(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCinema(): ?Cinema
+    {
+        return $this->cinema;
+    }
+
+    public function setCinema(?Cinema $cinema): static
+    {
+        $this->cinema = $cinema;
 
         return $this;
     }

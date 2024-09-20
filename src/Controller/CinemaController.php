@@ -3,9 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Cinema;
+use App\Entity\CinemaSeat;
 use App\Entity\Seat;
 use App\Form\Type\CinemaType;
 use App\Repository\CinemaRepository;
+use App\Repository\SeatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,8 +19,11 @@ class CinemaController extends AbstractController
 {
     // view created cinemas
     #[Route('/', name: 'app_cinema')]
-    public function index(CinemaRepository $cinemaRepository): Response
-    {
+    public function index(
+        CinemaRepository $cinemaRepository,
+
+    ): Response {
+
         $cinemas = $cinemaRepository->findOrderedCinemas();
 
         return $this->render('cinema/index.html.twig', [
@@ -27,10 +32,10 @@ class CinemaController extends AbstractController
     }
 
     // isGrantedAdmin
-    // cinema name could be used in the url for cinema reference
     #[Route('/create', name: 'app_cinema_create')]
     public function create(
         Request $request,
+        SeatRepository $seatRepository,
         EntityManagerInterface $em
     ): Response {
 
@@ -44,17 +49,16 @@ class CinemaController extends AbstractController
             $maxRows = $form->get('screening_room_size')->get('max_row')->getData();
             $maxColumns = $form->get('screening_room_size')->get('max_column')->getData();
 
-            for ($row = 1; $row <= $maxRows; $row++) {
-                for ($col = 1; $col <= $maxColumns; $col++) {
-                    $seat = new Seat();
-                    // chr(64 + $row) for A,B,C
-                    $seat->setRowNum(chr(64 + $row));
-                    $seat->setColNum($col);
 
-                    $cinema->addSeat($seat);
+            $seats = $seatRepository->findSeatsInRange($maxRows, $maxColumns);
+            foreach ($seats as $seat) {
+                $cinemaSeat = new CinemaSeat();
+                $cinemaSeat->setSeat($seat);
+                $cinemaSeat->setCinema($cinema);
 
-                    $em->persist($seat);
-                }
+                $cinema->addCinemaSeat($cinemaSeat);
+
+                $em->persist($cinemaSeat);
             }
             $em->persist($cinema);
             $em->flush();
@@ -73,8 +77,6 @@ class CinemaController extends AbstractController
     #[Route('/{slug}/edit', name: "app_cinema_edit")]
     public function details(): Response
     {
-
-
         return $this->render('cinema/details.html.twig', []);
     }
 

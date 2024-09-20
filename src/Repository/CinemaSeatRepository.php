@@ -2,33 +2,22 @@
 
 namespace App\Repository;
 
-use App\Entity\Cinema;
+use App\Entity\CinemaSeat;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Cinema>
+ * @extends ServiceEntityRepository<CinemaSeat>
  */
-class CinemaRepository extends ServiceEntityRepository
+class CinemaSeatRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Cinema::class);
-    }
-
-
-    public function findOrderedCinemas()
-    {
-        return $this->createQueryBuilder('c')
-            ->addSelect("cs")
-            ->innerJoin("c.cinemaSeats", "cs")
-            ->orderBy("c.name", "DESC")
-            ->getQuery()
-            ->getResult();
+        parent::__construct($registry, CinemaSeat::class);
     }
 
     //    /**
-    //     * @return Cinema[] Returns an array of Cinema objects
+    //     * @return CinemaSeat[] Returns an array of CinemaSeat objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -42,7 +31,7 @@ class CinemaRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Cinema
+    //    public function findOneBySomeField($value): ?CinemaSeat
     //    {
     //        return $this->createQueryBuilder('c')
     //            ->andWhere('c.exampleField = :val')

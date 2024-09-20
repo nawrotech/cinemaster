@@ -14,7 +14,7 @@
     {% for cinema in cinemas %}
         <a href="{{path("app_cinema_details", {slug: cinema.name})}}" class="card">
             <h2>{{ cinema.name }}</h2>
-            <p>Number of seats: {{ cinema.seats|length }}</p>
+            <p>Number of seats: {{ cinema.cinemaSeats|length }}</p>
         </a>
     {% endfor %}
 

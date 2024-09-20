@@ -19,13 +19,15 @@ class ScreeningRoomSeat
     #[ORM\Column(length: 100)]
     private ?string $seatType = "regular";
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Seat $seat = null;
 
     #[ORM\ManyToOne(inversedBy: 'screeningRoomSeats')]
     #[ORM\JoinColumn(nullable: false)]
     private ?ScreeningRoom $ScreeningRoom = null;
+
+    #[ORM\ManyToOne(inversedBy: 'screeningRoomSeats')]
+    #[ORM\JoinColumn(name: "cinema_id", referencedColumnName: "cinema_id")]
+    #[ORM\JoinColumn(name: "seat_id", referencedColumnName: "seat_id")]
+    private ?CinemaSeat $seat = null;
 
 
     public function getId(): ?int
@@ -45,17 +47,7 @@ class ScreeningRoomSeat
         return $this;
     }
 
-    public function getSeat(): ?Seat
-    {
-        return $this->seat;
-    }
 
-    public function setSeat(?Seat $seat): static
-    {
-        $this->seat = $seat;
-
-        return $this;
-    }
 
     public function getScreeningRoom(): ?ScreeningRoom
     {
@@ -77,6 +69,18 @@ class ScreeningRoomSeat
     public function setSeatType(string $seatType): static
     {
         $this->seatType = $seatType;
+
+        return $this;
+    }
+
+    public function getSeat(): ?CinemaSeat
+    {
+        return $this->seat;
+    }
+
+    public function setSeat(?CinemaSeat $seat): static
+    {
+        $this->seat = $seat;
 
         return $this;
     }

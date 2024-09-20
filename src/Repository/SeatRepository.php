@@ -49,4 +49,15 @@ class SeatRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
+
+    public function findSeatsInRange(int $maxRowNum, int $maxColNum)
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere("s.rowNum BETWEEN 1 AND :maxRowNum")
+            ->andWhere("s.colNum BETWEEN 1 AND :maxColNum")
+            ->setParameter("maxRowNum", $maxRowNum)
+            ->setParameter("maxColNum", $maxColNum)
+            ->getQuery()
+            ->getResult();
+    }
 }

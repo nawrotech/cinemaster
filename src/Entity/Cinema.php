@@ -19,14 +19,21 @@ class Cinema
     private ?string $name = null;
 
     /**
-     * @var Collection<int, Seat>
+     * @var Collection<int, CinemaSeat>
      */
-    #[ORM\OneToMany(targetEntity: Seat::class, mappedBy: 'cinema', fetch: "EXTRA_LAZY")]
-    private Collection $seats;
+    #[ORM\OneToMany(targetEntity: CinemaSeat::class, mappedBy: 'cinema')]
+    private Collection $cinemaSeats;
+
+    /**
+     * @var Collection<int, ScreeningRoom>
+     */
+    #[ORM\OneToMany(targetEntity: ScreeningRoom::class, mappedBy: 'cinema')]
+    private Collection $screeningRooms;
 
     public function __construct()
     {
-        $this->seats = new ArrayCollection();
+        $this->cinemaSeats = new ArrayCollection();
+        $this->screeningRooms = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -46,30 +53,62 @@ class Cinema
         return $this;
     }
 
+
+
     /**
-     * @return Collection<int, Seat>
+     * @return Collection<int, CinemaSeat>
      */
-    public function getSeats(): Collection
+    public function getCinemaSeats(): Collection
     {
-        return $this->seats;
+        return $this->cinemaSeats;
     }
 
-    public function addSeat(Seat $seat): static
+    public function addCinemaSeat(CinemaSeat $cinemaSeat): static
     {
-        if (!$this->seats->contains($seat)) {
-            $this->seats->add($seat);
-            $seat->setCinema($this);
+        if (!$this->cinemaSeats->contains($cinemaSeat)) {
+            $this->cinemaSeats->add($cinemaSeat);
+            $cinemaSeat->setCinema($this);
         }
 
         return $this;
     }
 
-    public function removeSeat(Seat $seat): static
+    public function removeCinemaSeat(CinemaSeat $cinemaSeat): static
     {
-        if ($this->seats->removeElement($seat)) {
+        if ($this->cinemaSeats->removeElement($cinemaSeat)) {
             // set the owning side to null (unless already changed)
-            if ($seat->getCinema() === $this) {
-                $seat->setCinema(null);
+            if ($cinemaSeat->getCinema() === $this) {
+                $cinemaSeat->setCinema(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ScreeningRoom>
+     */
+    public function getScreeningRooms(): Collection
+    {
+        return $this->screeningRooms;
+    }
+
+    public function addScreeningRoom(ScreeningRoom $screeningRoom): static
+    {
+        if (!$this->screeningRooms->contains($screeningRoom)) {
+            $this->screeningRooms->add($screeningRoom);
+            $screeningRoom->setCinema($this);
+        }
+
+        return $this;
+    }
+
+    public function removeScreeningRoom(ScreeningRoom $screeningRoom): static
+    {
+        if ($this->screeningRooms->removeElement($screeningRoom)) {
+            // set the owning side to null (unless already changed)
+            if ($screeningRoom->getCinema() === $this) {
+                $screeningRoom->setCinema(null);
             }
         }
 

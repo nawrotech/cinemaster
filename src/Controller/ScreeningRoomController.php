@@ -59,6 +59,7 @@ class ScreeningRoomController extends AbstractController
 
                     $roomSeat->setScreeningRoom($screeningRoom);
                     // chr(64 + $row) for A,B,C
+                    // it is all about displaying
                     $seat = $seatRepository->findOneBy(["rowNum" => $row, "colNum" => $col]);
 
                     $roomSeat->setSeat($seat);
