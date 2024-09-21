@@ -3,5 +3,8 @@
 {% block body %}
 
     <h1>{{ cinema.name }}</h1>
+    <a href="{{path("app_screening_rooms", {slug: cinema.slug})}}">
+        Check cinema's screening rooms
+    </a>
 
 {% endblock %}

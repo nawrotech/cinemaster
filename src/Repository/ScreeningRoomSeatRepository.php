@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\ScreeningRoom;
 use App\Entity\ScreeningRoomSeat;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -44,65 +45,68 @@ class ScreeningRoomSeatRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    public function findNumOfRowsForRoom(int $roomId)
+    public function findNumOfRowsForRoom(ScreeningRoom $screeningRoom)
     {
-        $dql = "SELECT DISTINCT s.rowNum 
-                    FROM App\Entity\ScreeningRoomSeat srs
-                    JOIN srs.seat s
-                    JOIN srs.ScreeningRoom sr
-                    WHERE sr.id = :roomId";
 
-        $query = $this->em->createQuery($dql);
-        $query->setParameter("roomId", $roomId);
-        return array_column($query->getResult(), 'rowNum');
+        $result = $this->createQueryBuilder('srs')
+            ->select("DISTINCT s.rowNum")
+            ->innerJoin("srs.screeningRoom", "sr")
+            ->innerJoin("srs.seat", "cs")
+            ->innerJoin("cs.seat", "s")
+            ->andWhere("sr = :screeningRoom")
+            ->setParameter("screeningRoom", $screeningRoom)
+            ->getQuery()
+            ->getResult();
+
+        return array_map("intval", array_column($result, "rowNum"));
     }
 
-    public function findSeatsInRow(int $roomId, int $rowNum)
+    public function findSeatsInRow(ScreeningRoom $screeningRoom, int $rowNum)
     {
-        $dql = "SELECT srs 
-            FROM App\Entity\ScreeningRoomSeat srs
-            JOIN srs.seat s
-            JOIN srs.ScreeningRoom sr
-            WHERE sr.id = :roomId
-            AND s.rowNum = :rowNum";
 
-        $query = $this->em->createQuery($dql);
-        $query->setParameter("roomId", $roomId);
-        $query->setParameter("rowNum", $rowNum);
-        return $query->getResult();
+        return $this->createQueryBuilder('srs')
+            ->innerJoin("srs.screeningRoom", "sr")
+            ->innerJoin("srs.seat", "cs")
+            ->innerJoin("cs.seat", "s")
+            ->andWhere("sr = :screeningRoom AND s.rowNum = :rowNum")
+            ->setParameter("rowNum", $rowNum)
+            ->setParameter("screeningRoom", $screeningRoom)
+            ->getQuery()
+            ->getResult()
+        ;
     }
 
     public function findBySeatId(int $roomId, int $seatId)
     {
-        $dql = "SELECT srs 
-            FROM App\Entity\ScreeningRoomSeat srs
-            JOIN srs.seat s
-            JOIN srs.ScreeningRoom sr
-            WHERE s.id = :seatId
-                AND sr.id = :roomId";
 
-        $query = $this->em->createQuery($dql);
-        $query->setParameter("seatId", $seatId);
-        $query->setParameter("roomId", $roomId);
-        return $query->getOneOrNullResult();
+        return $this->createQueryBuilder('srs')
+            ->innerJoin("srs.screeningRoom", "sr")
+            ->innerJoin("srs.seat", "cs")
+            ->innerJoin("cs.seat", "s")
+            ->andWhere("s.id = :seatId")
+            ->andWhere("sr.id = :roomId")
+            ->setParameter("seatId", $seatId)
+            ->setParameter("roomId", $roomId)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
-    public function findSeatsRangeInRow(int $roomId, int $rowNum, int $colStart, int $colEnd)
+    public function findSeatsRangeInRow(ScreeningRoom $screeningRoom, int $rowNum, int $colStart, int $colEnd)
     {
-        $dql = "SELECT srs 
-            FROM App\Entity\ScreeningRoomSeat srs
-            JOIN srs.seat s
-            JOIN srs.ScreeningRoom sr
-            WHERE s.rowNum = :rowNum
-                AND s.colNum BETWEEN :colStart AND :colEnd
-                AND sr.id = :roomId";
 
-        $query = $this->em->createQuery($dql);
-        $query->setParameter("roomId", $roomId);
-        $query->setParameter("rowNum", $rowNum);
-        $query->setParameter("colStart", $colStart);
-        $query->setParameter("colEnd", $colEnd);
-        return $query->getResult();
+        return $this->createQueryBuilder('srs')
+            ->innerJoin("srs.screeningRoom", "sr")
+            ->innerJoin("srs.seat", "cs")
+            ->innerJoin("cs.seat", "s")
+            ->andWhere("s.rowNum = :rowNum")
+            ->andWhere("s.colNum BETWEEN :colStart AND :colEnd")
+            ->andWhere("sr = :screeningRoom")
+            ->setParameter("screeningRoom", $screeningRoom)
+            ->setParameter("rowNum", $rowNum)
+            ->setParameter("colStart", $colStart)
+            ->setParameter("colEnd", $colEnd)
+            ->getQuery()
+            ->getResult();
     }
 
 

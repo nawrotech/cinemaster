@@ -24,7 +24,7 @@ class ScreeningRoom
     /**
      * @var Collection<int, ScreeningRoomSeat>
      */
-    #[ORM\OneToMany(targetEntity: ScreeningRoomSeat::class, mappedBy: 'ScreeningRoom')]
+    #[ORM\OneToMany(targetEntity: ScreeningRoomSeat::class, mappedBy: 'screeningRoom')]
     private Collection $screeningRoomSeats;
 
     #[ORM\ManyToOne(inversedBy: 'screeningRooms')]

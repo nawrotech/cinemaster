@@ -4,8 +4,17 @@
 
 {% block body %}
 
+    {% if rooms is empty %}
+        <p>Looks like you haven't created rooms yet, let's fix it :)</p>
+        <a href="{{path("app_screening_rooms_create", {slug: cinema.slug})}}">Click to start creating</a>
+    {% endif %}
+    
+
     {% for room in rooms %}
-        <a class="card" href="{{path("app_screening_rooms_edit", {id: room.id})}}">
+        <a class="card" href="{{path("app_screening_rooms_edit",
+         {id: room.id,
+         slug: cinema.name}
+         )}}">
             <p>Room name: {{ room.name }}</p>
             <p>Capacity: {{ room.screeningRoomSeats|length }}</p>
         </a>

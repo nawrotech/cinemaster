@@ -27,6 +27,20 @@ class CinemaRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findMax(Cinema $cinema)
+    {
+        return $this->createQueryBuilder('c')
+            ->leftJoin("c.cinemaSeats", "cs")
+            ->leftJoin("cs.seat", "s")
+            ->select("COUNT(DISTINCT s.rowNum) AS maxRowNum", "COUNT(DISTINCT s.colNum) AS maxColNum")
+            ->andWhere("c = :cinema")
+            ->setParameter("cinema", $cinema)
+            ->getQuery()
+            ->getSingleResult();
+    }
+
+
+
     //    /**
     //     * @return Cinema[] Returns an array of Cinema objects
     //     */

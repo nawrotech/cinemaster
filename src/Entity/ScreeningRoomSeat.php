@@ -22,7 +22,7 @@ class ScreeningRoomSeat
 
     #[ORM\ManyToOne(inversedBy: 'screeningRoomSeats')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?ScreeningRoom $ScreeningRoom = null;
+    private ?ScreeningRoom $screeningRoom = null;
 
     #[ORM\ManyToOne(inversedBy: 'screeningRoomSeats')]
     #[ORM\JoinColumn(name: "cinema_id", referencedColumnName: "cinema_id")]
@@ -51,12 +51,12 @@ class ScreeningRoomSeat
 
     public function getScreeningRoom(): ?ScreeningRoom
     {
-        return $this->ScreeningRoom;
+        return $this->screeningRoom;
     }
 
-    public function setScreeningRoom(?ScreeningRoom $ScreeningRoom): static
+    public function setScreeningRoom(?ScreeningRoom $screeningRoom): static
     {
-        $this->ScreeningRoom = $ScreeningRoom;
+        $this->screeningRoom = $screeningRoom;
 
         return $this;
     }

@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Cinema;
 use App\Entity\CinemaSeat;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -14,6 +15,20 @@ class CinemaSeatRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, CinemaSeat::class);
+    }
+
+    public function findSeatsInRange(int $maxRowNum, int $maxColNum, Cinema $cinema)
+    {
+        return $this->createQueryBuilder('cs')
+            ->leftJoin("cs.seat", "s")
+            ->andWhere("s.rowNum BETWEEN 1 AND :maxRowNum")
+            ->andWhere("s.colNum BETWEEN 1 AND :maxColNum")
+            ->andWhere("cs.cinema = :cinema")
+            ->setParameter("cinema", $cinema)
+            ->setParameter("maxRowNum", $maxRowNum)
+            ->setParameter("maxColNum", $maxColNum)
+            ->getQuery()
+            ->getResult();
     }
 
     //    /**

@@ -30,7 +30,6 @@ class CinemaController extends AbstractController
         ]);
     }
 
-    // isGrantedAdmin
     #[Route('/create', name: 'app_cinema_create')]
     public function create(
         Request $request,
@@ -39,6 +38,8 @@ class CinemaController extends AbstractController
     ): Response {
 
         $cinema =  new Cinema();
+
+        // dd($seatRepository->findMax());
 
         $form = $this->createForm(CinemaType::class, $cinema);
         $form->handleRequest($request);
@@ -50,6 +51,7 @@ class CinemaController extends AbstractController
 
 
             $seats = $seatRepository->findSeatsInRange($maxRows, $maxColumns);
+
             foreach ($seats as $seat) {
                 $cinemaSeat = new CinemaSeat();
                 $cinemaSeat->setSeat($seat);
@@ -72,14 +74,22 @@ class CinemaController extends AbstractController
         ]);
     }
 
-    #[Route('/{slug}/details', name: "app_cinema_details")]
+
+    #[Route('/{slug}', name: "app_cinema_details")]
     public function details(
         Cinema $cinema
     ): Response {
+
+
         return $this->render('cinema/details.html.twig', [
             "cinema" => $cinema
         ]);
     }
+
+    // isGrantedAdmin
+
+
+
 
     // isGrantedAdmin, slug with cinema name
     // #[Route('/{slug}/edit', name: "app_cinema_edit")]

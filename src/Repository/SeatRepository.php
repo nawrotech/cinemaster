@@ -44,7 +44,7 @@ class SeatRepository extends ServiceEntityRepository
     public function findMax()
     {
         return $this->createQueryBuilder('s')
-            ->select("COUNT(DISTINCT s.rowNum) AS maxRowNum", "MAX(s.colNum) AS maxColNum")
+            ->select("COUNT(DISTINCT s.rowNum) AS maxRowNum", "COUNT(DISTINCT s.colNum) AS maxColNum")
             ->getQuery()
             ->getResult()
         ;
