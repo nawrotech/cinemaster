@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Cinema;
+use App\Entity\CinemaHistory;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -17,12 +18,14 @@ class CinemaRepository extends ServiceEntityRepository
     }
 
 
-    public function findOrderedCinemas()
+    public function findOrderedCinemas(string $seatStatus)
     {
         return $this->createQueryBuilder('c')
             ->addSelect("cs")
             ->innerJoin("c.cinemaSeats", "cs")
             ->orderBy("c.name", "DESC")
+            ->andWhere("cs.status = :seatStatus")
+            ->setParameter("seatStatus", $seatStatus)
             ->getQuery()
             ->getResult();
     }
@@ -38,6 +41,27 @@ class CinemaRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleResult();
     }
+
+
+    public function saveCinemaChanges(Cinema $cinema): void
+    {
+        $unitOfWork = $this->getEntityManager()->getUnitOfWork();
+        $unitOfWork->computeChangeSets();
+        $changeset = $unitOfWork->getEntityChangeSet($cinema);
+
+        dd($changeset);
+
+        if (!empty($changeset)) {
+            $history = new CinemaHistory();
+            $history->setCinema($cinema)
+                ->setChanges($changeset)
+                ->setChangedAt(new \DateTimeImmutable());
+
+            $this->getEntityManager()->persist($history);
+            $this->getEntityManager()->flush();
+        }
+    }
+
 
 
 

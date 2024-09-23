@@ -16,11 +16,11 @@ class Seat
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?string $rowNum = null;
+    private ?int $rowNum = null;
 
 
     #[ORM\Column]
-    private ?string $colNum = null;
+    private ?int $colNum = null;
 
     /**
      * @var Collection<int, CinemaSeat>
@@ -38,25 +38,25 @@ class Seat
         return $this->id;
     }
 
-    public function getColNum(): ?string
+    public function getColNum(): ?int
     {
         return $this->colNum;
     }
 
-    public function setColNum(string $colNum): static
+    public function setColNum(int $colNum): static
     {
         $this->colNum = $colNum;
 
         return $this;
     }
 
-    public function getRowNum(): ?string
+    public function getRowNum(): ?int
     {
         // chr(64 + $row) for A,B,C
         return $this->rowNum;
     }
 
-    public function setRowNum(string $rowNum): static
+    public function setRowNum(int $rowNum): static
     {
         $this->rowNum = $rowNum;
 

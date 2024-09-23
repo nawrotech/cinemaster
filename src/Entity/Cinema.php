@@ -3,25 +3,39 @@
 namespace App\Entity;
 
 use App\Repository\CinemaRepository;
+use App\Repository\CinemaSeatRepository;
 use Cocur\Slugify\Slugify;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
+use Doctrine\ORM\Mapping\PrePersist;
+use Doctrine\ORM\Mapping\PreUpdate;
 
-#[ORM\HasLifecycleCallbacks]
+#[HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: CinemaRepository::class)]
 class Cinema
 {
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 50, unique: true)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 100, unique: true)]
     private ?string $slug = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $updatedAt = null;
+
 
     /**
      * @var Collection<int, CinemaSeat>
@@ -35,22 +49,44 @@ class Cinema
     #[ORM\OneToMany(targetEntity: ScreeningRoom::class, mappedBy: 'cinema')]
     private Collection $screeningRooms;
 
+    /**
+     * @var Collection<int, CinemaHistory>
+     */
+    #[ORM\OneToMany(targetEntity: CinemaHistory::class, mappedBy: 'cinema')]
+    private Collection $cinemaHistories;
+
 
 
     public function __construct()
     {
         $this->cinemaSeats = new ArrayCollection();
         $this->screeningRooms = new ArrayCollection();
+        $this->cinemaHistories = new ArrayCollection();
     }
 
-    #[ORM\PrePersist]
-    public function generateSlug(): void
+    #[PrePersist]
+    public function createSlugAndCreationDates(): static
     {
-        if (empty($this->slug)) {
-            $slugify = new Slugify();
-            $this->slug = $slugify->slugify($this->name);
-        }
+
+        $slugify = new Slugify();
+        $this->slug = $slugify->slugify($this->name);
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
+
+        return $this;
     }
+
+    #[PreUpdate]
+    public function updateUpdatedAt(): static
+    {
+        $slugify = new Slugify();
+        $this->updatedAt = new \DateTimeImmutable();
+        $this->slug = $slugify->slugify($this->name);
+        return $this;
+    }
+
+
+
 
     public function getId(): ?int
     {
@@ -76,7 +112,8 @@ class Cinema
      */
     public function getCinemaSeats(): Collection
     {
-        return $this->cinemaSeats;
+
+        return $this->cinemaSeats->matching(CinemaSeatRepository::activeSeatsCriterion());
     }
 
     public function addCinemaSeat(CinemaSeat $cinemaSeat): static
@@ -139,6 +176,65 @@ class Cinema
     public function setSlug(?string $slug): static
     {
         $this->slug = $slug;
+
+        return $this;
+    }
+
+
+
+    public function getUpdatedAt(): \DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CinemaHistory>
+     */
+    public function getCinemaHistories(): Collection
+    {
+        return $this->cinemaHistories;
+    }
+
+    public function addCinemaHistory(CinemaHistory $cinemaHistory): static
+    {
+        if (!$this->cinemaHistories->contains($cinemaHistory)) {
+            $this->cinemaHistories->add($cinemaHistory);
+            $cinemaHistory->setCinema($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCinemaHistory(CinemaHistory $cinemaHistory): static
+    {
+        if ($this->cinemaHistories->removeElement($cinemaHistory)) {
+            // set the owning side to null (unless already changed)
+            if ($cinemaHistory->getCinema() === $this) {
+                $cinemaHistory->setCinema(null);
+            }
+        }
 
         return $this;
     }

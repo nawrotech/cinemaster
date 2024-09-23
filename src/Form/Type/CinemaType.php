@@ -37,11 +37,6 @@ class CinemaType extends AbstractType
                 "max_column_label" => "What is the biggest number of seats in one row in your cinema?"
 
             ])
-            ->add("preview", SubmitType::class, [
-                "attr" => [
-                    "class" => "btn-secondary",
-                ]
-            ])
             ->add('save', SubmitType::class, [
                 "attr" => [
                     "class" => "btn-success",

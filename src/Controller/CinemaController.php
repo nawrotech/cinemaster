@@ -6,7 +6,9 @@ use App\Entity\Cinema;
 use App\Entity\CinemaSeat;
 use App\Form\Type\CinemaType;
 use App\Repository\CinemaRepository;
+use App\Repository\CinemaSeatRepository;
 use App\Repository\SeatRepository;
+use App\Service\CinemaSeatManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,15 +22,16 @@ class CinemaController extends AbstractController
     #[Route('/', name: 'app_cinema')]
     public function index(
         CinemaRepository $cinemaRepository,
-
     ): Response {
 
-        $cinemas = $cinemaRepository->findOrderedCinemas();
+        $cinemas = $cinemaRepository->findOrderedCinemas("active");
 
         return $this->render('cinema/index.html.twig', [
             "cinemas" => $cinemas
         ]);
     }
+
+
 
     #[Route('/create', name: 'app_cinema_create')]
     public function create(
@@ -39,8 +42,6 @@ class CinemaController extends AbstractController
 
         $cinema =  new Cinema();
 
-        // dd($seatRepository->findMax());
-
         $form = $this->createForm(CinemaType::class, $cinema);
         $form->handleRequest($request);
 
@@ -48,7 +49,6 @@ class CinemaController extends AbstractController
 
             $maxRows = $form->get('screening_room_size')->get('max_row')->getData();
             $maxColumns = $form->get('screening_room_size')->get('max_column')->getData();
-
 
             $seats = $seatRepository->findSeatsInRange($maxRows, $maxColumns);
 
@@ -58,13 +58,14 @@ class CinemaController extends AbstractController
                 $cinemaSeat->setCinema($cinema);
 
                 $cinema->addCinemaSeat($cinemaSeat);
-
                 $em->persist($cinemaSeat);
             }
+
             $em->persist($cinema);
             $em->flush();
 
             $this->addFlash("success", "Cinema created");
+
 
             return $this->redirectToRoute("app_cinema");
         }
@@ -75,28 +76,128 @@ class CinemaController extends AbstractController
     }
 
 
-    #[Route('/{slug}', name: "app_cinema_details")]
-    public function details(
-        Cinema $cinema
+
+    // isGrantedAdmin, slug with cinema name
+    #[Route('/{slug}/edit', name: "app_cinema_edit")]
+    public function edit(
+        Cinema $cinema,
+        CinemaSeatRepository $cinemaSeatRepository,
+        Request $request,
+        CinemaSeatManager $cinemaSeatManager,
+        EntityManagerInterface $em
     ): Response {
 
+        $form = $this->createForm(CinemaType::class, $cinema);
+        $form->handleRequest($request);
 
-        return $this->render('cinema/details.html.twig', [
-            "cinema" => $cinema
+        // if ($form->isSubmitted() && $form->isValid()) {
+
+        //     // dd($cinema);
+        //     // $cinema->setName("Maurice");
+        //     // $cinema->setCreatedAt((new \DateTimeImmutable()));
+
+        //     $unitOfWork = $em->getUnitOfWork();
+        //     $unitOfWork->computeChangeSets();
+        //     $changeset = $unitOfWork->getEntityChangeSet($cinema);
+
+        //     dd($changeset);
+
+        //     $maxRows = $form->get('screening_room_size')->get('max_row')->getData();
+        //     $maxColumns = $form->get('screening_room_size')->get('max_column')->getData();
+        // }
+
+        $givenRow = 5;
+        $givenCol = 5;
+
+        $lastSeat = $cinemaSeatRepository->findLastSeat($cinema);
+
+        if ($givenRow > $lastSeat["row"]) {
+            $cinemaSeatManager->increseNumberOfSeats(
+                $cinema,
+                $lastSeat["row"],
+                $givenRow,
+                1,
+                $lastSeat["col"]
+            );
+        }
+
+
+        if ($givenRow < $lastSeat["row"]) {
+            $rowStart = $givenRow + 1;
+
+            $cinemaSeatManager->decreaseNumberOfSeats(
+                $cinema,
+                $rowStart,
+                $lastSeat["row"],
+                1,
+                $lastSeat["col"]
+            );
+        }
+
+        $lastSeat = $cinemaSeatRepository->findLastSeat($cinema);
+
+        if ($givenCol > $lastSeat["col"]) {
+
+            $cinemaSeatManager->increseNumberOfSeats(
+                $cinema,
+                1,
+                $lastSeat["row"],
+                $lastSeat["col"],
+                $givenCol
+            );
+        }
+
+        if ($givenCol < $lastSeat["col"]) {
+            $colStart = $givenCol + 1;
+
+            $cinemaSeatManager->decreaseNumberOfSeats(
+                $cinema,
+                1,
+                $lastSeat["row"],
+                $colStart,
+                $lastSeat["col"]
+            );
+        }
+
+        // dd($cinemaSeatRepository->getSeatsForCinema($cinema));
+
+
+        // return new Response("Cinema seats updated!");
+        return $this->render('cinema/edit.html.twig', [
+            "form" => $form
         ]);
     }
 
-    // isGrantedAdmin
+
+    // #[Route('/{slug}', name: "app_cinema_details")]
+    // public function details(
+    //     Cinema $cinema,
+    //     EntityManagerInterface $em
+    // ): Response {
 
 
 
+    //     return $this->render('cinema/details.html.twig', [
+    //         "cinema" => $cinema
+    //     ]);
+    // }
 
-    // isGrantedAdmin, slug with cinema name
-    // #[Route('/{slug}/edit', name: "app_cinema_edit")]
-    // public function edit(): Response
+    // #[Route('/create/createSeats', name: "app_cinema_details")]
+    // public function seats(EntityManagerInterface $em)
     // {
 
+    //     for ($row = 1; $row <= 25; $row++) {
+    //         for ($col = 1; $col <= 25; $col++) {
+    //             $seat = new Seat();
 
-    //     return $this->render('cinema/details.html.twig', []);
+    //             $seat->setRowNum($row);
+    //             $seat->setColNum($col);
+    //             $em->persist($seat);
+    //         }
+    //     }
+
+    //     $em->flush();
+
+    //     return new Response("Seats created!");
     // }
 }

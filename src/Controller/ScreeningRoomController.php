@@ -46,6 +46,7 @@ class ScreeningRoomController extends AbstractController
     ): Response {
 
         $screeningRoom =  new ScreeningRoom();
+        $screeningRoom->setCinema($cinema);
         $maxRoomSizes = $cinemaRepository->findMax($cinema);
 
         $form = $this->createForm(ScreeningRoomType::class, $screeningRoom, [
@@ -53,7 +54,6 @@ class ScreeningRoomController extends AbstractController
         ]);
 
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
 
 
@@ -130,7 +130,6 @@ class ScreeningRoomController extends AbstractController
 
         $roomRows = $screeningRoomSeatRepository
             ->findNumOfRowsForRoom($screeningRoom);
-
 
         $seatsInSingleRow = [];
 
