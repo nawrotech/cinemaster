@@ -105,7 +105,7 @@ class CinemaSeatRepository extends ServiceEntityRepository
         return Criteria::create()->andWhere($exp);
     }
 
-    public function getSeatsForCinema(Cinema $cinema, $status = "active")
+    public function findSeatsForCinema(Cinema $cinema, $status = "active")
     {
         return $this->createQueryBuilder('cs')
             ->innerJoin("cs.seat", "s")

@@ -7,8 +7,6 @@ use App\Repository\CinemaSeatRepository;
 use Cocur\Slugify\Slugify;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\Criteria;
-use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Doctrine\ORM\Mapping\PrePersist;
@@ -31,10 +29,17 @@ class Cinema
     private ?string $slug = null;
 
     #[ORM\Column]
+    private ?int $rowsMax = null;
+
+    #[ORM\Column]
+    private ?int $seatsPerRowMax = null;
+
+    #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
+
 
 
     /**
@@ -57,8 +62,13 @@ class Cinema
 
 
 
+
+
     public function __construct()
     {
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
+
         $this->cinemaSeats = new ArrayCollection();
         $this->screeningRooms = new ArrayCollection();
         $this->cinemaHistories = new ArrayCollection();
@@ -70,9 +80,6 @@ class Cinema
 
         $slugify = new Slugify();
         $this->slug = $slugify->slugify($this->name);
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
-
         return $this;
     }
 
@@ -235,6 +242,30 @@ class Cinema
                 $cinemaHistory->setCinema(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getRowsMax(): ?int
+    {
+        return $this->rowsMax;
+    }
+
+    public function setRowsMax(?int $rowsMax): static
+    {
+        $this->rowsMax = $rowsMax;
+
+        return $this;
+    }
+
+    public function getSeatsPerRowMax(): ?int
+    {
+        return $this->seatsPerRowMax;
+    }
+
+    public function setSeatsPerRowMax(int $seatsPerRowMax): static
+    {
+        $this->seatsPerRowMax = $seatsPerRowMax;
 
         return $this;
     }

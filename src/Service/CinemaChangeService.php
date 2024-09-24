@@ -9,7 +9,7 @@ use App\Repository\CinemaSeatRepository;
 use App\Repository\SeatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class CinemaSeatManager
+class CinemaChangeService
 {
 
     public function __construct(
@@ -26,7 +26,6 @@ class CinemaSeatManager
         int $colStart,
         int $colEnd
     ) {
-
 
         $inactiveRows = $this->cinemaSeatRepository
             ->findSeatsInGivenRange($cinema, $rowStart, $rowEnd, $colStart, $colEnd);
@@ -72,18 +71,9 @@ class CinemaSeatManager
 
         try {
 
-            $unitOfWork = $this->em->getUnitOfWork();
-            $unitOfWork->computeChangeSets();
-            $cinemaChange = $unitOfWork->getEntityChangeSet($cinema);
-
-
-            $cinemaHistory = new CinemaHistory();
-            $cinemaHistory->setCinema($cinema);
-            $cinemaHistory->setChanges($cinemaChange);
-            $this->em->persist($cinemaHistory);
+            $this->storeChanges($cinema);
 
             $this->adjustSeats($cinema);
-
 
             $this->em->flush();
             $this->em->commit();
@@ -96,7 +86,6 @@ class CinemaSeatManager
     private function adjustSeats(Cinema $cinema)
     {
         $lastSeat = $this->cinemaSeatRepository->findLastSeat($cinema);
-
 
         if ($cinema->getRowsMax() > $lastSeat["row"]) {
             $this->increseNumberOfSeats(
@@ -144,5 +133,18 @@ class CinemaSeatManager
                 $lastSeat["col"]
             );
         }
+    }
+
+    private function storeChanges(Cinema $cinema)
+    {
+        $unitOfWork = $this->em->getUnitOfWork();
+        $unitOfWork->computeChangeSets();
+        $cinemaChange = $unitOfWork->getEntityChangeSet($cinema);
+
+
+        $cinemaHistory = new CinemaHistory();
+        $cinemaHistory->setCinema($cinema);
+        $cinemaHistory->setChanges($cinemaChange);
+        $this->em->persist($cinemaHistory);
     }
 }

@@ -18,7 +18,7 @@ class CinemaRepository extends ServiceEntityRepository
     }
 
 
-    public function findOrderedCinemas(string $seatStatus)
+    public function findOrderedCinemas(string $seatStatus = "active")
     {
         return $this->createQueryBuilder('c')
             ->addSelect("cs")

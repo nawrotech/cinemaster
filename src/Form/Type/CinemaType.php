@@ -7,6 +7,8 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -43,7 +45,17 @@ class CinemaType extends AbstractType
 
                 ]
             ])
-        ;
+            ->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
+                $form = $event->getForm();
+                $cinema = $event->getData();
+
+                $screeningRoomSize = $form->get('screening_room_size');
+                $maxRow = $screeningRoomSize->get('max_row')->getData();
+                $maxColumn = $screeningRoomSize->get('max_column')->getData();
+
+                $cinema->setRowsMax($maxRow);
+                $cinema->setSeatsPerRowMax($maxColumn);
+            });
     }
 
     public function configureOptions(OptionsResolver $resolver): void

@@ -8,6 +8,7 @@ use App\Form\Type\CinemaType;
 use App\Repository\CinemaRepository;
 use App\Repository\CinemaSeatRepository;
 use App\Repository\SeatRepository;
+use App\Service\CinemaChangeService;
 use App\Service\CinemaSeatManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,7 +25,7 @@ class CinemaController extends AbstractController
         CinemaRepository $cinemaRepository,
     ): Response {
 
-        $cinemas = $cinemaRepository->findOrderedCinemas("active");
+        $cinemas = $cinemaRepository->findOrderedCinemas();
 
         return $this->render('cinema/index.html.twig', [
             "cinemas" => $cinemas
@@ -83,86 +84,26 @@ class CinemaController extends AbstractController
         Cinema $cinema,
         CinemaSeatRepository $cinemaSeatRepository,
         Request $request,
-        CinemaSeatManager $cinemaSeatManager,
-        EntityManagerInterface $em
+        CinemaChangeService $cinemaChangeService
     ): Response {
+
+        // dd($cinemaSeatRepository->findSeatsForCinema($cinema));
 
         $form = $this->createForm(CinemaType::class, $cinema);
         $form->handleRequest($request);
 
-        // if ($form->isSubmitted() && $form->isValid()) {
 
-        //     // dd($cinema);
-        //     // $cinema->setName("Maurice");
-        //     // $cinema->setCreatedAt((new \DateTimeImmutable()));
+        if ($form->isSubmitted() && $form->isValid()) {
 
-        //     $unitOfWork = $em->getUnitOfWork();
-        //     $unitOfWork->computeChangeSets();
-        //     $changeset = $unitOfWork->getEntityChangeSet($cinema);
-
-        //     dd($changeset);
-
-        //     $maxRows = $form->get('screening_room_size')->get('max_row')->getData();
-        //     $maxColumns = $form->get('screening_room_size')->get('max_column')->getData();
-        // }
-
-        $givenRow = 5;
-        $givenCol = 5;
-
-        $lastSeat = $cinemaSeatRepository->findLastSeat($cinema);
-
-        if ($givenRow > $lastSeat["row"]) {
-            $cinemaSeatManager->increseNumberOfSeats(
-                $cinema,
-                $lastSeat["row"],
-                $givenRow,
-                1,
-                $lastSeat["col"]
-            );
+            try {
+                $cinemaChangeService->handleSeatsChange($cinema);
+                $this->addFlash('success', 'Cinema updated successfully.');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'An error occurred while updating the cinema.');
+            }
+            return $this->redirectToRoute("app_cinema");
         }
 
-
-        if ($givenRow < $lastSeat["row"]) {
-            $rowStart = $givenRow + 1;
-
-            $cinemaSeatManager->decreaseNumberOfSeats(
-                $cinema,
-                $rowStart,
-                $lastSeat["row"],
-                1,
-                $lastSeat["col"]
-            );
-        }
-
-        $lastSeat = $cinemaSeatRepository->findLastSeat($cinema);
-
-        if ($givenCol > $lastSeat["col"]) {
-
-            $cinemaSeatManager->increseNumberOfSeats(
-                $cinema,
-                1,
-                $lastSeat["row"],
-                $lastSeat["col"],
-                $givenCol
-            );
-        }
-
-        if ($givenCol < $lastSeat["col"]) {
-            $colStart = $givenCol + 1;
-
-            $cinemaSeatManager->decreaseNumberOfSeats(
-                $cinema,
-                1,
-                $lastSeat["row"],
-                $colStart,
-                $lastSeat["col"]
-            );
-        }
-
-        // dd($cinemaSeatRepository->getSeatsForCinema($cinema));
-
-
-        // return new Response("Cinema seats updated!");
         return $this->render('cinema/edit.html.twig', [
             "form" => $form
         ]);

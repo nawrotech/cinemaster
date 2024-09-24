@@ -23,6 +23,11 @@ class CinemaHistory
     #[ORM\Column]
     private array $changes = [];
 
+    public function __construct()
+    {
+        $this->changedAt = new \DateTimeImmutable();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
