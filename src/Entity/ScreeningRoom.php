@@ -3,11 +3,20 @@
 namespace App\Entity;
 
 use App\Repository\ScreeningRoomRepository;
+use Cocur\Slugify\Slugify;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
+use Doctrine\ORM\Mapping\PreFlush;
+use Doctrine\ORM\Mapping\PrePersist;
+use Doctrine\ORM\Mapping\PreUpdate;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
+#[UniqueEntity(
+    fields: ["name"],
+    message: "Name of this room is alredy taken",
+)]
 #[HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: ScreeningRoomRepository::class)]
 class ScreeningRoom
@@ -37,9 +46,41 @@ class ScreeningRoom
     #[ORM\ManyToOne(inversedBy: 'screeningRooms')]
     private ?Cinema $cinema = null;
 
+    #[ORM\Column]
+    private ?int $rowsMax = null;
+
+    #[ORM\Column]
+    private ?int $seatsPerRowMax = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $updatedAt = null;
+
     public function __construct()
     {
+
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
         $this->screeningRoomSeats = new ArrayCollection();
+    }
+
+    #[PreFlush]
+    public function createSlugAndCreationDates(): static
+    {
+        $slugify = new Slugify();
+        $this->slug = $slugify->slugify($this->name);
+        return $this;
+    }
+
+    #[PreUpdate]
+    public function updateUpdatedAt(): static
+    {
+        $slugify = new Slugify();
+        $this->updatedAt = new \DateTimeImmutable();
+        $this->slug = $slugify->slugify($this->name);
+        return $this;
     }
 
     public function getId(): ?int
@@ -121,6 +162,54 @@ class ScreeningRoom
     public function setCinema(?Cinema $cinema): static
     {
         $this->cinema = $cinema;
+
+        return $this;
+    }
+
+    public function getRowsMax(): ?int
+    {
+        return $this->rowsMax;
+    }
+
+    public function setRowsMax(int $rowsMax): static
+    {
+        $this->rowsMax = $rowsMax;
+
+        return $this;
+    }
+
+    public function getSeatsPerRowMax(): ?int
+    {
+        return $this->seatsPerRowMax;
+    }
+
+    public function setSeatsPerRowMax(int $seatsPerRowMax): static
+    {
+        $this->seatsPerRowMax = $seatsPerRowMax;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }

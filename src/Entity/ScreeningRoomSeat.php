@@ -19,6 +19,8 @@ class ScreeningRoomSeat
     #[ORM\Column(length: 100)]
     private ?string $seatType = "regular";
 
+    #[ORM\Column(length: 15)]
+    private ?string $status = "active";
 
     #[ORM\ManyToOne(inversedBy: 'screeningRoomSeats')]
     #[ORM\JoinColumn(nullable: false)]
@@ -28,6 +30,7 @@ class ScreeningRoomSeat
     #[ORM\JoinColumn(name: "cinema_id", referencedColumnName: "cinema_id")]
     #[ORM\JoinColumn(name: "seat_id", referencedColumnName: "seat_id")]
     private ?CinemaSeat $seat = null;
+
 
 
     public function getId(): ?int
@@ -81,6 +84,18 @@ class ScreeningRoomSeat
     public function setSeat(?CinemaSeat $seat): static
     {
         $this->seat = $seat;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }

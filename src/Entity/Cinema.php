@@ -11,7 +11,12 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Doctrine\ORM\Mapping\PrePersist;
 use Doctrine\ORM\Mapping\PreUpdate;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
+#[UniqueEntity(
+    fields: ["name"],
+    message: "Name of this room is alredy taken",
+)]
 #[HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: CinemaRepository::class)]
 class Cinema
@@ -39,8 +44,6 @@ class Cinema
 
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
-
-
 
     /**
      * @var Collection<int, CinemaSeat>
@@ -77,7 +80,6 @@ class Cinema
     #[PrePersist]
     public function createSlugAndCreationDates(): static
     {
-
         $slugify = new Slugify();
         $this->slug = $slugify->slugify($this->name);
         return $this;

@@ -17,7 +17,6 @@ class CinemaSeat
     #[ORM\Id, ORM\ManyToOne(inversedBy: 'cinemaSeats')]
     private ?Seat $seat = null;
 
-
     /**
      * @var Collection<int, ScreeningRoomSeat>
      */

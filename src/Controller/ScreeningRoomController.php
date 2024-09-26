@@ -11,8 +11,8 @@ use App\Repository\CinemaRepository;
 use App\Repository\CinemaSeatRepository;
 use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSeatRepository;
-use App\Repository\SeatRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,15 +21,26 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route("/cinema/{slug}/rooms")]
 class ScreeningRoomController extends AbstractController
 {
+    #[Route("/api/max-rows-constraint", name: 'app_max_row_fields_constraint')]
+    public function maxRowsConstraint(
+        Cinema $cinema,
+        CinemaRepository $cinemaRepository
+    ) {
+
+        $cinemaSizeMaxes = $cinemaRepository->findMax($cinema);
+
+        return $this->json($cinemaSizeMaxes);
+    }
+
     // plus filtering
     #[Route('/', name: 'app_screening_rooms')]
     public function index(
         Cinema $cinema,
-        ScreeningRoomRepository $screeningRoomRepository
+        ScreeningRoomRepository $screeningRoomRepository,
     ): Response {
 
         $screeningRooms = $screeningRoomRepository->findAll(["cinema" => $cinema]);
-
+        // dd($screeningRoom->getScreeningRoomSeats()->count());
         return $this->render('screening_room/index.html.twig', [
             "rooms" => $screeningRooms,
             "cinema" => $cinema
@@ -47,6 +58,7 @@ class ScreeningRoomController extends AbstractController
 
         $screeningRoom =  new ScreeningRoom();
         $screeningRoom->setCinema($cinema);
+
         $maxRoomSizes = $cinemaRepository->findMax($cinema);
 
         $form = $this->createForm(ScreeningRoomType::class, $screeningRoom, [
@@ -54,21 +66,29 @@ class ScreeningRoomController extends AbstractController
         ]);
 
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
 
 
-            $maxRows = $form->get('screening_room_size')->get('max_row')->getData();
-            $maxColumns = $form->get('screening_room_size')->get('max_column')->getData();
+            // because when giving a row specific value
+            // indexes changes to 5,6,7,8
+            $rowsAndSeats = array_values($form->get("seats_per_row")->getData());
 
-            $cinemaSeats = $cinemaSeatsRepository->findSeatsInRange($maxRows, $maxColumns, $cinema);
+            foreach ($rowsAndSeats as $row => $lastSeatInRow) {
+                $row = $row + 1;
+                $seatsRange = $cinemaSeatsRepository->findSeatsInGivenrange($cinema, $row, $row, 1, $lastSeatInRow);
 
-            foreach ($cinemaSeats as $cinemaSeat) {
-                $screeningRoomSeat = new ScreeningRoomSeat();
-                $screeningRoomSeat->setScreeningRoom($screeningRoom);
-                $screeningRoomSeat->setSeat($cinemaSeat);
+                foreach ($seatsRange as $cinemaSeat) {
+                    $screeningRoomSeat = new ScreeningRoomSeat();
+                    $screeningRoomSeat->setScreeningRoom($screeningRoom);
+                    $screeningRoomSeat->setSeat($cinemaSeat);
+                    $em->persist($screeningRoomSeat);
 
-                $em->persist($screeningRoomSeat);
+                    // redundant, not even an owner,
+                    $screeningRoom->addScreeningRoomSeat($screeningRoomSeat);
+                }
             }
+
 
             $em->persist($screeningRoom);
             $em->flush();
@@ -78,9 +98,9 @@ class ScreeningRoomController extends AbstractController
             ]);
         }
 
-
         return $this->render('screening_room/create.html.twig', [
-            "form" => $form
+            "form" => $form,
+            "cinema_slug" => $cinema->getSlug()
         ]);
     }
 
@@ -109,8 +129,8 @@ class ScreeningRoomController extends AbstractController
         return $this->redirectToRoute(
             "app_screening_rooms_edit",
             [
-                "id" => $request->request->get("room_id"),
-                "slug" => $request->request->get("cinema_name")
+                "screening_room_slug" => $request->request->get("screening_room_slug"),
+                "slug" => $request->request->get("cinema_slug")
             ]
         );
     }
@@ -118,9 +138,11 @@ class ScreeningRoomController extends AbstractController
 
 
     // id for dev, later will be slug with room name
-    #[Route('/{id}/edit', name: 'app_screening_rooms_edit')]
+    #[Route("/{screening_room_slug}/edit", name: 'app_screening_rooms_edit')]
     public function edit(
+        #[MapEntity(mapping: ["slug" => "slug"])]
         Cinema $cinema,
+        #[MapEntity(mapping: ["screening_room_slug" => "slug"])]
         ScreeningRoom $screeningRoom,
         ScreeningRoomSeatRepository $screeningRoomSeatRepository,
         EntityManagerInterface $em,
@@ -128,11 +150,11 @@ class ScreeningRoomController extends AbstractController
     ): Response {
 
 
+
         $roomRows = $screeningRoomSeatRepository
             ->findNumOfRowsForRoom($screeningRoom);
 
         $seatsInSingleRow = [];
-
         foreach ($roomRows as $roomRow) {
             $seatsInSingleRow[$roomRow] = $screeningRoomSeatRepository
                 ->findSeatsInRow($screeningRoom, $roomRow);
@@ -146,8 +168,9 @@ class ScreeningRoomController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
 
             $seatsInRow = $screeningRoomSeatRepository
-                ->findSeatsRangeInRow(
+                ->findSeatsInRange(
                     $screeningRoom,
+                    $form->getData()["row"],
                     $form->getData()["row"],
                     $form->getData()["col_start"],
                     $form->getData()["col_end"],
@@ -156,11 +179,12 @@ class ScreeningRoomController extends AbstractController
             foreach ($seatsInRow as $screeningRoomSeat) {
                 $screeningRoomSeat->setSeatType($form->getData()["seat_type"]);
             }
+
             $em->flush();
 
             return $this->redirectToRoute("app_screening_rooms_edit", [
-                "id" => $screeningRoom->getid(),
-                "slug" => $cinema->getName()
+                "screening_room_slug" => $screeningRoom->getSlug(),
+                "slug" => $cinema->getSlug()
             ]);
         }
 

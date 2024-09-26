@@ -4,8 +4,57 @@
 
 {% block body %}
 
+{# {{ form(form) }} #}
 
-{{ form(form) }}
+<div {{ stimulus_controller('dynamic-seat-rows') }}
+     data-dynamic-seat-rows-prototype-value="{{ form_widget(form.seats_per_row.vars.prototype)|e('html_attr') }}"
+     data-dynamic-seat-rows-index-value="{{ form.seats_per_row|length }}">
+    
+    
+     <span 
+        {{ stimulus_target('dynamic-seat-rows', 'cinemaSlug') }}
+        data-cinema-slug="{{ cinema_slug }}"
+    ></span>
+
+
+    {{ form_start(form) }}
+ 
+        {{ form_row(form.name) }}
+
+        {{ form_row(form.seats_per_row_max, {
+            "attr": {
+                "data-dynamic-seat-rows-target": "defaultSeatsNumber",
+                "data-action": "blur->dynamic-seat-rows#defaultSeatsNumber"
+            }
+        }) }}
+
+        {{ form_row(form.rows_max, {
+            "attr": {
+                "data-dynamic-seat-rows-target": "desiredRows",
+                "data-action": "blur->dynamic-seat-rows#renderRows"
+            }
+        }) }}
+
+       
+        <div {{ stimulus_target('dynamic-seat-rows', 'collectionHolder') }}>
+            {% for seat_row in form.seats_per_row %}
+                <div>
+                    <div class="row-container">
+                        {{ form_row(seat_row, {'label': 'Row ' ~ loop.index}) }}
+                    </div>
+                </div>
+            {% endfor %}
+              
+        </div>
+
+        {{ form_row(form.apply) }}
+
+    {{ form_end(form) }}
+
+</div>
+
+
+
 
 
 {% endblock %}

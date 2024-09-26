@@ -12,10 +12,18 @@
 
 
     {% for cinema in cinemas %}
-        <a href="{{path("app_cinema_edit", {slug: cinema.slug})}}" class="card">
+        <div class="card">
             <h2>{{ cinema.name }}</h2>
             <p>Number of seats: {{ cinema.cinemaSeats|length }}</p>
-        </a>
+            <a href="{{path("app_cinema_edit", {slug: cinema.slug})}}" class="btn btn-primary">
+               Edit
+   
+            </a>
+            <a class="btn btn-secondary" href="{{path("app_screening_rooms_create", {slug: cinema.slug})}}">
+                Create screening room
+            </a>
+        </div>
+        
     {% endfor %}
 
 {% endblock %}

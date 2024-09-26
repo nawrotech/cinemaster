@@ -57,7 +57,7 @@ class ScreeningRoomSeatRepository extends ServiceEntityRepository
             ->setParameter("screeningRoom", $screeningRoom)
             ->getQuery()
             ->getResult();
-
+        // return $result;
         return array_map("intval", array_column($result, "rowNum"));
     }
 
@@ -91,18 +91,24 @@ class ScreeningRoomSeatRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    public function findSeatsRangeInRow(ScreeningRoom $screeningRoom, int $rowNum, int $colStart, int $colEnd)
-    {
+    public function findSeatsInRange(
+        ScreeningRoom $screeningRoom,
+        int $rowStart,
+        int $rowEnd,
+        int $colStart,
+        int $colEnd
+    ) {
 
         return $this->createQueryBuilder('srs')
             ->innerJoin("srs.screeningRoom", "sr")
             ->innerJoin("srs.seat", "cs")
             ->innerJoin("cs.seat", "s")
-            ->andWhere("s.rowNum = :rowNum")
+            ->andWhere("s.rowNum BETWEEN :rowStart AND :rowEnd")
             ->andWhere("s.colNum BETWEEN :colStart AND :colEnd")
             ->andWhere("sr = :screeningRoom")
             ->setParameter("screeningRoom", $screeningRoom)
-            ->setParameter("rowNum", $rowNum)
+            ->setParameter("rowStart", $rowStart)
+            ->setParameter("rowEnd", $rowEnd)
             ->setParameter("colStart", $colStart)
             ->setParameter("colEnd", $colEnd)
             ->getQuery()
