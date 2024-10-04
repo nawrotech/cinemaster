@@ -12,6 +12,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Event\PostSubmitEvent;
 use Symfony\Component\Form\Event\SubmitEvent;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -55,18 +56,15 @@ class ShowtimeType extends AbstractType
 
                 ]
             ])
-            ->add('startTime', null, [
-                'widget' => 'single_text',
+            ->add('start_time', DateTimeType::class, [
+                "label" => "Set date"
+                // 'widget' => 'single_text',
             ])
-            ->add("virtualScheduling", HiddenType::class, [
+            ->add("virtual_scheduling_errors", HiddenType::class, [
                 "mapped" => false,
                 "required" => false,
             ])
             ->add("create_showtime", SubmitType::class)
-            // ->addEventListener(FormEvents::SUBMIT, function (SubmitEvent $event): void {
-            //     $form = $event->getForm();
-            //     $showtime = $event->getData();
-            // })
             ->addEventListener(
                 FormEvents::POST_SUBMIT,
                 function (PostSubmitEvent $event): void {
@@ -93,13 +91,15 @@ class ShowtimeType extends AbstractType
                         //     $showtime->getEndTime()
                         // ));
 
-                        if (!empty($this->showtimeRepository->findOverlapping(
+                        if (!empty($this->showtimeRepository->findOverlappingForRoom(
                             $showtime->getScreeningRoom(),
                             $showtime->getStartTime(),
-                            $showtime->getEndTime()
+                            $showtime->getEndTime(),
+                            $showtime->getId()
                         ))) {
-                            // $form["virtualScheduling"]->addError(new FormError("you suck"));
-                            $form->addError(new FormError("you suck"));
+                            // also specify those movies
+                            // $form["virtual_scheduling_errors"]->addError(new FormError("you suck"));
+                            $form->addError(new FormError("Some movies are overlapping in your room"));
                         }
                     }
 
