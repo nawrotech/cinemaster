@@ -19,7 +19,7 @@ class CinemaSeatRepository extends ServiceEntityRepository
         parent::__construct($registry, CinemaSeat::class);
     }
 
-    public function findSeatsInRange(int $maxRowNum, int $maxColNum, Cinema $cinema)
+    public function findCinemaSeatsInRange(int $maxRowNum, int $maxColNum, Cinema $cinema)
     {
         return $this->createQueryBuilder('cs')
             ->innerJoin("cs.seat", "s")

@@ -37,10 +37,15 @@ class CinemaRepository extends ServiceEntityRepository
             ->leftJoin("cs.seat", "s")
             ->select("COUNT(DISTINCT s.rowNum) AS maxRowNum", "COUNT(DISTINCT s.colNum) AS maxColNum")
             ->andWhere("c = :cinema")
+
             ->setParameter("cinema", $cinema)
             ->getQuery()
             ->getSingleResult();
     }
+
+
+
+
 
 
     public function saveCinemaChanges(Cinema $cinema): void

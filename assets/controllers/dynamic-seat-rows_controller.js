@@ -2,32 +2,31 @@ import { Controller } from '@hotwired/stimulus';
 
 
 export default class extends Controller {
-    static targets = ["cinemaSlug", "collectionHolder",  "desiredRows", "defaultSeatsNumber"]
+    static targets = ["collectionHolder",  "desiredRows", "defaultSeatsNumber"]
 
     static values = {
         index    : Number,
         prototype: String,
+        roomMaxCapacityUrl: String
     }
 
     connect() {
-       fetch(`/cinema/${this.cinemaSlug}/rooms/api/max-rows-constraint`)
+       fetch(this.roomMaxCapacityUrlValue)
             .then(response => response.json())
             .then(data => {
                 this.maxRows = data?.maxRowNum; 
                 this.maxCols = data?.maxColNum;
-                console.log(this.maxRows);
+                console.log(this.maxRows, this.maxCols);
             });
             this.seatsPerRow = "";
         
     }
 
-    get cinemaSlug() {
-       return this.cinemaSlugTarget.dataset.cinemaSlug
-    }
+
 
  
   renderRows() {
-    const desiredRows = parseInt(this.desiredRowsTarget.value, this.maxRows);
+    const desiredRows = parseInt(this.desiredRowsTarget.value, 10) || this.maxRows;
     
     if (isNaN(desiredRows) || desiredRows < 0) {
       alert("Please enter a valid positive number for rows.");
@@ -85,7 +84,7 @@ export default class extends Controller {
   }
 
   defaultSeatsNumber() {
-    const desiredCols = parseInt(this.defaultSeatsNumberTarget.value, this.maxCols);
+    const desiredCols = parseInt(this.defaultSeatsNumberTarget.value, 10) || this.maxCols;
     this.seatsPerRow = this.defaultSeatsNumberTarget;
 
     if (isNaN(desiredCols) || desiredCols < 0) {
@@ -97,7 +96,7 @@ export default class extends Controller {
 
     if (desiredCols > this.maxCols) {
       console.log(this.maxCols);
-      alert(`Maximum number of rows allowed is ${this.maxCols}`);
+      alert(`Maximum number of rows allowed for the room in the cinema is ${this.maxCols}`);
       this.defaultSeatsNumberTarget.value = this.maxCols;
       return;
     }
@@ -110,11 +109,6 @@ export default class extends Controller {
   
   }
 
-  // updateRowLabels() {
-  //   this.collectionHolderTarget.querySelectorAll('.row-label').forEach((label, index) => {
-  //     label.textContent = `Row ${index + 1}`;
-  //   });
-  // }
-    
+
 
 }

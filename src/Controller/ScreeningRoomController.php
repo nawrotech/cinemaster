@@ -7,7 +7,6 @@ use App\Entity\ScreeningRoom;
 use App\Entity\ScreeningRoomSeat;
 use App\Form\ScreeningRoomType;
 use App\Form\SeatLineType;
-use App\Repository\CinemaRepository;
 use App\Repository\CinemaSeatRepository;
 use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSeatRepository;
@@ -21,15 +20,14 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route("/cinema/{slug}/rooms")]
 class ScreeningRoomController extends AbstractController
 {
-    #[Route("/api/max-rows-constraint", name: 'app_max_row_fields_constraint')]
+    #[Route("/api/max-rows-constraint", name: "app_screening_rooms_max_capacity_constraint")]
     public function maxRowsConstraint(
         Cinema $cinema,
-        CinemaRepository $cinemaRepository
     ) {
-
-        $cinemaSizeMaxes = $cinemaRepository->findMax($cinema);
-
-        return $this->json($cinemaSizeMaxes);
+        return $this->json([
+            "maxColNum" => $cinema->getSeatsPerRowMax(),
+            "maxRowNum" => $cinema->getRowsMax()
+        ]);
     }
 
     // plus filtering
@@ -51,7 +49,6 @@ class ScreeningRoomController extends AbstractController
     public function create(
         Request $request,
         EntityManagerInterface $em,
-        CinemaRepository $cinemaRepository,
         Cinema $cinema,
         CinemaSeatRepository $cinemaSeatsRepository
     ): Response {
@@ -59,10 +56,11 @@ class ScreeningRoomController extends AbstractController
         $screeningRoom =  new ScreeningRoom();
         $screeningRoom->setCinema($cinema);
 
-        $maxRoomSizes = $cinemaRepository->findMax($cinema);
-
         $form = $this->createForm(ScreeningRoomType::class, $screeningRoom, [
-            "max_room_sizes" => $maxRoomSizes
+            "max_room_sizes" => [
+                "maxRowNum" => $cinema->getRowsMax(),
+                "maxColNum" => $cinema->getSeatsPerRowMax()
+            ]
         ]);
 
         $form->handleRequest($request);
@@ -148,8 +146,6 @@ class ScreeningRoomController extends AbstractController
         EntityManagerInterface $em,
         Request $request
     ): Response {
-
-
 
         $roomRows = $screeningRoomSeatRepository
             ->findNumOfRowsForRoom($screeningRoom);

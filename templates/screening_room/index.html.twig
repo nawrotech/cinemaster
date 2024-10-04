@@ -11,13 +11,22 @@
     
 
     {% for room in rooms %}
-        <a class="card" href="{{path("app_screening_rooms_edit",
-         {screening_room_slug: room.slug,
-         slug: cinema.slug}
-         )}}">
-         Room name: {{ room.name }}
-        </a>
+      
+        <p>Room name: {{ room.name }}</p>
         <p>Capacity: {{ room.screeningRoomSeats|length }}</p>
+        
+        <a class="d-block" href="{{path("app_screening_rooms_edit",
+            {screening_room_slug: room.slug,
+                slug: cinema.slug}
+            )}}">
+           Edit Seats
+       </a>
+       <a class="d-block" href="{{path("app_showtimes_create",
+            {
+                screening_room_slug: room.slug,
+                slug: cinema.slug
+            }
+       )}}">Create showtime</a>
     {% endfor %}
 
 {% endblock %}

@@ -16,9 +16,9 @@ class CinemaChangeService
         private SeatRepository $seatRepository,
         private CinemaSeatRepository $cinemaSeatRepository,
         private EntityManagerInterface $em
-
     ) {}
 
+    // screeningRoom
     private function decreaseNumberOfSeats(
         Cinema $cinema,
         int $rowStart,
@@ -26,7 +26,7 @@ class CinemaChangeService
         int $colStart,
         int $colEnd
     ) {
-
+        // screeningRoomSeatRepository
         $inactiveRows = $this->cinemaSeatRepository
             ->findSeatsInGivenRange($cinema, $rowStart, $rowEnd, $colStart, $colEnd);
 
@@ -36,7 +36,7 @@ class CinemaChangeService
 
         $this->em->flush();
     }
-
+    // screeningRoom
     private function increseNumberOfSeats(
         Cinema $cinema,
         int $rowStart,
@@ -45,9 +45,10 @@ class CinemaChangeService
         int $colEnd
     ) {
         $seats = $this->seatRepository
-            ->findSeatRowsInRange($rowStart, $rowEnd, $colStart, $colEnd);
+            ->findSeatsInRange($rowStart, $rowEnd, $colStart, $colEnd);
 
         foreach ($seats as $seat) {
+            // screeningRoomSeatRepository, search by screeningRoom
             $existingSeat = $this->cinemaSeatRepository->findOneBy([
                 'cinema' => $cinema,
                 'seat' => $seat
@@ -55,6 +56,7 @@ class CinemaChangeService
             if ($existingSeat) {
                 $existingSeat->setStatus('active');
             } else {
+                // screeningRoom Seat
                 $cinemaSeat = new CinemaSeat();
                 $cinemaSeat->setCinema($cinema);
                 $cinemaSeat->setSeat($seat);
@@ -85,8 +87,10 @@ class CinemaChangeService
 
     private function adjustSeats(Cinema $cinema)
     {
+        // also screeningRoomSeatRepository
         $lastSeat = $this->cinemaSeatRepository->findLastSeat($cinema);
 
+        // lol screening room has that too on it
         if ($cinema->getRowsMax() > $lastSeat["row"]) {
             $this->increseNumberOfSeats(
                 $cinema,
@@ -96,7 +100,7 @@ class CinemaChangeService
                 $lastSeat["col"]
             );
         }
-
+        // lol screening room has that too on it
         if ($cinema->getRowsMax() < $lastSeat["row"]) {
             $rowStart = $cinema->getRowsMax() + 1;
 
@@ -110,7 +114,7 @@ class CinemaChangeService
         }
 
         $lastSeat = $this->cinemaSeatRepository->findLastSeat($cinema);
-
+        // lol screening room has that too on it
         if ($cinema->getSeatsPerRowMax() > $lastSeat["col"]) {
 
             $this->increseNumberOfSeats(
@@ -121,7 +125,7 @@ class CinemaChangeService
                 $cinema->getSeatsPerRowMax()
             );
         }
-
+        // lol screening room has that too on it
         if ($cinema->getSeatsPerRowMax() < $lastSeat["col"]) {
             $colStart = $cinema->getSeatsPerRowMax() + 1;
 
@@ -137,6 +141,9 @@ class CinemaChangeService
 
     private function storeChanges(Cinema $cinema)
     {
+        // right now it should be cinema and screening room
+        // both of them are seats holders.
+
         $unitOfWork = $this->em->getUnitOfWork();
         $unitOfWork->computeChangeSets();
         $cinemaChange = $unitOfWork->getEntityChangeSet($cinema);

@@ -4,12 +4,14 @@ namespace App\Controller;
 
 use App\Entity\Cinema;
 use App\Entity\CinemaSeat;
+use App\Entity\Movie;
+use App\Entity\MovieType;
 use App\Form\Type\CinemaType;
 use App\Repository\CinemaRepository;
 use App\Repository\CinemaSeatRepository;
+use App\Repository\MovieTypeRepository;
 use App\Repository\SeatRepository;
 use App\Service\CinemaChangeService;
-use App\Service\CinemaSeatManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +25,7 @@ class CinemaController extends AbstractController
     #[Route('/', name: 'app_cinema')]
     public function index(
         CinemaRepository $cinemaRepository,
+
     ): Response {
 
         $cinemas = $cinemaRepository->findOrderedCinemas();
@@ -51,14 +54,14 @@ class CinemaController extends AbstractController
             $maxRows = $form->get('screening_room_size')->get('max_row')->getData();
             $maxColumns = $form->get('screening_room_size')->get('max_column')->getData();
 
-            $seats = $seatRepository->findSeatsInRange($maxRows, $maxColumns);
+            $seats = $seatRepository->findSeatsInRange(1, $maxRows, 1, $maxColumns);
 
             foreach ($seats as $seat) {
                 $cinemaSeat = new CinemaSeat();
                 $cinemaSeat->setSeat($seat);
                 $cinemaSeat->setCinema($cinema);
 
-                $cinema->addCinemaSeat($cinemaSeat);
+                // $cinema->addCinemaSeat($cinemaSeat);
                 $em->persist($cinemaSeat);
             }
 
@@ -66,8 +69,6 @@ class CinemaController extends AbstractController
             $em->flush();
 
             $this->addFlash("success", "Cinema created");
-
-
             return $this->redirectToRoute("app_cinema");
         }
 
@@ -87,11 +88,8 @@ class CinemaController extends AbstractController
         CinemaChangeService $cinemaChangeService
     ): Response {
 
-        // dd($cinemaSeatRepository->findSeatsForCinema($cinema));
-
         $form = $this->createForm(CinemaType::class, $cinema);
         $form->handleRequest($request);
-
 
         if ($form->isSubmitted() && $form->isValid()) {
 
@@ -100,14 +98,35 @@ class CinemaController extends AbstractController
                 $this->addFlash('success', 'Cinema updated successfully.');
             } catch (\Exception $e) {
                 $this->addFlash('error', 'An error occurred while updating the cinema.');
+            } finally {
+                return $this->redirectToRoute("app_cinema");
             }
-            return $this->redirectToRoute("app_cinema");
         }
 
         return $this->render('cinema/edit.html.twig', [
             "form" => $form
         ]);
     }
+
+
+    // #[Route('/create/movies', name: 'app_cinema_create_movies')]
+    // public function createMovies(
+    //     EntityManagerInterface $em,
+    //     MovieTypeRepository $movieType
+    // ): Response {
+
+    //     $movie = new Movie();
+    //     $movie->setTitle("Batman");
+    //     $movie->setDescription("Story about super orphan");
+    //     $movie->addMovieType($movieType->find(3));
+    //     $movie->setDurationInMinutes(160);
+
+    //     $em->persist($movie);
+    //     $em->flush();
+
+
+    //     return new Response("movie got created!");
+    // }
 
 
     // #[Route('/{slug}', name: "app_cinema_details")]

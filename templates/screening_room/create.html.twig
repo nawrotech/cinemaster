@@ -8,15 +8,13 @@
 
 <div {{ stimulus_controller('dynamic-seat-rows') }}
      data-dynamic-seat-rows-prototype-value="{{ form_widget(form.seats_per_row.vars.prototype)|e('html_attr') }}"
-     data-dynamic-seat-rows-index-value="{{ form.seats_per_row|length }}">
-    
-    
-     <span 
-        {{ stimulus_target('dynamic-seat-rows', 'cinemaSlug') }}
-        data-cinema-slug="{{ cinema_slug }}"
-    ></span>
+     data-dynamic-seat-rows-index-value="{{ form.seats_per_row|length }}"
+     data-dynamic-seat-rows-room-max-capacity-url-value="{{ path("app_screening_rooms_max_capacity_constraint", {
+     slug: cinema_slug}) }}"
+     
 
-
+     >
+   
     {{ form_start(form) }}
  
         {{ form_row(form.name) }}

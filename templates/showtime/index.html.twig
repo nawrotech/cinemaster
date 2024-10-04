@@ -1,0 +1,15 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+    <div class="container d-grid gap-2">
+        {% for showtime in showtimes %}
+            <div class="card">
+                <h2>{{ showtime.movie.title }}</h2>
+                <p>Start time: {{ showtime.startTime|date("F jS \\a\\t g:ia")  }}</p>
+                <p>End time: {{ showtime.endTime|date("F jS \\a\\t g:ia")  }}</p>
+            </div>
+        
+        {% endfor %}
+    </div>
+
+{% endblock %}

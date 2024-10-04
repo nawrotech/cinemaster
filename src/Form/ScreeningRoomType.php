@@ -73,6 +73,11 @@ class ScreeningRoomType extends AbstractType
                 'prototype' => true,
                 'prototype_name' => '__seats_per_row__',
             ])
+            ->add("maintenance_time_in_minutes", NumberType::class, [
+                "constraints" => [
+                    new NotBlank(),
+                ]
+            ])
             ->add("apply", SubmitType::class)
         ;
     }

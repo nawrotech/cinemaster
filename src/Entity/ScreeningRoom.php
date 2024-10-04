@@ -9,7 +9,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Doctrine\ORM\Mapping\PreFlush;
-use Doctrine\ORM\Mapping\PrePersist;
 use Doctrine\ORM\Mapping\PreUpdate;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
@@ -58,12 +57,22 @@ class ScreeningRoom
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    /**
+     * @var Collection<int, Showtime>
+     */
+    #[ORM\OneToMany(targetEntity: Showtime::class, mappedBy: 'screeningRoom')]
+    private Collection $showtimes;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $maintenanceTimeInMinutes = null;
+
     public function __construct()
     {
 
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
         $this->screeningRoomSeats = new ArrayCollection();
+        $this->showtimes = new ArrayCollection();
     }
 
     #[PreFlush]
@@ -210,6 +219,48 @@ class ScreeningRoom
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Showtime>
+     */
+    public function getShowtimes(): Collection
+    {
+        return $this->showtimes;
+    }
+
+    public function addShowtime(Showtime $showtime): static
+    {
+        if (!$this->showtimes->contains($showtime)) {
+            $this->showtimes->add($showtime);
+            $showtime->setScreeningRoom($this);
+        }
+
+        return $this;
+    }
+
+    public function removeShowtime(Showtime $showtime): static
+    {
+        if ($this->showtimes->removeElement($showtime)) {
+            // set the owning side to null (unless already changed)
+            if ($showtime->getScreeningRoom() === $this) {
+                $showtime->setScreeningRoom(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getMaintenanceTimeInMinutes(): ?int
+    {
+        return $this->maintenanceTimeInMinutes;
+    }
+
+    public function setMaintenanceTimeInMinutes(?int $maintenanceTimeInMinutes): static
+    {
+        $this->maintenanceTimeInMinutes = $maintenanceTimeInMinutes;
 
         return $this;
     }
