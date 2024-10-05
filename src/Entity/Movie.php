@@ -26,12 +26,7 @@ class Movie
     #[ORM\Column]
     private ?int $durationInMinutes = null;
 
-    /**
-     * @var Collection<int, MovieType>
-     */
-    #[ORM\ManyToMany(targetEntity: MovieType::class)]
-    private Collection $movieTypes;
-
+ 
 
     /**
      * @var Collection<int, Showtime>
@@ -41,7 +36,6 @@ class Movie
 
     public function __construct()
     {
-        $this->movieTypes = new ArrayCollection();
         $this->showtimes = new ArrayCollection();
     }
 
@@ -70,30 +64,6 @@ class Movie
     public function setDescription(string $description): static
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, MovieType>
-     */
-    public function getMovieTypes(): Collection
-    {
-        return $this->movieTypes;
-    }
-
-    public function addMovieType(MovieType $movieType): static
-    {
-        if (!$this->movieTypes->contains($movieType)) {
-            $this->movieTypes->add($movieType);
-        }
-
-        return $this;
-    }
-
-    public function removeMovieType(MovieType $movieType): static
-    {
-        $this->movieTypes->removeElement($movieType);
 
         return $this;
     }

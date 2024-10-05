@@ -6,6 +6,7 @@ use App\Entity\Cinema;
 use App\Entity\CinemaSeat;
 use App\Entity\Movie;
 use App\Entity\MovieType;
+use App\Entity\Seat;
 use App\Form\Type\CinemaType;
 use App\Repository\CinemaRepository;
 use App\Repository\CinemaSeatRepository;
@@ -21,6 +22,10 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route("/cinema")]
 class CinemaController extends AbstractController
 {
+
+
+
+
     // view created cinemas
     #[Route('/', name: 'app_cinema')]
     public function index(
@@ -142,6 +147,7 @@ class CinemaController extends AbstractController
     //     ]);
     // }
 
+
     // #[Route('/create/createSeats', name: "app_cinema_details")]
     // public function seats(EntityManagerInterface $em)
     // {
@@ -160,4 +166,6 @@ class CinemaController extends AbstractController
 
     //     return new Response("Seats created!");
     // }
+
+  
 }
