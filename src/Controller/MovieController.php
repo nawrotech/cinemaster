@@ -3,23 +3,26 @@
 namespace App\Controller;
 
 use App\Entity\Movie;
+use App\Entity\MovieMovieType;
 use App\Form\MovieFormType;
+use App\Repository\MovieMovieTypeRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping\Entity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route("/cinema/movies")]
+#[Route("/cinemas/movies")]
 class MovieController extends AbstractController
 {
     // with filtring using get params
     #[Route('/', name: 'app_movie')]
-    public function index(): Response
+    public function index(MovieMovieTypeRepository $movieFormatRepository): Response
     {
+       
         return $this->render('movie/index.html.twig', [
             'controller_name' => 'MovieController',
+            "movies" =>  $movieFormatRepository->findMovieWithFormats()
         ]);
     }
 
@@ -35,8 +38,16 @@ class MovieController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $em->persist($movie);
+
+            foreach($form["movieTypes"]->getData() as $movieType) {
+                $movieFormat = new MovieMovieType();
+                $movieFormat->setMovie($movie);
+                $movieFormat->setMovieType($movieType);
+
+                $em->persist($movieFormat);
+            }
+
             $em->flush();
 
             // $this->addFlash('success', 'Movie created successfully!');

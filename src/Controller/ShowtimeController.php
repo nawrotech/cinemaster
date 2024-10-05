@@ -14,19 +14,18 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route("/cinema/{slug}/showtimes")]
+#[Route("/cinemas/{slug}/showtimes")]
 class ShowtimeController extends AbstractController
 {
-    #[Route("/", name: "app_showtimes")]
+    #[Route("/", name: "app_showtime")]
     public function index(ShowtimeRepository $showtimeRepository): Response
     {
-
         return $this->render('showtime/index.html.twig', [
             "showtimes" => $showtimeRepository->findAll()
         ]);
     }
 
-    #[Route("/create/{screening_room_slug}", name: "app_showtimes_create")]
+    #[Route("/create/{screening_room_slug}", name: "app_showtime_create")]
     public function create(
         #[MapEntity(mapping: ["slug" => "slug"])]
         Cinema $cinema,
@@ -45,17 +44,11 @@ class ShowtimeController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            // dd($form->getData());
-            // dd($showtimeRepository->findOverlapping(
-            //     $showtime->getScreeningRoom(),
-            //     $showtime->getStartTime(),
-            //     $showtime->getEndTime()
-            // ));
-
+        
             $em->persist($showtime);
             $em->flush();
 
-            return $this->redirectToRoute("app_showtimes", [
+            return $this->redirectToRoute("app_showtime", [
                 "slug" => $cinema->getSlug()
             ]);
         }

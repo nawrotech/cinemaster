@@ -21,6 +21,7 @@ class MovieMovieType
     #[ORM\JoinColumn(nullable: false)]
     private ?MovieType $movieType = null;
 
+    // add price multiplier maybe
     #[ORM\Column(nullable: true)]
     private ?int $quantity = null;
 

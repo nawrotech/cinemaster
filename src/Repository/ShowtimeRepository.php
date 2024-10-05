@@ -3,10 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\Movie;
+use App\Entity\MovieMovieType;
 use App\Entity\ScreeningRoom;
 use App\Entity\Showtime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -27,11 +27,9 @@ class ShowtimeRepository extends ServiceEntityRepository
             ->orWhere('(:startTime >= s.startTime AND :startTime < s.endTime)')
             ->orWhere('(:endTime > s.startTime AND :endTime <= s.endTime)')
             ->orWhere('(:startTime <= s.startTime AND :endTime >= s.endTime)')
-            // ->andWhere('s.screeningRoom = :screeningRoom')
-            // ->setParameter('screeningRoom', $screeningRoom)
             ->setParameter('startTime', $startTime)
             ->setParameter('endTime', $endTime);
-
+            
         if ($excludeId) {
             $qb->andWhere('s.id != :excludeId')
                 ->setParameter('excludeId', $excludeId);
@@ -39,7 +37,7 @@ class ShowtimeRepository extends ServiceEntityRepository
 
         return $qb;
 
-        // ->getQuery()->getResult();
+    
     }
 
     public function findOverlappingForRoom(
@@ -51,20 +49,22 @@ class ShowtimeRepository extends ServiceEntityRepository
         return $this->findOverlapping($startTime, $endTime)
             ->andWhere('s.screeningRoom = :screeningRoom')
             ->setParameter("screeningRoom", $screeningRoom)
-            ->getQuery()->getResult();
+            ->getQuery()
+            ->getResult();
     }
 
     public function findOverlappingForMovie(
-        Movie $movie,
+        MovieMovieType $movieFormat,
         \DateTimeInterface $startTime,
         \DateTimeInterface $endTime,
         ?int $excludeId = null
     ) {
         return $this->findOverlapping($startTime, $endTime, $excludeId)
-            ->innerJoin("s.movie", "m")
-            ->addSelect("m")
-
-
-            ->andWhere('s. = :screeningRoom');
+            ->innerJoin("s.movieFormat", "mf")
+            ->addSelect("mf")
+            ->andWhere('mf = :movieFormat')
+            ->setParameter("movieFormat", $movieFormat)
+            ->getQuery()
+            ->getResult();
     }
 }

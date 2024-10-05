@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\MovieRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -26,18 +24,6 @@ class Movie
     #[ORM\Column]
     private ?int $durationInMinutes = null;
 
- 
-
-    /**
-     * @var Collection<int, Showtime>
-     */
-    #[ORM\OneToMany(targetEntity: Showtime::class, mappedBy: 'movie')]
-    private Collection $showtimes;
-
-    public function __construct()
-    {
-        $this->showtimes = new ArrayCollection();
-    }
 
     public function getId(): ?int
     {
@@ -80,33 +66,9 @@ class Movie
         return $this;
     }
 
-    /**
-     * @return Collection<int, Showtime>
-     */
-    public function getShowtimes(): Collection
-    {
-        return $this->showtimes;
-    }
 
-    public function addShowtime(Showtime $showtime): static
-    {
-        if (!$this->showtimes->contains($showtime)) {
-            $this->showtimes->add($showtime);
-            $showtime->setMovie($this);
-        }
 
-        return $this;
-    }
+   
 
-    public function removeShowtime(Showtime $showtime): static
-    {
-        if ($this->showtimes->removeElement($showtime)) {
-            // set the owning side to null (unless already changed)
-            if ($showtime->getMovie() === $this) {
-                $showtime->setMovie(null);
-            }
-        }
 
-        return $this;
-    }
 }

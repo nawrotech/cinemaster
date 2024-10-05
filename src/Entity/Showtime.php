@@ -18,10 +18,6 @@ class Showtime
     #[ORM\JoinColumn(nullable: false)]
     private ?ScreeningRoom $screeningRoom = null;
 
-    #[ORM\ManyToOne(inversedBy: 'showtimes')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Movie $movie = null;
-
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $startTime = null;
 
@@ -33,6 +29,10 @@ class Showtime
 
     #[ORM\Column]
     private ?int $advertisementTimeInMinutes = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?MovieMovieType $movieFormat = null;
 
     public function getId(): ?int
     {
@@ -47,18 +47,6 @@ class Showtime
     public function setScreeningRoom(?ScreeningRoom $screeningRoom): static
     {
         $this->screeningRoom = $screeningRoom;
-
-        return $this;
-    }
-
-    public function getMovie(): ?Movie
-    {
-        return $this->movie;
-    }
-
-    public function setMovie(?Movie $movie): static
-    {
-        $this->movie = $movie;
 
         return $this;
     }
@@ -107,6 +95,18 @@ class Showtime
     public function setAdvertisementTimeInMinutes(int $advertisementTimeInMinutes): static
     {
         $this->advertisementTimeInMinutes = $advertisementTimeInMinutes;
+
+        return $this;
+    }
+
+    public function getMovieFormat(): ?MovieMovieType
+    {
+        return $this->movieFormat;
+    }
+
+    public function setMovieFormat(?MovieMovieType $movieFormat): static
+    {
+        $this->movieFormat = $movieFormat;
 
         return $this;
     }

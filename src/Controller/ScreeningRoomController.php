@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route("/cinema/{slug}/rooms")]
+#[Route("/cinemas/{slug}/rooms")]
 class ScreeningRoomController extends AbstractController
 {
     #[Route("/api/max-rows-constraint", name: "app_screening_rooms_max_capacity_constraint")]
@@ -31,21 +31,21 @@ class ScreeningRoomController extends AbstractController
     }
 
     // plus filtering
-    #[Route('/', name: 'app_screening_rooms')]
+    #[Route('/', name: 'app_screening_room')]
     public function index(
         Cinema $cinema,
         ScreeningRoomRepository $screeningRoomRepository,
     ): Response {
 
         $screeningRooms = $screeningRoomRepository->findAll(["cinema" => $cinema]);
-        // dd($screeningRoom->getScreeningRoomSeats()->count());
+
         return $this->render('screening_room/index.html.twig', [
             "rooms" => $screeningRooms,
             "cinema" => $cinema
         ]);
     }
 
-    #[Route('/create', name: 'app_screening_rooms_create')]
+    #[Route('/create', name: 'app_screening_room_create')]
     public function create(
         Request $request,
         EntityManagerInterface $em,
@@ -91,7 +91,7 @@ class ScreeningRoomController extends AbstractController
             $em->persist($screeningRoom);
             $em->flush();
 
-            return $this->redirectToRoute("app_screening_rooms", [
+            return $this->redirectToRoute("app_screening_room", [
                 "slug" => $cinema->getSlug()
             ]);
         }
@@ -102,7 +102,7 @@ class ScreeningRoomController extends AbstractController
         ]);
     }
 
-    #[Route('/{room-slug}', name: 'app_screening_rooms_details')]
+    #[Route('/{room-slug}', name: 'app_screening_room_details')]
     public function details(): Response
     {
         return $this->render('screening_room/index.html.twig', [
@@ -110,7 +110,7 @@ class ScreeningRoomController extends AbstractController
         ]);
     }
 
-    #[Route('/seat/type/{id}', name: 'app_screening_rooms_seat_type_change', methods: ["POST"])]
+    #[Route('/seat/type/{id}', name: 'app_screening_room_seat_type_change', methods: ["POST"])]
     public function changeSeatType(
         Request $request,
         ScreeningRoomSeatRepository $screeningRoomSeatRepository,
@@ -125,7 +125,7 @@ class ScreeningRoomController extends AbstractController
         $em->flush();
 
         return $this->redirectToRoute(
-            "app_screening_rooms_edit",
+            "app_screening_room_edit",
             [
                 "screening_room_slug" => $request->request->get("screening_room_slug"),
                 "slug" => $request->request->get("cinema_slug")

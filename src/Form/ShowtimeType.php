@@ -2,16 +2,13 @@
 
 namespace App\Form;
 
-use App\Entity\Movie;
-use App\Entity\ScreeningRoom;
+use App\Entity\MovieMovieType;
 use App\Entity\Showtime;
 use App\Repository\ShowtimeRepository;
 use DateInterval;
-use Faker\Core\Number;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Event\PostSubmitEvent;
-use Symfony\Component\Form\Event\SubmitEvent;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
@@ -35,11 +32,15 @@ class ShowtimeType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('movie', EntityType::class, [
-                'class' => Movie::class,
+            ->add("movieFormat", EntityType::class, [
+                'class' => MovieMovieType::class,
                 "label" => "Select Movie",
-                'choice_label' => function (Movie $movie): string {
-                    return "Title: {$movie->getTitle()} Duration: {$movie->getDurationInMinutes()} minutes";
+                'choice_label' => function (MovieMovieType $movieFormat): string {
+                    return "
+                        Title: {$movieFormat->getMovie()->getTitle()} 
+                        Duration: {$movieFormat->getMovie()->getDurationInMinutes()} minutes
+                        Format: {$movieFormat->getMovieType()->getAudioVersion()}, {$movieFormat->getMovieType()->getVisualVersion()}        
+                    ";
                 },
             ])
             ->add('price', NumberType::class, [
@@ -58,7 +59,6 @@ class ShowtimeType extends AbstractType
             ])
             ->add('start_time', DateTimeType::class, [
                 "label" => "Set date"
-                // 'widget' => 'single_text',
             ])
             ->add("virtual_scheduling_errors", HiddenType::class, [
                 "mapped" => false,
@@ -71,11 +71,13 @@ class ShowtimeType extends AbstractType
                     $form = $event->getForm();
                     $showtime = $event->getData();
 
+                    $movieFormat = $showtime->getMovieFormat();
+
                     if ($form->isValid()) {
                         $maintenanceTime = $showtime->getScreeningRoom()->getMaintenanceTimeInMinutes();
-                        $movieDurationTime = $showtime->getMovie()->getDurationInMinutes();
                         $breaktime = $showtime->getAdvertisementTimeInMinutes();
-
+                        $movieDurationTime = $movieFormat->getMovie()->getDurationInMinutes();
+                       
                         $additionalTime = $breaktime + $maintenanceTime + $movieDurationTime;
 
                         $startTime = clone $showtime->getStartTime();
@@ -85,34 +87,35 @@ class ShowtimeType extends AbstractType
                     };
 
                     if ($showtime->getEndTime()) {
-                        // dd($this->showtimeRepository->findOverlapping(
-                        //     $showtime->getScreeningRoom(),
-                        //     $showtime->getStartTime(),
-                        //     $showtime->getEndTime()
-                        // ));
-
-                        if (!empty($this->showtimeRepository->findOverlappingForRoom(
+                        $overlappingShowtimes = $this->showtimeRepository->findOverlappingForRoom(
                             $showtime->getScreeningRoom(),
                             $showtime->getStartTime(),
                             $showtime->getEndTime(),
                             $showtime->getId()
-                        ))) {
-                            // also specify those movies
-                            // $form["virtual_scheduling_errors"]->addError(new FormError("you suck"));
-                            $form->addError(new FormError("Some movies are overlapping in your room"));
+                        );
+
+                        // later add maybe what records are overlapping
+                        if (!empty($overlappingShowtimes)) {
+                            // also specify those movies    
+                            $form->addError(new FormError("Some showtimes overlap with given name"));
                         }
+
+                        if (!empty($this->showtimeRepository->findOverlappingForMovie(
+                            $showtime->getMovieFormat(),
+                            $showtime->getStartTime(),
+                            $showtime->getEndTime(),
+                            $showtime->getId()
+                        ))) {
+                            $form->addError(new FormError("Picked movie is already playing in "));
+                        }
+
+                     
+
                     }
 
-
-
-
-                    // dd($event->getData());
                 }
 
             )
-            // ->add('endTime', null, [
-            //     'widget' => 'single_text',
-            // ])
         ;
     }
 

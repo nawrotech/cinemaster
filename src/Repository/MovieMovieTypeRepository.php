@@ -16,20 +16,17 @@ class MovieMovieTypeRepository extends ServiceEntityRepository
         parent::__construct($registry, MovieMovieType::class);
     }
 
-    //    /**
-    //     * @return MovieMovieType[] Returns an array of MovieMovieType objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('m')
-    //            ->andWhere('m.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('m.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+   
+       public function findMovieWithFormats(): array
+       {
+           return $this->createQueryBuilder('mmt')
+                ->innerJoin("mmt.movie", "m")
+                ->innerJoin("mmt.movieType", "mt")
+                ->select("mmt")
+               ->getQuery()
+               ->getResult()
+           ;
+       }
 
     //    public function findOneBySomeField($value): ?MovieMovieType
     //    {

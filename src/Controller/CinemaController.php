@@ -4,13 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Cinema;
 use App\Entity\CinemaSeat;
-use App\Entity\Movie;
-use App\Entity\MovieType;
-use App\Entity\Seat;
 use App\Form\Type\CinemaType;
 use App\Repository\CinemaRepository;
 use App\Repository\CinemaSeatRepository;
-use App\Repository\MovieTypeRepository;
 use App\Repository\SeatRepository;
 use App\Service\CinemaChangeService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,12 +15,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route("/cinema")]
+#[Route("/cinemas")]
 class CinemaController extends AbstractController
 {
-
-
-
 
     // view created cinemas
     #[Route('/', name: 'app_cinema')]
