@@ -10,12 +10,15 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: CinemaSeatRepository::class)]
 class CinemaSeat
 {
-
     #[ORM\Id, ORM\ManyToOne(inversedBy: 'cinemaSeats')]
     private ?Cinema $cinema = null;
 
     #[ORM\Id, ORM\ManyToOne(inversedBy: 'cinemaSeats')]
     private ?Seat $seat = null;
+
+    #[ORM\Column(length: 15)]
+    private ?string $status = "active";
+
 
     /**
      * @var Collection<int, ScreeningRoomSeat>
@@ -23,9 +26,7 @@ class CinemaSeat
     #[ORM\OneToMany(targetEntity: ScreeningRoomSeat::class, mappedBy: 'seat')]
     private Collection $screeningRoomSeats;
 
-    #[ORM\Column(length: 15)]
-    private ?string $status = "active";
-
+  
     public function __construct()
     {
         $this->screeningRoomSeats = new ArrayCollection();
