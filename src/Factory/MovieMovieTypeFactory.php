@@ -32,8 +32,8 @@ final class MovieMovieTypeFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'movie' => MovieFactory::new(),
-            'movieType' => MovieTypeFactory::new(),
+            // 'movie' => MovieFactory::new(),
+            // 'movieType' => MovieTypeFactory::new(),
         ];
     }
 

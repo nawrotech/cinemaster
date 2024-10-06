@@ -2,10 +2,12 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\MovieMovieType;
 use App\Entity\MovieType;
 use App\Factory\CinemaFactory;
 use App\Factory\CinemaSeatFactory;
 use App\Factory\MovieFactory;
+use App\Factory\MovieMovieTypeFactory;
 use App\Factory\MovieTypeFactory;
 use App\Factory\ScreeningRoomFactory;
 use App\Factory\ScreeningRoomSeatFactory;
@@ -33,11 +35,18 @@ class AppFixtures extends Fixture
             ScreeningRoomSeatFactory::createForScreeningRoom($screeningRoom);
         }
 
-        MovieFactory::createMany(20);
+        $movies = MovieFactory::createMany(20);
 
         
-        MovieTypeFactory::createFormatCombinations();
-             
+        $movieFormats = MovieTypeFactory::createFormatCombinations();
+            
+        MovieMovieTypeFactory::createMany(count($movies), function() use($movies, $movieFormats) {
+            return [
+                "movie" => $movies[array_rand($movies)],
+                "movieType" => $movieFormats[array_rand($movieFormats)]
+            ];
+        });
+        
         $manager->flush();
     }
 }

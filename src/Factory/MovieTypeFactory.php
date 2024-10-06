@@ -48,9 +48,10 @@ final class MovieTypeFactory extends PersistentProxyObjectFactory
                 ];
             }
         }
-        self::createMany(count($formats), function($i) use ($formats) {
+        return self::createMany(count($formats), function($i) use ($formats) {
             return $formats[$i - 1];
         });
+        
 
     }
 
