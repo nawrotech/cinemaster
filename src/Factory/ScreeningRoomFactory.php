@@ -2,7 +2,6 @@
 
 namespace App\Factory;
 
-use App\Entity\Cinema;
 use App\Entity\ScreeningRoom;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
@@ -61,6 +60,8 @@ final class ScreeningRoomFactory extends PersistentProxyObjectFactory
         });
     }
 
+
+        
 
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization

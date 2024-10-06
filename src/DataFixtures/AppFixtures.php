@@ -5,6 +5,7 @@ namespace App\DataFixtures;
 use App\Factory\CinemaFactory;
 use App\Factory\CinemaSeatFactory;
 use App\Factory\ScreeningRoomFactory;
+use App\Factory\ScreeningRoomSeatFactory;
 use App\Factory\SeatFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -23,19 +24,10 @@ class AppFixtures extends Fixture
             CinemaSeatFactory::createForCinema($cinema);
         }
 
-        // $screeningRooms = ScreeningRoomFactory::createMany(10, function() {
-        //     return [
-        //         "cinema" => CinemaFactory::random(),
-        //         'rowsMax' => faker()->numberBetween(5, cinemarowmax),
-        //         'seatsPerRowMax' => faker()->numberBetween(5, cinemaxseatsperrowmax),
-
-        //     ];
-        // });
-
         $screeningRooms = ScreeningRoomFactory::createScreeningRoomsForCinemas(10);
 
         foreach($screeningRooms as $screeningRoom) {
-            
+            ScreeningRoomSeatFactory::createForScreeningRoom($screeningRoom);
         }
 
 
