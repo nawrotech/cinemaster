@@ -30,10 +30,31 @@ final class MovieTypeFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'audioVersion' => self::faker()->randomElement(["dubbing", "original", "voice-over"]),
-            'visualVersion' => self::faker()->randomElement(["5D", "3D", "2D"]),
+            // 'audioVersion' => self::faker()->randomElement(["dubbing", "original", "voice-over"]),
+            // 'visualVersion' => self::faker()->randomElement(["5D", "3D", "2D"]),
         ];
     }
+
+    public static function createFormatCombinations() {
+        $audioVersions = ["dubbing", "original", "voice-over"];
+        $visualVersions = ["5D", "3D", "2D"];
+        
+        $formats = [];
+        foreach ($audioVersions as $audio) {
+            foreach ($visualVersions as $visual) {
+                $formats[] = [
+                    'audioVersion' => $audio,
+                    'visualVersion' => $visual,
+                ];
+            }
+        }
+        self::createMany(count($formats), function($i) use ($formats) {
+            return $formats[$i - 1];
+        });
+
+    }
+
+
 
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
