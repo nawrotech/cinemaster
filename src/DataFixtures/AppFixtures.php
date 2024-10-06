@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Factory\CinemaFactory;
 use App\Factory\CinemaSeatFactory;
+use App\Factory\MovieFactory;
 use App\Factory\ScreeningRoomFactory;
 use App\Factory\ScreeningRoomSeatFactory;
 use App\Factory\SeatFactory;
@@ -30,20 +31,9 @@ class AppFixtures extends Fixture
             ScreeningRoomSeatFactory::createForScreeningRoom($screeningRoom);
         }
 
+        MovieFactory::createMany(20);
 
-
-
-
-
-
-
-
-        
-
-
-
-        
-     
+             
         $manager->flush();
     }
 }

@@ -32,7 +32,7 @@ final class MovieFactory extends PersistentProxyObjectFactory
         return [
             'description' => self::faker()->text(),
             'durationInMinutes' => self::faker()->numberBetween(90, 180),
-            'title' => self::faker()->text(100),
+            'title' => self::faker()->text(20),
         ];
     }
 

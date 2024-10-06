@@ -46,7 +46,6 @@ final class ScreeningRoomFactory extends PersistentProxyObjectFactory
     public static function createScreeningRoomsForCinemas(int $count): array
     {
         return self::createMany($count, function () {
-            // Randomly pick a Cinema, but read its max values
             $cinema = CinemaFactory::random();
 
             $cinemaMaxRows = $cinema->getRowsMax();
@@ -54,8 +53,8 @@ final class ScreeningRoomFactory extends PersistentProxyObjectFactory
 
             return [
                 'cinema' => $cinema,
-                'rowsMax' => self::faker()->numberBetween(5, $cinemaMaxRows),  // Keeps within Cinema limits
-                'seatsPerRowMax' => self::faker()->numberBetween(5, $cinemaMaxSeats),  // Keeps within Cinema limits
+                'rowsMax' => self::faker()->numberBetween(5, $cinemaMaxRows),  
+                'seatsPerRowMax' => self::faker()->numberBetween(5, $cinemaMaxSeats),  
             ];
         });
     }

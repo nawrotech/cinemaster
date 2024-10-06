@@ -41,11 +41,9 @@ final class CinemaSeatFactory extends PersistentProxyObjectFactory
 
     public static function createForCinema(Cinema|Proxy $cinema): array
     {
-        // Getting cinema constraints
         $maxRow = $cinema->getRowsMax();
         $maxSeatsPerRow = $cinema->getSeatsPerRowMax();
 
-        // Fetching the seats that match the cinema's row/column constraints
         $seats = SeatFactory::repository()->createQueryBuilder('s')
             ->where('s.rowNum <= :maxRow')
             ->andWhere('s.colNum <= :maxSeatsPerRow')
@@ -56,7 +54,6 @@ final class CinemaSeatFactory extends PersistentProxyObjectFactory
 
         $cinemaSeats = [];
         foreach ($seats as $seat) {
-            // Creating CinemaSeat records based on the cinema and each seat
             $cinemaSeats[] = self::createOne([
                 'cinema' => $cinema,
                 'seat' => $seat,
