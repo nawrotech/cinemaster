@@ -73,11 +73,11 @@ class ShowtimeController extends AbstractController
             $em->persist($showtime);
             $em->flush();
 
-            $this->addFlash("success", "Showtime created successfully!");
+            // $this->addFlash("success", "Showtime created successfully!");
 
-            return $this->redirectToRoute("app_showtime", [
-                "slug" => $cinema->getSlug()
-            ]);
+            // return $this->redirectToRoute("app_showtime", [
+            //     "slug" => $cinema->getSlug()
+            // ]);
         }
 
         return $this->render('showtime/create.html.twig', [

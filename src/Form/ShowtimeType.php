@@ -10,7 +10,6 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Event\PostSubmitEvent;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -89,15 +88,12 @@ class ShowtimeType extends AbstractType
                             $showtime->getId()
                         );
 
-                        // later add maybe what records are overlapping
-                        // also specify those movies    
                         if (!empty($overlappingShowtimes)) {
                             $form->addError(new FormError("Something else is currently playing in room {$showtime->getScreeningRoom()->getName()}"));
                         }
 
-                        // TEMP
                         if (!empty($this->showtimeRepository->findOverlappingForMovie(
-                            $showtime->getMovieFormat(),
+                            $movieFormat,
                             $showtime->getStartTime(),
                             $showtime->getEndTime(),
                             $showtime->getId()

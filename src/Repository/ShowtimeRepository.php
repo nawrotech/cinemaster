@@ -24,7 +24,6 @@ class ShowtimeRepository extends ServiceEntityRepository
     // public function findOverlapping(ScreeningRoom $screeningRoom, \DateTimeInterface $startTime, \DateTimeInterface $endTime, ?int $excludeId = null)
     public function findOverlapping(\DateTimeInterface $startTime, \DateTimeInterface $endTime, ?int $excludeId = null)
     {
-        // validate what could be returned from this one or many movies
         $qb = $this->createQueryBuilder('s')
             ->orWhere('(:startTime >= s.startTime AND :startTime < s.endTime)')
             ->orWhere('(:endTime > s.startTime AND :endTime <= s.endTime)')
@@ -144,6 +143,11 @@ class ShowtimeRepository extends ServiceEntityRepository
         
     }
 
+
+    public function checkOne() {
+        return $this->createQueryBuilder("s")
+                        ->getQuery()->getResult();
+    }
 
 
 }
