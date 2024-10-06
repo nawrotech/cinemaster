@@ -1,6 +1,36 @@
 {% extends "base.html.twig" %}
 
 {% block body %}
+
+
+    <form action="">
+        <select name="screeningRoomName" id="">
+            <option value="">All rooms</option>
+            {% for roomName in availableRoomNames %}
+                <option value="{{ roomName }}">{{ roomName }}</option>
+            {% endfor %}
+        </select>
+
+        <label>
+            Start time:
+            <input
+            id="showtimeStartTime"
+            type="date"
+            name="showtimeStartTime"
+            />
+        </label>
+
+        <label>
+            End time:
+            <input id="showtimeEndTime" type="date" name="showtimeEndTime" />
+        </label>
+          
+    
+        <input type="text" name="movieTitle">
+        <button>Apply filters</button>
+    </form>
+
+
     <div class="container d-grid gap-2">
         {% for showtime in showtimes %}
             <div class="card">
@@ -12,6 +42,13 @@
                 <p>Screening room: {{ showtime.screeningRoom.name }}</p>
                 <p>Start time: {{ showtime.startTime|date("F jS \\a\\t g:ia")  }}</p>
                 <p>End time: {{ showtime.endTime|date("F jS \\a\\t g:ia")  }}</p>
+                <a class="btn btn-secondary" 
+                    href="{{ path("app_showtime_create",
+                     {
+                    slug: showtime.screeningRoom.cinema.slug,
+                    screening_room_slug: showtime.screeningRoom.slug,
+                    showtime_id: showtime.id
+                     }) }}">Edit</a>
             </div>
         {% endfor %}
     </div>

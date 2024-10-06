@@ -63,6 +63,12 @@ class Cinema
     #[ORM\OneToMany(targetEntity: CinemaHistory::class, mappedBy: 'cinema')]
     private Collection $cinemaHistories;
 
+    /**
+     * @var Collection<int, Showtime>
+     */
+    #[ORM\OneToMany(targetEntity: Showtime::class, mappedBy: 'cinema')]
+    private Collection $showtimes;
+
 
 
 
@@ -75,6 +81,7 @@ class Cinema
         $this->cinemaSeats = new ArrayCollection();
         $this->screeningRooms = new ArrayCollection();
         $this->cinemaHistories = new ArrayCollection();
+        $this->showtimes = new ArrayCollection();
     }
 
     #[PrePersist]
@@ -268,6 +275,36 @@ class Cinema
     public function setSeatsPerRowMax(int $seatsPerRowMax): static
     {
         $this->seatsPerRowMax = $seatsPerRowMax;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Showtime>
+     */
+    public function getShowtimes(): Collection
+    {
+        return $this->showtimes;
+    }
+
+    public function addShowtime(Showtime $showtime): static
+    {
+        if (!$this->showtimes->contains($showtime)) {
+            $this->showtimes->add($showtime);
+            $showtime->setCinema($this);
+        }
+
+        return $this;
+    }
+
+    public function removeShowtime(Showtime $showtime): static
+    {
+        if ($this->showtimes->removeElement($showtime)) {
+            // set the owning side to null (unless already changed)
+            if ($showtime->getCinema() === $this) {
+                $showtime->setCinema(null);
+            }
+        }
 
         return $this;
     }

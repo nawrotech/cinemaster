@@ -5,8 +5,12 @@ namespace App\Entity;
 use App\Repository\MovieRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
-// check for duplicates
+#[UniqueEntity(
+    fields: ["title"],
+    message: "Movie of that title already exists",
+)]
 #[ORM\Entity(repositoryClass: MovieRepository::class)]
 class Movie
 {

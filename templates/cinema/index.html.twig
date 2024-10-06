@@ -4,11 +4,6 @@
 
 {% block body %}
 
-    {% for message in app.flashes("success") %}
-        <div class="flash-notice">
-            {{ message }}
-        </div>
-    {% endfor %}
 
     <a class="btn btn-primary" href="{{ path("app_movie_create") }}">
         Create movies
@@ -22,10 +17,10 @@
                Edit
    
             </a>
-            <a class="btn btn-secondary" href="{{path("app_screening_rooms_create", {slug: cinema.slug})}}">
+            <a class="btn btn-secondary" href="{{path("app_screening_room_create", {slug: cinema.slug})}}">
                 Create screening room
             </a>
-            <a class="btn btn-outline-secondary" href="{{path("app_screening_rooms", {slug: cinema.slug})}}">Show cinema's screening rooms</a>
+            <a class="btn btn-outline-secondary" href="{{path("app_screening_room", {slug: cinema.slug})}}">Show cinema's screening rooms</a>
         </div>
         
     {% endfor %}

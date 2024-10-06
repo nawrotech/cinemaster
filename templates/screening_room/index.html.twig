@@ -6,27 +6,32 @@
 
     {% if rooms is empty %}
         <p>Looks like you haven't created rooms yet, let's fix it :)</p>
-        <a href="{{path("app_screening_rooms_create", {slug: cinema.slug})}}">Click to start creating</a>
+        <a class="btn btn-secondary" href="{{path("app_screening_room_create", {slug: cinema.slug})}}">Click to start creating</a>
     {% endif %}
     
-
-    {% for room in rooms %}
-      
-        <p>Room name: {{ room.name }}</p>
-        <p>Capacity: {{ room.screeningRoomSeats|length }}</p>
-        
-        <a class="d-block" href="{{path("app_screening_rooms_edit",
-            {screening_room_slug: room.slug,
-                slug: cinema.slug}
-            )}}">
-           Edit Seats
-       </a>
-       <a class="d-block" href="{{path("app_showtime_create",
-            {
-                screening_room_slug: room.slug,
-                slug: cinema.slug
-            }
-       )}}">Create showtime</a>
+    <div class="container d-grid gap-2 mt-2">
+        {% for room in rooms %}
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+            <h5 class="card-title">Room name: {{ room.name }}</h5>
+            <p class="card-text">Capacity: {{ room.screeningRoomSeats|length }}</p>
+            <a class="d-block" href="{{path("app_screening_room_edit",
+                {screening_room_slug: room.slug,
+                    slug: cinema.slug}
+                )}}">
+                Edit Seats
+            </a>
+            <a class="d-block" href="{{path("app_showtime_create",
+                {
+                    screening_room_slug: room.slug,
+                    slug: cinema.slug
+                }
+                )}}">Create showtime
+            </a>
+            </div>
+        </div>
     {% endfor %}
+    </div>
+   
 
 {% endblock %}

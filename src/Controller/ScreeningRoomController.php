@@ -37,7 +37,7 @@ class ScreeningRoomController extends AbstractController
         ScreeningRoomRepository $screeningRoomRepository,
     ): Response {
 
-        $screeningRooms = $screeningRoomRepository->findAll(["cinema" => $cinema]);
+        $screeningRooms = $screeningRoomRepository->findBy(["cinema" => $cinema]);
 
         return $this->render('screening_room/index.html.twig', [
             "rooms" => $screeningRooms,
@@ -81,9 +81,6 @@ class ScreeningRoomController extends AbstractController
                     $screeningRoomSeat->setScreeningRoom($screeningRoom);
                     $screeningRoomSeat->setSeat($cinemaSeat);
                     $em->persist($screeningRoomSeat);
-
-                    // redundant, not even an owner,
-                    $screeningRoom->addScreeningRoomSeat($screeningRoomSeat);
                 }
             }
 
@@ -110,6 +107,7 @@ class ScreeningRoomController extends AbstractController
         ]);
     }
 
+    // TODO USE MAPPING FOR GET PARAMS
     #[Route('/seat/type/{id}', name: 'app_screening_room_seat_type_change', methods: ["POST"])]
     public function changeSeatType(
         Request $request,
@@ -135,8 +133,7 @@ class ScreeningRoomController extends AbstractController
 
 
 
-    // id for dev, later will be slug with room name
-    #[Route("/{screening_room_slug}/edit", name: 'app_screening_rooms_edit')]
+    #[Route("/{screening_room_slug}/edit", name: 'app_screening_room_edit')]
     public function edit(
         #[MapEntity(mapping: ["slug" => "slug"])]
         Cinema $cinema,

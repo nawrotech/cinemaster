@@ -54,15 +54,10 @@ class ShowtimeType extends AbstractType
                 "constraints" => [
                     new NotBlank(),
                     new Positive()
-
                 ]
             ])
             ->add('start_time', DateTimeType::class, [
                 "label" => "Set date"
-            ])
-            ->add("virtual_scheduling_errors", HiddenType::class, [
-                "mapped" => false,
-                "required" => false,
             ])
             ->add("create_showtime", SubmitType::class)
             ->addEventListener(
@@ -95,11 +90,12 @@ class ShowtimeType extends AbstractType
                         );
 
                         // later add maybe what records are overlapping
+                        // also specify those movies    
                         if (!empty($overlappingShowtimes)) {
-                            // also specify those movies    
-                            $form->addError(new FormError("Some showtimes overlap with given name"));
+                            $form->addError(new FormError("Something else is currently playing in room {$showtime->getScreeningRoom()->getName()}"));
                         }
 
+                        // TEMP
                         if (!empty($this->showtimeRepository->findOverlappingForMovie(
                             $showtime->getMovieFormat(),
                             $showtime->getStartTime(),
@@ -108,8 +104,8 @@ class ShowtimeType extends AbstractType
                         ))) {
                             $form->addError(new FormError("Picked movie is already playing in "));
                         }
-
-                     
+                    
+                   
 
                     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Cinema;
 use App\Entity\ScreeningRoom;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -15,6 +16,19 @@ class ScreeningRoomRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, ScreeningRoom::class);
     }
+    
+    
+    public function findDistinctRoomNames(Cinema $cinema): array
+       {
+           return array_column($this->createQueryBuilder('sr')
+                    ->select("sr.name")
+                    ->distinct()
+                    ->andWhere("sr.cinema = :cinema")
+                    ->setParameter("cinema", $cinema)
+                    ->getQuery()
+                    ->getScalarResult(), "name")
+           ;
+       }
 
     //    /**
     //     * @return ScreeningRoom[] Returns an array of ScreeningRoom objects

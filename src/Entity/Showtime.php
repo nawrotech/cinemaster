@@ -34,6 +34,13 @@ class Showtime
     #[ORM\JoinColumn(nullable: false)]
     private ?MovieMovieType $movieFormat = null;
 
+    #[ORM\Column]
+    private ?bool $published = false;
+
+    #[ORM\ManyToOne(inversedBy: 'showtimes')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Cinema $cinema = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -107,6 +114,30 @@ class Showtime
     public function setMovieFormat(?MovieMovieType $movieFormat): static
     {
         $this->movieFormat = $movieFormat;
+
+        return $this;
+    }
+
+    public function isPublished(): ?bool
+    {
+        return $this->published;
+    }
+
+    public function setPublished(bool $published): static
+    {
+        $this->published = $published;
+
+        return $this;
+    }
+
+    public function getCinema(): ?Cinema
+    {
+        return $this->cinema;
+    }
+
+    public function setCinema(?Cinema $cinema): static
+    {
+        $this->cinema = $cinema;
 
         return $this;
     }

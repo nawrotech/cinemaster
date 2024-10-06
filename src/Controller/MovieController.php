@@ -12,16 +12,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route("/cinemas/movies")]
+#[Route("/movies")]
 class MovieController extends AbstractController
 {
     // with filtring using get params
     #[Route('/', name: 'app_movie')]
     public function index(MovieMovieTypeRepository $movieFormatRepository): Response
     {
-       
         return $this->render('movie/index.html.twig', [
-            'controller_name' => 'MovieController',
             "movies" =>  $movieFormatRepository->findMovieWithFormats()
         ]);
     }
@@ -40,7 +38,7 @@ class MovieController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->persist($movie);
 
-            foreach($form["movieTypes"]->getData() as $movieType) {
+            foreach($form->get("movieTypes")->getData() as $movieType) {
                 $movieFormat = new MovieMovieType();
                 $movieFormat->setMovie($movie);
                 $movieFormat->setMovieType($movieType);
@@ -50,7 +48,7 @@ class MovieController extends AbstractController
 
             $em->flush();
 
-            // $this->addFlash('success', 'Movie created successfully!');
+            $this->addFlash('success', 'Movie created successfully!');
             return $this->redirectToRoute('app_movie');
         }
 

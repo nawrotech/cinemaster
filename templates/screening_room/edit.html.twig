@@ -14,7 +14,7 @@
                     <p>Seat type: {{ seat.seatType }}</p>
                     <p>Seat status: {{ seat.seatStatus }}</p>
                     <a href="">{{seat.seat.seat.colNum}}</a>
-                    <form method="POST" action="{{path("app_screening_rooms_seat_type_change", {
+                    <form method="POST" action="{{path("app_screening_room_seat_type_change", {
                         id: seat.seat.seat.id,
                         slug: cinema.name
                         })}}">

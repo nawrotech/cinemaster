@@ -49,8 +49,9 @@ class CinemaController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $maxRows = $form->get('screening_room_size')->get('max_row')->getData();
-            $maxColumns = $form->get('screening_room_size')->get('max_column')->getData();
+            $roomMaxSize = $form->get('screening_room_size');
+            $maxRows = $roomMaxSize->get('max_row')->getData();
+            $maxColumns = $roomMaxSize->get('max_column')->getData();
 
             $seats = $seatRepository->findSeatsInRange(1, $maxRows, 1, $maxColumns);
 
@@ -59,14 +60,13 @@ class CinemaController extends AbstractController
                 $cinemaSeat->setSeat($seat);
                 $cinemaSeat->setCinema($cinema);
 
-                // $cinema->addCinemaSeat($cinemaSeat);
                 $em->persist($cinemaSeat);
             }
 
             $em->persist($cinema);
             $em->flush();
 
-            $this->addFlash("success", "Cinema created");
+            $this->addFlash("success", "Cinema created!");
             return $this->redirectToRoute("app_cinema");
         }
 
@@ -81,7 +81,6 @@ class CinemaController extends AbstractController
     #[Route('/{slug}/edit', name: "app_cinema_edit")]
     public function edit(
         Cinema $cinema,
-        CinemaSeatRepository $cinemaSeatRepository,
         Request $request,
         CinemaChangeService $cinemaChangeService
     ): Response {

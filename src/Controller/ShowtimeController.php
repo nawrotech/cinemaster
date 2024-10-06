@@ -6,47 +6,74 @@ use App\Entity\Cinema;
 use App\Entity\ScreeningRoom;
 use App\Entity\Showtime;
 use App\Form\ShowtimeType;
+use App\Repository\ScreeningRoomRepository;
 use App\Repository\ShowtimeRepository;
+use App\Service\DateTimeService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route("/cinemas/{slug}/showtimes")]
 class ShowtimeController extends AbstractController
 {
     #[Route("/", name: "app_showtime")]
-    public function index(ShowtimeRepository $showtimeRepository): Response
+    public function index(
+        Cinema $cinema,
+        ShowtimeRepository $showtimeRepository,
+        ScreeningRoomRepository $screeningRoomRepository,
+        DateTimeService $dateTimeService,
+        #[MapQueryParameter()] ?string $screeningRoomName,
+        #[MapQueryParameter()] ?string $showtimeStartTime,
+        #[MapQueryParameter()] ?string $showtimeEndTime,
+        #[MapQueryParameter()] ?string $movieTitle,
+        ): Response
     {
+
+        // $dateTimeService->checkIsStringInDateTimeFormat($showtimeStartTime);
+
         return $this->render('showtime/index.html.twig', [
-            "showtimes" => $showtimeRepository->findAll()
+            "showtimes" => $showtimeRepository->findFiltered(
+                $cinema,
+                $screeningRoomName,
+                $showtimeStartTime,
+                $showtimeEndTime,
+                $movieTitle
+            ),
+            "availableRoomNames" => $screeningRoomRepository->findDistinctRoomNames($cinema)
         ]);
     }
 
-    #[Route("/create/{screening_room_slug}", name: "app_showtime_create")]
+    #[Route("/create/{screening_room_slug}/{showtime_id?}", name: "app_showtime_create")]
     public function create(
         #[MapEntity(mapping: ["slug" => "slug"])]
         Cinema $cinema,
         #[MapEntity(mapping: ["screening_room_slug" => "slug"])]
         ScreeningRoom $screeningRoom,
         EntityManagerInterface $em,
-        ShowtimeRepository $showtimeRepository,
         Request $request,
+        #[MapEntity(mapping: ["showtime_id" => "id"])]
+        ?ShowTime $showtime = null,
     ): Response {
 
-        $showtime = new Showtime();
-        $showtime->setScreeningRoom($screeningRoom);
+        if (!$showtime) {
+            $showtime = new Showtime();
+            $showtime->setScreeningRoom($screeningRoom);
+            $showtime->setCinema($cinema);
+        }
 
         $form = $this->createForm(ShowtimeType::class, $showtime);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-        
             $em->persist($showtime);
             $em->flush();
+
+            $this->addFlash("success", "Showtime created successfully!");
 
             return $this->redirectToRoute("app_showtime", [
                 "slug" => $cinema->getSlug()
