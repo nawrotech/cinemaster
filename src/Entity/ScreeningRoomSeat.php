@@ -32,7 +32,6 @@ class ScreeningRoomSeat
     private ?CinemaSeat $seat = null;
 
 
-
     public function getId(): ?int
     {
         return $this->id;

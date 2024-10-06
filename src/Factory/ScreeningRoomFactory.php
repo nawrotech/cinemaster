@@ -2,6 +2,7 @@
 
 namespace App\Factory;
 
+use App\Entity\Cinema;
 use App\Entity\ScreeningRoom;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
@@ -32,15 +33,34 @@ final class ScreeningRoomFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
-            'name' => self::faker()->text(50),
-            'rowsMax' => self::faker()->randomNumber(),
-            'seatsPerRowMax' => self::faker()->randomNumber(),
-            'slug' => self::faker()->text(100),
-            'status' => self::faker()->text(100),
-            'updatedAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
+            // 'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
+            // 'updatedAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
+            // 'slug' => self::faker()->text(100),
+            // 'status' => self::faker()->text(100),
+            'name' => self::faker()->word(),
+            'rowsMax' => self::faker()->numberBetween(5, 12),
+            'seatsPerRowMax' => self::faker()->numberBetween(5, 12),
         ];
     }
+
+
+    public static function createScreeningRoomsForCinemas(int $count): array
+    {
+        return self::createMany($count, function () {
+            // Randomly pick a Cinema, but read its max values
+            $cinema = CinemaFactory::random();
+
+            $cinemaMaxRows = $cinema->getRowsMax();
+            $cinemaMaxSeats = $cinema->getSeatsPerRowMax();
+
+            return [
+                'cinema' => $cinema,
+                'rowsMax' => self::faker()->numberBetween(5, $cinemaMaxRows),  // Keeps within Cinema limits
+                'seatsPerRowMax' => self::faker()->numberBetween(5, $cinemaMaxSeats),  // Keeps within Cinema limits
+            ];
+        });
+    }
+
 
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
