@@ -32,14 +32,14 @@ final class ShowtimeFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'advertisementTimeInMinutes' => self::faker()->randomNumber(),
-            'cinema' => CinemaFactory::new(),
-            'endTime' => self::faker()->dateTime(),
-            'movieFormat' => MovieMovieTypeFactory::new(),
-            'price' => self::faker()->randomNumber(),
-            'published' => self::faker()->boolean(),
-            'screeningRoom' => ScreeningRoomFactory::new(),
+            'advertisementTimeInMinutes' => self::faker()->numberBetween(10, 20),
+            'price' => self::faker()->numberBetween(15, 30),
             'startTime' => self::faker()->dateTime(),
+            'endTime' => self::faker()->dateTime(),
+            // 'movieFormat' => MovieMovieTypeFactory::new(),
+            // 'published' => self::faker()->boolean(),
+            // 'cinema' => CinemaFactory::new(),
+            // 'screeningRoom' => ScreeningRoomFactory::new(),
         ];
     }
 

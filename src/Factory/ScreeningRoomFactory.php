@@ -36,7 +36,7 @@ final class ScreeningRoomFactory extends PersistentProxyObjectFactory
             // 'updatedAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
             // 'slug' => self::faker()->text(100),
             // 'status' => self::faker()->text(100),
-            'name' => self::faker()->word(),
+            'name' => self::faker()->unique()->word(),
             'rowsMax' => self::faker()->numberBetween(5, 12),
             'seatsPerRowMax' => self::faker()->numberBetween(5, 12),
         ];

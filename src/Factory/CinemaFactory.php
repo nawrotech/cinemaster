@@ -32,7 +32,7 @@ final class CinemaFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'name' => self::faker()->word(),
+            'name' => self::faker()->unique()->word(),
             'rowsMax' => self::faker()->numberBetween(5, 12),
             'seatsPerRowMax' => self::faker()->numberBetween(5, 12),
             // 'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime("now")),

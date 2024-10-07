@@ -30,9 +30,9 @@ final class MovieFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
+            'title' => self::faker()->text(20),
             'description' => self::faker()->text(),
             'durationInMinutes' => self::faker()->numberBetween(90, 180),
-            'title' => self::faker()->text(20),
         ];
     }
 

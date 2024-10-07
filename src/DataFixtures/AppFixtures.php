@@ -12,10 +12,9 @@ use App\Factory\MovieTypeFactory;
 use App\Factory\ScreeningRoomFactory;
 use App\Factory\ScreeningRoomSeatFactory;
 use App\Factory\SeatFactory;
+use App\Factory\ShowtimeFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-
-use function Zenstruck\Foundry\faker;
 
 class AppFixtures extends Fixture
 {
@@ -36,17 +35,35 @@ class AppFixtures extends Fixture
         }
 
         $movies = MovieFactory::createMany(20);
-
-        
-        $movieFormats = MovieTypeFactory::createFormatCombinations();
+        $movieTypes = MovieTypeFactory::createFormatCombinations();
             
-        MovieMovieTypeFactory::createMany(count($movies), function() use($movies, $movieFormats) {
+        $movieFormats = MovieMovieTypeFactory::createMany(count($movies), function() use($movies, $movieTypes) {
             return [
                 "movie" => $movies[array_rand($movies)],
-                "movieType" => $movieFormats[array_rand($movieFormats)]
+                "movieType" => $movieTypes[array_rand($movieTypes)]
             ];
         });
+
+        ShowtimeFactory::createOne([
+            "screeningRoom" => $screeningRooms[array_rand($screeningRooms)],
+            "cinema" => $cinemas[array_rand($cinemas)],
+            "movieFormat" => $movieFormats[array_rand($movieFormats)],
+            "startTime" => new \DateTime("2024-10-10 T10:00:00P"),
+            "endTime" => new \DateTime()
+        ]);
+
+        // ShowtimeFactory::createOne([
+        //     "screeningRoom" => ScreeningRoomFactory::createOne(),
+        //     "cinema" => CinemaFactory::createOne(),
+        //     "movieFormat" => MovieMovieTypeFactory::new(),
+        //     "startTime" => new \DateTime("2024-10-10 T10:00:00P"),
+        //     "endTime" => new \DateTime("2024-10-10 T12:00:00P")
+        // ]);
+
+
+
         
+
         $manager->flush();
     }
 }

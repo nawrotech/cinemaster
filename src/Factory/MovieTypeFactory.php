@@ -30,8 +30,8 @@ final class MovieTypeFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            // 'audioVersion' => self::faker()->randomElement(["dubbing", "original", "voice-over"]),
-            // 'visualVersion' => self::faker()->randomElement(["5D", "3D", "2D"]),
+            'audioVersion' => self::faker()->randomElement(["dubbing", "original", "voice-over"]),
+            'visualVersion' => self::faker()->randomElement(["5D", "3D", "2D"]),
         ];
     }
 
