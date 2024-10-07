@@ -5,8 +5,11 @@ namespace App\Form;
 use App\Entity\MovieMovieType;
 use App\Entity\Showtime;
 use App\Repository\ShowtimeRepository;
+use App\Validator\OverlappingShowtimeInSameScreeningRoom;
 use DateInterval;
+use Override;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\DomCrawler\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Event\PostSubmitEvent;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
@@ -56,7 +59,7 @@ class ShowtimeType extends AbstractType
                 ]
             ])
             ->add('start_time', DateTimeType::class, [
-                "label" => "Set date"
+                "label" => "Set date",
             ])
             ->add("create_showtime", SubmitType::class)
             ->addEventListener(
@@ -81,28 +84,18 @@ class ShowtimeType extends AbstractType
                     };
 
                     if ($showtime->getEndTime()) {
-                        $overlappingShowtimes = $this->showtimeRepository->findOverlappingForRoom(
-                            $showtime->getScreeningRoom(),
-                            $showtime->getStartTime(),
-                            $showtime->getEndTime(),
-                            $showtime->getId()
-                        );
+                        $overlappingViolations = $this->validator->validate($showtime,[
+                            new OverlappingShowtimeInSameScreeningRoom()
+                        ]);
 
-                        if (!empty($overlappingShowtimes)) {
-                            $form->addError(new FormError("Something else is currently playing in room {$showtime->getScreeningRoom()->getName()}"));
+                        if (!empty($overlappingViolations)) {
+                            foreach($overlappingViolations as $violation) {
+                                $form->addError(new FormError($violation->getMessage()));
+                                
+                            }
                         }
 
-                        if (!empty($this->showtimeRepository->findOverlappingForMovie(
-                            $movieFormat,
-                            $showtime->getStartTime(),
-                            $showtime->getEndTime(),
-                            $showtime->getId()
-                        ))) {
-                            $form->addError(new FormError("Picked movie is already playing in "));
-                        }
-                    
-                   
-
+          
                     }
 
                 }
