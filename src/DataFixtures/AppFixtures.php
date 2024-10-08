@@ -46,9 +46,9 @@ class AppFixtures extends Fixture
         });
 
         ShowtimeFactory::createMany(10, function() use($screeningRooms) {
-            $startsAt = \DateTimeImmutable::createFromMutable(faker()->dateTimeBetween("now", "+1 week"));
-            $endsAt = $startsAt->modify('+' . rand(1, 3) . ' hours');
-            
+            $startsAt= \DateTimeImmutable::createFromMutable(faker()->dateTimeBetween("now", "+1 week"));
+            $endsAt =  $startsAt->modify('+' . rand(1, 3) . ' hours');
+
             $cinema = CinemaFactory::random();
             $screeningRooms = ScreeningRoomFactory::findBy(["cinema" => $cinema]);
 
@@ -61,13 +61,7 @@ class AppFixtures extends Fixture
             ];
         });
 
-        // ShowtimeFactory::createOne([
-        //     "screeningRoom" => ScreeningRoomFactory::createOne(),
-        //     "cinema" => CinemaFactory::createOne(),
-        //     "movieFormat" => MovieMovieTypeFactory::new(),
-        //     "startTime" => new \DateTime("2024-10-10 T10:00:00P"),
-        //     "endTime" => new \DateTime("2024-10-10 T12:00:00P")
-        // ]);
+ 
 
 
 
