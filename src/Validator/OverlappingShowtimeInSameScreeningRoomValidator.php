@@ -31,6 +31,7 @@ class OverlappingShowtimeInSameScreeningRoomValidator extends ConstraintValidato
 
         $overlappingShowtimes = $this->showtimeRepository
                                     ->findOverlappingForRoom(
+                                        $value->getCinema(),
                                         $value->getScreeningRoom(), 
                                         $value->getStartTime(), 
                                         $value->getEndTime(),
