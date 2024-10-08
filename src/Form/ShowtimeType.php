@@ -6,10 +6,9 @@ use App\Entity\MovieMovieType;
 use App\Entity\Showtime;
 use App\Repository\ShowtimeRepository;
 use App\Validator\OverlappingShowtimeInSameScreeningRoom;
+use App\Validator\SameMoviePlayingInTwoRoomsAtTheSameTime;
 use DateInterval;
-use Override;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\DomCrawler\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Event\PostSubmitEvent;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
@@ -68,33 +67,26 @@ class ShowtimeType extends AbstractType
                     $form = $event->getForm();
                     $showtime = $event->getData();
 
-                    $movieFormat = $showtime->getMovieFormat();
 
                     if ($form->isValid()) {
-                        $maintenanceTime = $showtime->getScreeningRoom()->getMaintenanceTimeInMinutes();
-                        $breaktime = $showtime->getAdvertisementTimeInMinutes();
-                        $movieDurationTime = $movieFormat->getMovie()->getDurationInMinutes();
-                       
-                        $additionalTime = $breaktime + $maintenanceTime + $movieDurationTime;
-
-                        $startTime = clone $showtime->getStartTime();
-                        $endTime = $startTime->add(new DateInterval("PT{$additionalTime}M"));
+                        $showtimeDuration = $showtime->getDuration();
+                        $endTime = $showtime->getStartTime()->add(new DateInterval("PT{$showtimeDuration}M"));
 
                         $showtime->setEndTime($endTime);
                     };
 
                     if ($showtime->getEndTime()) {
-                        $overlappingViolations = $this->validator->validate($showtime,[
-                            new OverlappingShowtimeInSameScreeningRoom()
-                        ]);
+                        $overlappingViolations = $this->validator->validate($showtime, [
+                                new SameMoviePlayingInTwoRoomsAtTheSameTime(),
+                                new OverlappingShowtimeInSameScreeningRoom()
+                            ]
+                        );
 
                         if (!empty($overlappingViolations)) {
                             foreach($overlappingViolations as $violation) {
                                 $form->addError(new FormError($violation->getMessage()));
-                                
                             }
                         }
-
           
                     }
 
