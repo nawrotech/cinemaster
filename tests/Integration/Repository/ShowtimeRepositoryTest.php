@@ -2,6 +2,7 @@
 
 namespace App\Tests;
 
+use App\Entity\Cinema;
 use App\Entity\MovieMovieType;
 use App\Entity\Showtime;
 use App\Factory\CinemaFactory;
@@ -66,9 +67,12 @@ class ShowtimeRepositoryTest extends KernelTestCase
         $showtimeStartsAt = sprintf("%s %s", self::BASE_DATE, "10:00:00");
         $showtimeEndsAt = sprintf("%s %s", self::BASE_DATE, "12:00:00");
        
+        $cinema = CinemaFactory::createOne();
+        $realCinema = $cinema->_real();
+
          ShowtimeFactory::createOne([
             "screeningRoom" => ScreeningRoomFactory::createOne(),
-            "cinema" => CinemaFactory::createOne(),
+            "cinema" => $realCinema,
             "movieFormat" => MovieMovieTypeFactory::new(),
             "startTime" => new \DateTime($showtimeStartsAt),
             "endTime" => new \DateTime($showtimeEndsAt)
@@ -78,8 +82,9 @@ class ShowtimeRepositoryTest extends KernelTestCase
         $newShowEndsAt = sprintf("%s %s", self::BASE_DATE, $newShowEndsAt);
 
         $result = $this->getShowtimeRepository()->findOverlapping(
+            $realCinema,
             new \DateTime($newShowStartsAt),
-            new \DateTime($newShowEndsAt)
+            new \DateTime($newShowEndsAt),
         )->getQuery()->getResult();
 
         $expectedCount = $shouldOverlap ? 1 : 0;
@@ -87,7 +92,7 @@ class ShowtimeRepositoryTest extends KernelTestCase
         $this->assertCount(
             $expectedCount,
             $result,
-            "Failed scenario: $scenario"
+            $scenario
         );
         
     }
@@ -104,6 +109,8 @@ class ShowtimeRepositoryTest extends KernelTestCase
             "startTime" => new \DateTime($showtimeStartsAt),
             "endTime" => new \DateTime($showtimeEndsAt)
         ]);
+
+        // dd();
 
         assert($showtime instanceof Showtime);
 

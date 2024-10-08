@@ -22,14 +22,20 @@ class ShowtimeRepository extends ServiceEntityRepository
     }
 
     // public function findOverlapping(ScreeningRoom $screeningRoom, \DateTimeInterface $startTime, \DateTimeInterface $endTime, ?int $excludeId = null)
-    public function findOverlapping(\DateTimeInterface $startTime, \DateTimeInterface $endTime, ?int $excludeId = null)
+    public function findOverlapping(
+        Cinema $cinema,
+        \DateTimeInterface $startTime, 
+        \DateTimeInterface $endTime, 
+        ?int $excludeId = null)
     {
         $qb = $this->createQueryBuilder('s')
             ->orWhere('(:startTime >= s.startTime AND :startTime < s.endTime)')
             ->orWhere('(:endTime > s.startTime AND :endTime <= s.endTime)')
             ->orWhere('(:startTime <= s.startTime AND :endTime >= s.endTime)')
+            ->andWhere("s.cinema = :cinema")
             ->setParameter('startTime', $startTime)
-            ->setParameter('endTime', $endTime);
+            ->setParameter('endTime', $endTime)
+            ->setParameter('cinema', $cinema);
             
         if ($excludeId) {
             $qb->andWhere('s.id != :excludeId')
@@ -65,6 +71,7 @@ class ShowtimeRepository extends ServiceEntityRepository
             ->setParameter("movieFormat", $movieFormat)
             ->getQuery()
             ->getResult();
+
     }
 
     public function findFiltered(
@@ -147,6 +154,10 @@ class ShowtimeRepository extends ServiceEntityRepository
     public function checkOne() {
         return $this->createQueryBuilder("s")
                         ->getQuery()->getResult();
+    }
+
+    public function dummyQuery() {
+        return false;
     }
 
 
