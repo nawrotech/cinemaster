@@ -16,13 +16,14 @@ use App\Factory\ShowtimeFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
+use function Zenstruck\Foundry\faker;
+
 class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-
         SeatFactory::createGrid();
-        $cinemas = CinemaFactory::createMany(3);
+        $cinemas = CinemaFactory::createMany(2);
 
         foreach($cinemas as $cinema) {
             CinemaSeatFactory::createForCinema($cinema);
@@ -34,23 +35,31 @@ class AppFixtures extends Fixture
             ScreeningRoomSeatFactory::createForScreeningRoom($screeningRoom);
         }
 
-        $movies = MovieFactory::createMany(20);
-        $movieTypes = MovieTypeFactory::createFormatCombinations();
+        $movies = MovieFactory::createMany(2);
+        $movieTypes = MovieTypeFactory::createMany(4);
             
-        $movieFormats = MovieMovieTypeFactory::createMany(count($movies), function() use($movies, $movieTypes) {
+        MovieMovieTypeFactory::createMany(count($movies), function() use($movies, $movieTypes) {
             return [
                 "movie" => $movies[array_rand($movies)],
                 "movieType" => $movieTypes[array_rand($movieTypes)]
             ];
         });
 
-        ShowtimeFactory::createOne([
-            "screeningRoom" => $screeningRooms[array_rand($screeningRooms)],
-            "cinema" => $cinemas[array_rand($cinemas)],
-            "movieFormat" => $movieFormats[array_rand($movieFormats)],
-            "startTime" => new \DateTime("2024-10-10 T10:00:00P"),
-            "endTime" => new \DateTime()
-        ]);
+        ShowtimeFactory::createMany(10, function() use($screeningRooms) {
+            $startsAt = \DateTimeImmutable::createFromMutable(faker()->dateTimeBetween("now", "+1 week"));
+            $endsAt = $startsAt->modify('+' . rand(1, 3) . ' hours');
+            
+            $cinema = CinemaFactory::random();
+            $screeningRooms = ScreeningRoomFactory::findBy(["cinema" => $cinema]);
+
+            return [
+                "cinema" => $cinema,
+                "screeningRoom" =>  $screeningRooms[array_rand($screeningRooms)],
+                "movieFormat" => MovieMovieTypeFactory::random(),
+                "startTime" => $startsAt,
+                "endTime" => $endsAt
+            ];
+        });
 
         // ShowtimeFactory::createOne([
         //     "screeningRoom" => ScreeningRoomFactory::createOne(),

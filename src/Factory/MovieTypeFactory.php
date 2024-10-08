@@ -35,25 +35,25 @@ final class MovieTypeFactory extends PersistentProxyObjectFactory
         ];
     }
 
-    public static function createFormatCombinations() {
-        $audioVersions = ["dubbing", "original", "voice-over"];
-        $visualVersions = ["5D", "3D", "2D"];
+    // public static function createFormatCombinations() {
+    //     $audioVersions = ["dubbing", "original", "voice-over"];
+    //     $visualVersions = ["5D", "3D", "2D"];
         
-        $formats = [];
-        foreach ($audioVersions as $audio) {
-            foreach ($visualVersions as $visual) {
-                $formats[] = [
-                    'audioVersion' => $audio,
-                    'visualVersion' => $visual,
-                ];
-            }
-        }
-        return self::createMany(count($formats), function($i) use ($formats) {
-            return $formats[$i - 1];
-        });
+    //     $formats = [];
+    //     foreach ($audioVersions as $audio) {
+    //         foreach ($visualVersions as $visual) {
+    //             $formats[] = [
+    //                 'audioVersion' => $audio,
+    //                 'visualVersion' => $visual,
+    //             ];
+    //         }
+    //     }
+    //     return self::createMany(count($formats), function($i) use ($formats) {
+    //         return $formats[$i - 1];
+    //     });
         
 
-    }
+    // }
 
 
 

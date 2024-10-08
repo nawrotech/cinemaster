@@ -62,7 +62,6 @@ final class ScreeningRoomSeatFactory extends PersistentProxyObjectFactory
 
         $screeningRoomSeats = [];
         foreach ($seats as $seat) {
-            // Creating CinemaSeat records based on the cinema and each seat
             $screeningRoomSeats[] = self::createOne([
                 'screeningRoom' => $screeningRoom,
                 'seat' => $seat,

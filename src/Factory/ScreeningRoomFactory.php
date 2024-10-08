@@ -2,6 +2,7 @@
 
 namespace App\Factory;
 
+use App\Entity\Cinema;
 use App\Entity\ScreeningRoom;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
@@ -47,6 +48,7 @@ final class ScreeningRoomFactory extends PersistentProxyObjectFactory
     {
         return self::createMany($count, function () {
             $cinema = CinemaFactory::random();
+            assert($cinema instanceof Cinema);
 
             $cinemaMaxRows = $cinema->getRowsMax();
             $cinemaMaxSeats = $cinema->getSeatsPerRowMax();
