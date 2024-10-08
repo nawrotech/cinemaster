@@ -21,7 +21,6 @@ class ShowtimeRepository extends ServiceEntityRepository
         parent::__construct($registry, Showtime::class);
     }
 
-    // public function findOverlapping(ScreeningRoom $screeningRoom, \DateTimeInterface $startTime, \DateTimeInterface $endTime, ?int $excludeId = null)
     public function findOverlapping(
         Cinema $cinema,
         \DateTimeInterface $startTime, 
@@ -46,12 +45,13 @@ class ShowtimeRepository extends ServiceEntityRepository
     }
 
     public function findOverlappingForRoom(
+        Cinema $cinema,
         ScreeningRoom $screeningRoom,
         \DateTimeInterface $startTime,
         \DateTimeInterface $endTime,
         ?int $excludeId = null
     ) {
-        return $this->findOverlapping($startTime, $endTime, $excludeId)
+        return $this->findOverlapping($cinema, $startTime, $endTime, $excludeId)
             ->andWhere('s.screeningRoom = :screeningRoom')
             ->setParameter("screeningRoom", $screeningRoom)
             ->getQuery()
@@ -59,6 +59,7 @@ class ShowtimeRepository extends ServiceEntityRepository
     }
 
     public function findOverlappingForMovie(
+        Cinema $cinema,
         MovieMovieType $movieFormat,
         \DateTimeInterface $startTime,
         \DateTimeInterface $endTime,
