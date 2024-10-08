@@ -65,10 +65,8 @@ class ShowtimeRepository extends ServiceEntityRepository
         \DateTimeInterface $endTime,
         ?int $excludeId = null
     ) {
-        return $this->findOverlapping($startTime, $endTime, $excludeId)
-            ->innerJoin("s.movieFormat", "mf")
-            ->addSelect("mf")
-            ->andWhere('mf = :movieFormat')
+        return $this->findOverlapping($cinema, $startTime, $endTime, $excludeId)
+            ->andWhere('s.movieFormat = :movieFormat')
             ->setParameter("movieFormat", $movieFormat)
             ->getQuery()
             ->getResult();
