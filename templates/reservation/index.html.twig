@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Make reservation for {{ showtime.movieFormat.displayMovieWithFormat }}{% endblock %}
+
+{% block body %}
+    {# {{ form_start(form) }}
+        <button>Submit</button>
+    {{ form_end(form) }} #}
+   
+    {% for roomRow in roomRows %}
+        <div class="row">
+            <h1 class="col-1">{{ roomRow }}</h1>
+            {% for seat in seatsInRow[roomRow]  %}
+                <div class="seat col-1">
+                    {% if seat.id in app.session.get('cart', []) %}
+                        <p>Reservation Status: reserved</p>
+                        {% else %}
+                        <p>Reservation Status: {{ seat.status }}</p>
+                    {% endif %}
+                    
+                    <p href="">{{seat.seat.seat.seat.colNum}}</p>
+                    <form method="post" action="{{path("app_reservation_add_to_cart", {
+                        slug: cinema.slug})}}">
+                        <input name="reservation_seat_id" value="{{ seat.id }}" type="hidden">
+                        {% if seat.id in app.session.get('cart', []) %}
+                            <button name="cancel" value="true">Cancel</button>
+                        {% else %}
+                            <button name="reserve" value="true">Reserve</button>
+                        {% endif %}
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+    
+        {{ form(form) }}
+
+{% endblock %}
