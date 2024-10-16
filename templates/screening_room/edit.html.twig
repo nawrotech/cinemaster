@@ -5,28 +5,49 @@
 {% block body %}
     <h1>{{ room.name }}</h1>   
 
+
+
     {% for roomRow in roomRows %}
        <div class="row">
-    
             <h1 class="col-1">{{roomRow}}</h1>
-            {% for seat in rowLine[roomRow]  %}
-                <div class="seat col-1">
-                    <p>Seat type: {{ seat.seatType }}</p>
-                    <p>Seat status: {{ seat.seatStatus }}</p>
-                    <a href="">{{seat.seat.seat.colNum}}</a>
-                    <form method="POST" action="{{path("app_screening_room_seat_type_change", {
-                        id: seat.seat.seat.id,
-                        slug: cinema.name
-                        })}}">
-                        <input type="hidden" name="seat_id" value="{{seat.seat.seat.id}}" >
-                        <input type="hidden" name="room_id" value="{{room.id}}" >
-                        <input type="hidden" name="cinema_slug" value="{{cinema.slug}}" >
-                        <input type="hidden" name="screening_room_slug" value="{{room.slug}}">
-                        <input type="text" name="seat_type" value="{{seat.seatType}}">
-                        <button class="btn btn-primary">Submit</button>
-                    </form>
-                </div>
-            {% endfor %}
+            <div class="col-1 d-flex gap-2">
+                {% for seat in rowLine[roomRow]  %}
+              
+                <div class="col-12">
+                        <p>Seat type: {{ seat.seatType }}</p>
+                        <p>Seat status: {{ seat.seatStatus }}</p>
+                        <p>{{ seat.seat.seat.seatPosition }}</p>
+                        <form method="post" action="{{path("app_screening_room_seat_type_change", {
+                            id: seat.id,
+                            slug: cinema.name
+                            })}}">
+                            <input type="hidden" name="cinemaSlug" value="{{cinema.slug}}" >
+                            <input type="hidden" name="screeningRoomSlug" value="{{room.slug}}">
+                                                        
+                            <select name="seatType" id="seatType">
+                                {% for seatType in seatTypes %}
+                                    <option
+                                    {{ seatType == seat.seatType ? "selected" : "" }}
+                                    for="seatType"
+                                    value="{{ seatType }}">{{ seatType }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <label for="seatStatus">
+                                Seat Available:
+                                <input 
+                                    name="seatStatus" 
+                                    type="checkbox"
+                                    {{ seat.seatStatus == "available" ? "checked" : "" }}
+                                    >
+                            </label>
+
+                            <button class="btn btn-sm btn-primary">Apply</button>
+                        </form>
+                    </div>
+                {% endfor %}
+            </div>
+         
        </div>
     {% endfor %}
 

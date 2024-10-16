@@ -5,16 +5,19 @@ namespace App\Controller;
 use App\Entity\Cinema;
 use App\Entity\ScreeningRoom;
 use App\Entity\ScreeningRoomSeat;
+use App\Enum\ScreeningRoomSeatType;
 use App\Form\ScreeningRoomType;
 use App\Form\SeatLineType;
 use App\Repository\CinemaSeatRepository;
 use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSeatRepository;
+use App\Service\SeatsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route("/cinemas/{slug}/rooms")]
@@ -67,7 +70,6 @@ class ScreeningRoomController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-
             // because when giving a row specific value
             // indexes changes to 5,6,7,8
             $rowsAndSeats = array_values($form->get("seats_per_row")->getData());
@@ -111,22 +113,38 @@ class ScreeningRoomController extends AbstractController
     #[Route('/seat/type/{id}', name: 'app_screening_room_seat_type_change', methods: ["POST"])]
     public function changeSeatType(
         Request $request,
-        ScreeningRoomSeatRepository $screeningRoomSeatRepository,
+        ScreeningRoomSeat $screeningRoomSeat,
         EntityManagerInterface $em
     ) {
 
-        $screeningRoomSeat = $screeningRoomSeatRepository
-            ->findBySeatId($request->request->get("room_id"), $request->request->get("seat_id"));
 
 
-        $screeningRoomSeat->setSeatType($request->request->get("seat_type"));
+        $seatType = $request->getPayload()->get("seatType");
+        if (!in_array($seatType, ScreeningRoomSeatType::getValuesArray())) {
+
+            $this->addFlash("error", "Disallowed type for the value");
+
+            return $this->redirectToRoute(
+                "app_screening_room_edit",
+                [
+                    "screening_room_slug" => $request->getPayload()->get("screeningRoomSlug"),
+                    "slug" => $request->getPayload()->get("cinemaSlug")
+                ]
+            );
+        }
+        $screeningRoomSeat->setSeatType($seatType);
+
+
+        $seatStatus = $request->getPayload()->get("seatStatus") ? "available" : "unavailable";
+        $screeningRoomSeat->setSeatStatus($seatStatus);
         $em->flush();
 
         return $this->redirectToRoute(
             "app_screening_room_edit",
             [
-                "screening_room_slug" => $request->request->get("screening_room_slug"),
-                "slug" => $request->request->get("cinema_slug")
+                "screening_room_slug" => $request->getPayload()->get("screeningRoomSlug"),
+                "slug" => $request->getPayload()->get("cinemaSlug")
+
             ]
         );
     }
@@ -139,23 +157,23 @@ class ScreeningRoomController extends AbstractController
         Cinema $cinema,
         #[MapEntity(mapping: ["screening_room_slug" => "slug"])]
         ScreeningRoom $screeningRoom,
+        SeatsService $seatsService,
         ScreeningRoomSeatRepository $screeningRoomSeatRepository,
         EntityManagerInterface $em,
         Request $request
     ): Response {
 
-        $roomRows = $screeningRoomSeatRepository
-            ->findNumOfRowsForRoom($screeningRoom);
-
-        $seatsInSingleRow = [];
-        foreach ($roomRows as $roomRow) {
-            $seatsInSingleRow[$roomRow] = $screeningRoomSeatRepository
-                ->findSeatsInRow($screeningRoom, $roomRow);
-        }
+        [
+            "roomRows" => $roomRows,
+            "seatsInRow" => $seatsInRow
+        ] = $seatsService->createGrid($screeningRoom, $screeningRoomSeatRepository);
+        
+     
 
         $form = $this->createForm(SeatLineType::class, options: [
             "allowed_rows" => $roomRows,
         ]);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -175,19 +193,19 @@ class ScreeningRoomController extends AbstractController
 
             $em->flush();
 
-            return $this->redirectToRoute("app_screening_rooms_edit", [
+            return $this->redirectToRoute("app_screening_room_edit", [
                 "screening_room_slug" => $screeningRoom->getSlug(),
                 "slug" => $cinema->getSlug()
             ]);
         }
 
-        // dd($seatsInSingleRow);
         return $this->render('screening_room/edit.html.twig', [
             "room" => $screeningRoom,
             "roomRows" => $roomRows,
-            "rowLine" => $seatsInSingleRow,
+            "rowLine" => $seatsInRow,
             "form" => $form,
-            "cinema" => $cinema
+            "cinema" => $cinema,
+            "seatTypes" => ScreeningRoomSeatType::getValuesArray()
         ]);
     }
 }
