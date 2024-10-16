@@ -3,36 +3,26 @@
 {% block title %}Make reservation for {{ showtime.movieFormat.displayMovieWithFormat }}{% endblock %}
 
 {% block body %}
-    {# {{ form_start(form) }}
-        <button>Submit</button>
-    {{ form_end(form) }} #}
-   
-    {% for roomRow in roomRows %}
-        <div class="row">
-            <h1 class="col-1">{{ roomRow }}</h1>
-            {% for seat in seatsInRow[roomRow]  %}
-                <div class="seat col-1">
-                    {% if seat.id in app.session.get('cart', []) %}
-                        <p>Reservation Status: reserved</p>
-                        {% else %}
-                        <p>Reservation Status: {{ seat.status }}</p>
-                    {% endif %}
-                    
-                    <p href="">{{seat.seat.seat.seat.colNum}}</p>
-                    <form method="post" action="{{path("app_reservation_add_to_cart", {
-                        slug: cinema.slug})}}">
-                        <input name="reservation_seat_id" value="{{ seat.id }}" type="hidden">
-                        {% if seat.id in app.session.get('cart', []) %}
-                            <button name="cancel" value="true">Cancel</button>
-                        {% else %}
-                            <button name="reserve" value="true">Reserve</button>
-                        {% endif %}
-                    </form>
+    {{ form_start(form) }}
+        {{ form_errors(form) }}
+        {{ form_row(form.email) }}
+        {{ form_row(form.submit) }}
+        {{ form_rest(form) }}
+    {{ form_end(form) }}
+        <h1>{{ showtime.movieFormat.displayMovieWithFormat }}</h1>
+        <p>Date: {{ showtime.startTime|date("D, M Y") }} </p>
+        <p>{{ showtime.startTime|date("h:i") }} - {{ showtime.endTime|date("h:i") }}</p>
+        {% for roomRow in roomRows %}
+            <div class="row">
+                <h1 class="col-1">{{ roomRow }}</h1>
+                <div class="col-1 d-flex gap-2">
+                    {% for seat in seatsInRow[roomRow]  %}             
+                        {{ include("partials/_reservation_seat.html.twig") }}
+                    {% endfor %}
                 </div>
-            {% endfor %}
-        </div>
-    {% endfor %}
-    
-        {{ form(form) }}
+            </div>
+        {% endfor %}
+   
+       
 
 {% endblock %}
