@@ -1,0 +1,16 @@
+<form class="seat-form" method="post" action="{{path("app_reservation_add_to_cart", {
+    slug: cinema.slug,
+    showtime_slug: showtime.slug
+    })}}">
+    <input name="reservation_seat_id" value="{{ seat.id }}" type="hidden">
+    <button                           
+        name="{{ seat.id in app.session.get('cart', []) ? "cancel" : "reserve" }}"
+        value="true"
+        class="seat
+        {{ seat.id in app.session.get('cart', []) ? "selected" : seat.status }}
+        "
+        {{ seat.status != "available"  ? "disabled" : "" }} 
+        >
+        {# {{seat.seat.seat.seat.seatPosition}} #}
+    </button>
+</form>
