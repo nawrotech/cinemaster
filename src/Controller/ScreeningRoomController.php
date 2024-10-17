@@ -17,7 +17,6 @@ use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route("/cinemas/{slug}/rooms")]
@@ -70,13 +69,11 @@ class ScreeningRoomController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            // because when giving a row specific value
-            // indexes changes to 5,6,7,8
-            $rowsAndSeats = array_values($form->get("seats_per_row")->getData());
-
+            $seatsPerRow = $form->get("seatsPerRow")->getData();
+            $rowsAndSeats = array_combine(range(1, count($seatsPerRow)), $seatsPerRow);
+            
             foreach ($rowsAndSeats as $row => $lastSeatInRow) {
-                $row = $row + 1;
-                $seatsRange = $cinemaSeatsRepository->findSeatsInGivenrange($cinema, $row, $row, 1, $lastSeatInRow);
+                $seatsRange = $cinemaSeatsRepository->findSeatsInGivenRange($cinema, $row, $row, 1, $lastSeatInRow);
 
                 foreach ($seatsRange as $cinemaSeat) {
                     $screeningRoomSeat = new ScreeningRoomSeat();
@@ -109,15 +106,12 @@ class ScreeningRoomController extends AbstractController
         ]);
     }
 
-    // TODO USE MAPPING FOR GET PARAMS
     #[Route('/seat/type/{id}', name: 'app_screening_room_seat_type_change', methods: ["POST"])]
     public function changeSeatType(
         Request $request,
         ScreeningRoomSeat $screeningRoomSeat,
         EntityManagerInterface $em
     ) {
-
-
 
         $seatType = $request->getPayload()->get("seatType");
         if (!in_array($seatType, ScreeningRoomSeatType::getValuesArray())) {
@@ -168,10 +162,9 @@ class ScreeningRoomController extends AbstractController
             "seatsInRow" => $seatsInRow
         ] = $seatsService->createGrid($screeningRoom, $screeningRoomSeatRepository);
         
-     
-
         $form = $this->createForm(SeatLineType::class, options: [
             "allowed_rows" => $roomRows,
+            "allowed_seat_types" => ScreeningRoomSeatType::getValuesArray()
         ]);
 
         $form->handleRequest($request);
@@ -181,14 +174,14 @@ class ScreeningRoomController extends AbstractController
             $seatsInRow = $screeningRoomSeatRepository
                 ->findSeatsInRange(
                     $screeningRoom,
-                    $form->getData()["row"],
-                    $form->getData()["row"],
-                    $form->getData()["col_start"],
-                    $form->getData()["col_end"],
+                    $form->get("row")->getData(),
+                    $form->get("row")->getData(),
+                    $form->get("colStart")->getData(),
+                    $form->get("colEnd")->getData(),
                 );
 
             foreach ($seatsInRow as $screeningRoomSeat) {
-                $screeningRoomSeat->setSeatType($form->getData()["seat_type"]);
+                $screeningRoomSeat->setSeatType($form->get("seatType")->getData());
             }
 
             $em->flush();

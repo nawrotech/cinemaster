@@ -16,7 +16,6 @@ export default class extends Controller {
             .then(data => {
                 this.maxRows = data?.maxRowNum; 
                 this.maxCols = data?.maxColNum;
-                console.log(this.maxRows, this.maxCols);
             });
             this.seatsPerRow = "";
         
@@ -71,7 +70,7 @@ export default class extends Controller {
     // Get the newly created input and set its id and name
     const input = rowContainer.querySelector('input');
     input.id = `screening_room_seats_per_row_${this.indexValue}`;
-    input.name = `screening_room[seats_per_row][${this.indexValue}]`;
+    input.name = `screening_room[seatsPerRow][${this.indexValue}]`;
     input.value = this?.seatsPerRow.value || "";
     
     // Set the label's for attribute

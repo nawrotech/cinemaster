@@ -30,7 +30,7 @@ class ScreeningRoomType extends AbstractType
                     "placeholder" => "e.g. Room A"
                 ]
             ])
-            ->add("rows_max", NumberType::class, [
+            ->add("rowsMax", NumberType::class, [
                 // "data" => 4,
                 "label" => "Specify number of rows in your room",
                 'constraints' => [
@@ -42,7 +42,7 @@ class ScreeningRoomType extends AbstractType
                     ])
                 ]
             ])
-            ->add("seats_per_row_max", NumberType::class, [
+            ->add("seatsPerRowMax", NumberType::class, [
                 "label" => "Seats per row default",
                 'constraints' => [
                     new NotBlank(),
@@ -53,7 +53,7 @@ class ScreeningRoomType extends AbstractType
                     ])
                 ]
             ])
-            ->add('seats_per_row', CollectionType::class, [
+            ->add('seatsPerRow', CollectionType::class, [
                 // "data" => [6, 6, 6, 8],
                 'entry_type' => NumberType::class,
                 'entry_options' => [
@@ -73,7 +73,7 @@ class ScreeningRoomType extends AbstractType
                 'prototype' => true,
                 'prototype_name' => '__seats_per_row__',
             ])
-            ->add("maintenance_time_in_minutes", NumberType::class, [
+            ->add("maintenanceTimeInMinutes", NumberType::class, [
                 "constraints" => [
                     new NotBlank(),
                 ]
