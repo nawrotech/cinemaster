@@ -21,7 +21,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 #[ORM\Entity(repositoryClass: CinemaRepository::class)]
 class Cinema
 {
-
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -34,10 +34,10 @@ class Cinema
     private ?string $slug = null;
 
     #[ORM\Column]
-    private ?int $rowsMax = null;
+    private ?int $maxRows = null;
 
     #[ORM\Column]
-    private ?int $seatsPerRowMax = null;
+    private ?int $maxSeatsPerRow = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -70,9 +70,6 @@ class Cinema
     private Collection $showtimes;
 
 
-
-
-
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -85,7 +82,7 @@ class Cinema
     }
 
     #[PrePersist]
-    public function createSlugAndCreationDates(): static
+    public function createSlug(): static
     {
         $slugify = new Slugify();
         $this->slug = $slugify->slugify($this->name);
@@ -100,8 +97,6 @@ class Cinema
         $this->slug = $slugify->slugify($this->name);
         return $this;
     }
-
-
 
 
     public function getId(): ?int
@@ -128,7 +123,6 @@ class Cinema
      */
     public function getCinemaSeats(): Collection
     {
-
         return $this->cinemaSeats->matching(CinemaSeatRepository::activeSeatsCriterion());
     }
 
@@ -255,26 +249,26 @@ class Cinema
         return $this;
     }
 
-    public function getRowsMax(): ?int
+    public function getMaxRows(): ?int
     {
-        return $this->rowsMax;
+        return $this->maxRows;
     }
 
-    public function setRowsMax(?int $rowsMax): static
+    public function setMaxRows(?int $maxRows): static
     {
-        $this->rowsMax = $rowsMax;
+        $this->maxRows = $maxRows;
 
         return $this;
     }
 
-    public function getSeatsPerRowMax(): ?int
+    public function getMaxSeatsPerRow(): ?int
     {
-        return $this->seatsPerRowMax;
+        return $this->maxSeatsPerRow;
     }
 
-    public function setSeatsPerRowMax(int $seatsPerRowMax): static
+    public function setMaxSeatsPerRow(int $maxSeatsPerRow): static
     {
-        $this->seatsPerRowMax = $seatsPerRowMax;
+        $this->maxSeatsPerRow = $maxSeatsPerRow;
 
         return $this;
     }

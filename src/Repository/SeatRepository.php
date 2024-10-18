@@ -20,7 +20,7 @@ class SeatRepository extends ServiceEntityRepository
     public function findMax()
     {
         return $this->createQueryBuilder('s')
-            ->select("MAX(s.rowNum) AS maxRowNum", "MAX(s.colNum) AS maxColNum")
+            ->select("MAX(s.rowNum) AS maxRowNum", "MAX(s.seatNumInRow) AS maxSeatNumInRow")
             ->getQuery()
             ->getOneOrNullResult()
         ;
@@ -29,17 +29,17 @@ class SeatRepository extends ServiceEntityRepository
     /**
      * @return Seat[]
      */
-    public function findSeatsInRange(int $rowStart, int $rowEnd, int $colStart, int $colEnd): array
+    public function findSeatsInRange(int $rowStart, int $rowEnd, int $seatInRowStart, int $seatInRowEnd): array
     {
         return $this->createQueryBuilder("s")
             ->andWhere("s.rowNum BETWEEN :rowStart AND :rowEnd")
-            ->andWhere("s.colNum BETWEEN :colStart AND :colEnd")
+            ->andWhere("s.seatNumInRow BETWEEN :seatInRowStart AND :seatInRowEnd")
             ->setParameter("rowStart", $rowStart)
             ->setParameter("rowEnd", $rowEnd)
-            ->setParameter("colStart", $colStart)
-            ->setParameter("colEnd", $colEnd)
+            ->setParameter("seatInRowStart", $seatInRowStart)
+            ->setParameter("seatInRowEnd", $seatInRowEnd)
             ->addOrderBy("s.rowNum", "ASC")
-            ->addOrderBy("s.colNum", "ASC")
+            ->addOrderBy("s.seatNumInRow", "ASC")
             ->getQuery()
             ->getResult();
     }

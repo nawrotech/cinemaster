@@ -14,37 +14,38 @@ class ScreeningRoomSizeType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $maxRowLabel = $options["max_row_label"];
-        $maxColumnLabel = $options["max_column_label"];
 
-        $maxRowUpperLimit = $options["max_row_constraints"]["upper_limit"] ?? 100;
-        $maxColumnUpperLimit = $options["max_column_constraints"]["upper_limit"] ?? 100;
+        $maxRowUpperLimit = $options["max_rows_constraints"]["upper_limit"] ?? 25;
+        $maxColumnUpperLimit = $options["max_seats_per_row_constraints"]["upper_limit"] ?? 25;
 
         $builder
             ->add(
-                "max_row",
+                "maxRows",
                 NumberType::class,
                 [
                     "attr" => [
                         "placeholder" => "e.g. 6"
                     ],
-                    "label" => $maxRowLabel,
+                    "label" =>  $options["max_rows_label"],
+                    "data" => $options["max_rows_default"] ?? null,
                     "mapped" => false,
                     "constraints" => [
                         new NotBlank(),
                         new GreaterThan(1),
                         new LessThanOrEqual($maxRowUpperLimit)
-                    ]
+                    ],
+
                 ]
             )
             ->add(
-                "max_column",
+                "maxSeatsPerRow",
                 NumberType::class,
                 [
                     "attr" => [
                         "placeholder" => "e.g. 6"
                     ],
-                    "label" => $maxColumnLabel,
+                    "label" => $options["max_seats_per_row_label"],
+                    "data" => $options["max_seats_per_row_default"] ?? null,
                     "mapped" => false,
                     "constraints" => [
                         new NotBlank(),
@@ -59,11 +60,13 @@ class ScreeningRoomSizeType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => null,
-            "max_row_label" => null,
-            "max_column_label" => null,
-            "max_row_constraints" => null,
-            "max_column_constraints" => null,
+            "data_class" => null,
+            "max_rows_label" => null,
+            "max_seats_per_row_label" => null,
+            "max_rows_constraints" => null,
+            "max_seats_per_row_constraints" => null,
+            "max_rows_default" => null,
+            "max_seats_per_row_default" => null
         ]);
     }
 }

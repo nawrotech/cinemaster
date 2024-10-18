@@ -46,10 +46,10 @@ class CinemaController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
 
             $roomMaxSize = $form->get("screeningRoomSize");
-            $maxRows = $roomMaxSize->get("maxRow")->getData();
-            $maxColumns = $roomMaxSize->get("maxColumn")->getData();
+            $maxRows = $roomMaxSize->get("maxRows")->getData();
+            $maxSeatsPerRow = $roomMaxSize->get("maxSeatsPerRow")->getData();
 
-            $seats = $seatRepository->findSeatsInRange(1, $maxRows, 1, $maxColumns); 
+            $seats = $seatRepository->findSeatsInRange(1, $maxRows, 1, $maxSeatsPerRow); 
          
             $em->wrapInTransaction(function($em) use($seats, $cinema) {
                 foreach ($seats as $seat) {
@@ -85,7 +85,6 @@ class CinemaController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             try {
                 $cinemaChangeService->handleSeatsChange($cinema);
                 $this->addFlash('success', 'Cinema updated successfully.');

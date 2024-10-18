@@ -18,9 +18,8 @@ class Seat
     #[ORM\Column]
     private ?int $rowNum = null;
 
-
     #[ORM\Column]
-    private ?int $colNum = null;
+    private ?int $seatNumInRow = null;
 
     /**
      * @var Collection<int, CinemaSeat>
@@ -38,14 +37,14 @@ class Seat
         return $this->id;
     }
 
-    public function getColNum(): ?int
+    public function getSeatNumInRow(): ?int
     {
-        return $this->colNum;
+        return $this->seatNumInRow;
     }
 
-    public function setColNum(int $colNum): static
+    public function setSeatNumInRow(int $seatNumInRow): static
     {
-        $this->colNum = $colNum;
+        $this->seatNumInRow = $seatNumInRow;
 
         return $this;
     }
@@ -61,6 +60,10 @@ class Seat
         $this->rowNum = $rowNum;
 
         return $this;
+    }
+
+    public function getSeatPosition() {
+        return "{$this->rowNum}-{$this->seatNumInRow}";
     }
 
     /**
