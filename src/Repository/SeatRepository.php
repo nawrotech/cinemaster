@@ -29,7 +29,11 @@ class SeatRepository extends ServiceEntityRepository
     /**
      * @return Seat[]
      */
-    public function findSeatsInRange(int $rowStart, int $rowEnd, int $seatInRowStart, int $seatInRowEnd): array
+    public function findSeatsInRange(
+        int $rowStart, 
+        int $rowEnd, 
+        int $seatInRowStart, 
+        int $seatInRowEnd): array
     {
         return $this->createQueryBuilder("s")
             ->andWhere("s.rowNum BETWEEN :rowStart AND :rowEnd")
