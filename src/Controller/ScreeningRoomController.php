@@ -11,6 +11,7 @@ use App\Form\SeatLineType;
 use App\Repository\CinemaSeatRepository;
 use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSeatRepository;
+use App\Repository\SeatRepository;
 use App\Service\SeatsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -51,8 +52,8 @@ class ScreeningRoomController extends AbstractController
     public function create(
         Request $request,
         EntityManagerInterface $em,
+        SeatRepository $seatRepository,
         Cinema $cinema,
-        CinemaSeatRepository $cinemaSeatsRepository
     ): Response {
 
         $screeningRoom =  new ScreeningRoom();
@@ -60,8 +61,8 @@ class ScreeningRoomController extends AbstractController
 
         $form = $this->createForm(ScreeningRoomType::class, $screeningRoom, [
             "max_room_sizes" => [
-                "maxRowNum" => $cinema->getMaxRows(),
-                "maxColNum" => $cinema->getMaxSeatsPerRow()
+                "maxRows" => $cinema->getMaxRows(),
+                "maxSeatsPerRow" => $cinema->getMaxSeatsPerRow()
             ]
         ]);
 
@@ -72,10 +73,10 @@ class ScreeningRoomController extends AbstractController
             $seatsPerRow = $form->get("seatsPerRow")->getData();
             $rowsAndSeats = array_combine(range(1, count($seatsPerRow)), $seatsPerRow);
             
-            $em->wrapInTransaction(function($em) use($rowsAndSeats, $cinema, $cinemaSeatsRepository, $screeningRoom) {
+            $em->wrapInTransaction(function($em) use($rowsAndSeats, $seatRepository, $screeningRoom) {
                 foreach ($rowsAndSeats as $row => $lastSeatInRow) {
-                    $seatsRange = $cinemaSeatsRepository->findSeatsInRange($cinema, $row, $row, 1, $lastSeatInRow);
-    
+                    $seatsRange = $seatRepository->findSeatsInRange($row, $row, 1, $lastSeatInRow);
+                    
                     foreach ($seatsRange as $cinemaSeat) {
                         $screeningRoomSeat = new ScreeningRoomSeat();
                         $screeningRoomSeat->setScreeningRoom($screeningRoom);
@@ -129,11 +130,11 @@ class ScreeningRoomController extends AbstractController
                 ]
             );
         }
-        $screeningRoomSeat->setSeatType($seatType);
+        $screeningRoomSeat->setType($seatType);
 
 
         $seatStatus = $request->getPayload()->get("seatStatus") ? "available" : "unavailable";
-        $screeningRoomSeat->setSeatStatus($seatStatus);
+        $screeningRoomSeat->setStatus($seatStatus);
         $em->flush();
 
         return $this->redirectToRoute(

@@ -14,9 +14,9 @@
                 {% for seat in rowLine[roomRow]  %}
               
                 <div class="col-12">
-                        <p>Seat type: {{ seat.seatType }}</p>
-                        <p>Seat status: {{ seat.seatStatus }}</p>
-                        <p>{{ seat.seat.seat.seatPosition }}</p>
+                        <p>Seat type: {{ seat.type }}</p>
+                        <p>Seat status: {{ seat.status }}</p>
+                        <p>{{ seat.seat.seatPosition }}</p>
                         <form method="post" action="{{path("app_screening_room_seat_type_change", {
                             id: seat.id,
                             slug: cinema.name
@@ -27,7 +27,7 @@
                             <select name="seatType" id="seatType">
                                 {% for seatType in seatTypes %}
                                     <option
-                                    {{ seatType == seat.seatType ? "selected" : "" }}
+                                    {{ seatType == seat.type ? "selected" : "" }}
                                     for="seatType"
                                     value="{{ seatType }}">{{ seatType }}</option>
                                 {% endfor %}
@@ -38,7 +38,7 @@
                                 <input 
                                     name="seatStatus" 
                                     type="checkbox"
-                                    {{ seat.seatStatus == "available" ? "checked" : "" }}
+                                    {{ seat.status == "available" ? "checked" : "" }}
                                     >
                             </label>
 

@@ -18,13 +18,13 @@ class ScreeningRoomSeat
     private ?ScreeningRoom $screeningRoom = null;
 
     #[ORM\Column(length: 15)]
-    private ?string $status = null;
+    private ?string $status = "available";
 
     #[ORM\Column(length: 15)]
-    private ?string $type = null;
+    private ?string $type = "regular";
 
     #[ORM\Column]
-    private ?bool $isVisible = null;
+    private ?bool $isVisible = true;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]

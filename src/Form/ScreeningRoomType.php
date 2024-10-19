@@ -3,7 +3,6 @@
 namespace App\Form;
 
 use App\Entity\ScreeningRoom;
-use phpDocumentor\Reflection\PseudoTypes\PositiveInteger;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
@@ -20,8 +19,8 @@ class ScreeningRoomType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         [
-            "maxColNum" => $maxColNum,
-            "maxRowNum" => $maxRowNum
+            "maxRows" => $maxRows,
+            "maxSeatsPerRow" => $maxSeatsPerRow
         ] = $options["max_room_sizes"];
 
         $builder
@@ -34,22 +33,24 @@ class ScreeningRoomType extends AbstractType
             ->add("rowsMax", NumberType::class, [
                 // "data" => 4,
                 "label" => "Specify number of rows in your room",
+                "mapped" => false,
                 'constraints' => [
                     new NotBlank(),
                     new  Positive(),
                     new LessThanOrEqual([
-                        'value' => $maxRowNum,  // Adjust this value as needed
+                        'value' => $maxSeatsPerRow,  // Adjust this value as needed
                         'message' => 'The maximum number of seats per row is {{ compared_value }}.'
                     ])
                 ]
             ])
             ->add("seatsPerRowMax", NumberType::class, [
                 "label" => "Seats per row default",
+                "mapped" => false,
                 "constraints" => [
                     new NotBlank(),
                     new  Positive(),
                     new LessThanOrEqual([
-                        'value' => $maxColNum,  // Adjust this value as needed
+                        'value' => $maxRows,  // Adjust this value as needed
                         'message' => 'The maximum number of seats per row is {{ compared_value }}.'
                     ])
                 ]
@@ -63,7 +64,7 @@ class ScreeningRoomType extends AbstractType
                         new NotBlank(),
                         new  Positive(),
                         new LessThanOrEqual([
-                            'value' => $maxColNum,
+                            'value' => $maxRows,
                             'message' => 'The maximum number of seats per row is {{ compared_value }}.'
                         ])
                     ]
@@ -77,7 +78,7 @@ class ScreeningRoomType extends AbstractType
             ->add("maintenanceTimeInMinutes", NumberType::class, [
                 "constraints" => [
                     new NotBlank(),
-                    new PositiveInteger()
+                    new Positive()
                 ]
             ])
             ->add("apply", SubmitType::class)
@@ -87,7 +88,7 @@ class ScreeningRoomType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => ScreeningRoom::class,
+            "data_class" => ScreeningRoom::class,
             "max_room_sizes" => null,
 
         ]);

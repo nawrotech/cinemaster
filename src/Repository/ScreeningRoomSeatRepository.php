@@ -26,10 +26,10 @@ class ScreeningRoomSeatRepository extends ServiceEntityRepository implements Sea
     public function findRows(ScreeningRoom $screeningRoom): array
     {
         $result = $this->createQueryBuilder('srs')
-            ->select("DISTINCT s.rowNum")
+            ->select("s.rowNum")
+            ->distinct()
             ->innerJoin("srs.screeningRoom", "sr")
-            ->innerJoin("srs.seat", "cs")
-            ->innerJoin("cs.seat", "s")
+            ->innerJoin("srs.seat", "s")
             ->andWhere("sr = :screeningRoom")
             ->setParameter("screeningRoom", $screeningRoom)
             ->addOrderBy("s.rowNum", "ASC")
@@ -49,14 +49,14 @@ class ScreeningRoomSeatRepository extends ServiceEntityRepository implements Sea
     {
         return $this->createQueryBuilder('srs')
             ->innerJoin("srs.screeningRoom", "sr")
-            ->innerJoin("srs.seat", "cs")
-            ->innerJoin("cs.seat", "s")
+            ->innerJoin("srs.seat", "s")
             ->andWhere("sr = :screeningRoom AND s.rowNum = :rowNum")
             ->orderBy("s.rowNum", "ASC")
-            ->orderBy("s.colNum", "ASC")
+            ->orderBy("s.seatNumInRow", "ASC")
             ->setParameter("rowNum", $rowNum)
             ->setParameter("screeningRoom", $screeningRoom)
-            ->getQuery()->getResult();         
+            ->getQuery()
+            ->getResult();         
         ;
     }
 
