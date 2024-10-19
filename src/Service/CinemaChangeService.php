@@ -16,7 +16,6 @@ class CinemaChangeService // implements SeatsManagementInterface
 
     public function __construct(
         private SeatRepository $seatRepository,
-        private CinemaSeatRepository $cinemaSeatRepository,
         private EntityManagerInterface $em
     ) {}
 

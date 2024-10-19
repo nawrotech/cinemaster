@@ -17,14 +17,10 @@ class CinemaRepository extends ServiceEntityRepository
     }
 
 
-    public function findOrderedCinemas(bool $visible = true)
+    public function findOrderedCinemas()
     {
         return $this->createQueryBuilder('c')
-            ->addSelect("cs")
-            ->innerJoin("c.cinemaSeats", "cs")
             ->orderBy("c.name", "DESC")
-            ->andWhere("cs.visible = :visible")
-            ->setParameter("visible", $visible)
             ->getQuery()
             ->getResult();
     }

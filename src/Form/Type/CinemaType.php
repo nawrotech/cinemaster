@@ -5,18 +5,20 @@ namespace App\Form\Type;
 use App\Entity\Cinema;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Event\PostSubmitEvent;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\GreaterThan;
+use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class CinemaType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-       $cinema = $options["data"];
 
 
         $builder
@@ -33,31 +35,42 @@ class CinemaType extends AbstractType
                     ]
                 ]
             )
-            ->add("screeningRoomSize", ScreeningRoomSizeType::class, [
-                "label" => false,
-                'mapped' => false,
-                "max_rows_label" => "What is the biggest number of rows your screening room has in cinema?",
-                "max_seats_per_row_label" => "What is the biggest number of seats in one row in your cinema?",
-                "max_rows_default" => $cinema->getMaxRows() ?? null,
-                "max_seats_per_row_default" => $cinema->getMaxSeatsPerRow() ?? null
-            ])
+            ->add(
+                "maxRows",
+                NumberType::class,
+                [
+                    "attr" => [
+                        "placeholder" => "e.g. 6"
+                    ],
+                    "label" => "How many rows has biggest screening room in your cinema?",
+                    "constraints" => [
+                        new NotBlank(),
+                        new GreaterThan(1),
+                    ],
+
+                ]
+            )
+            ->add(
+                "maxSeatsPerRow",
+                NumberType::class,
+                [
+                    "attr" => [
+                        "placeholder" => "e.g. 6"
+                    ],
+                    "label" => "How many seats has the longest row in your cinema?",
+                    "constraints" => [
+                        new NotBlank(),
+                        new GreaterThan(1),
+                    ]
+                ]
+            )
             ->add('save', SubmitType::class, [
                 "attr" => [
                     "class" => "btn-success",
 
                 ]
-            ])
-            ->addEventListener(FormEvents::POST_SUBMIT, function (PostSubmitEvent $event) {
-                $form = $event->getForm();
-                $cinema = $event->getData();
-
-                $screeningRoomSize = $form->get("screeningRoomSize");
-                $maxRows = $screeningRoomSize->get("maxRows")->getData();
-                $maxSeatsPerRow = $screeningRoomSize->get("maxSeatsPerRow")->getData();
-
-                $cinema->setMaxRows($maxRows);
-                $cinema->setMaxSeatsPerRow($maxSeatsPerRow);
-            });
+            ]);
+   
     }
 
     public function configureOptions(OptionsResolver $resolver): void

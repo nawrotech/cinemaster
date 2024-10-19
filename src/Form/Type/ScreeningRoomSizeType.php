@@ -28,7 +28,7 @@ class ScreeningRoomSizeType extends AbstractType
                     ],
                     "label" =>  $options["max_rows_label"],
                     "data" => $options["max_rows_default"] ?? null,
-                    "mapped" => false,
+
                     "constraints" => [
                         new NotBlank(),
                         new GreaterThan(1),
@@ -46,7 +46,7 @@ class ScreeningRoomSizeType extends AbstractType
                     ],
                     "label" => $options["max_seats_per_row_label"],
                     "data" => $options["max_seats_per_row_default"] ?? null,
-                    "mapped" => false,
+                   
                     "constraints" => [
                         new NotBlank(),
                         new GreaterThan(1),

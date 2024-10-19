@@ -3,10 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Cinema;
-use App\Entity\CinemaSeat;
 use App\Form\Type\CinemaType;
 use App\Repository\CinemaRepository;
-use App\Repository\SeatRepository;
 use App\Service\CinemaChangeService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -35,7 +33,6 @@ class CinemaController extends AbstractController
     #[Route('/create', name: 'app_cinema_create')]
     public function create(
         Request $request,
-        SeatRepository $seatRepository,
         EntityManagerInterface $em
     ): Response {
 
@@ -45,24 +42,8 @@ class CinemaController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $roomMaxSize = $form->get("screeningRoomSize");
-            $maxRows = $roomMaxSize->get("maxRows")->getData();
-            $maxSeatsPerRow = $roomMaxSize->get("maxSeatsPerRow")->getData();
-
-            $seats = $seatRepository->findSeatsInRange(1, $maxRows, 1, $maxSeatsPerRow); 
-         
-            $em->wrapInTransaction(function($em) use($seats, $cinema) {
-                foreach ($seats as $seat) {
-                    $cinemaSeat = new CinemaSeat();
-                    $cinemaSeat->setSeat($seat);
-                    $cinemaSeat->setCinema($cinema);
-    
-                    $em->persist($cinemaSeat);
-                }
-    
-                $em->persist($cinema);
-                $em->flush();
-            });
+            $em->persist($form->getData());
+            $em->flush();            
 
             $this->addFlash("success", "Cinema created!");
             

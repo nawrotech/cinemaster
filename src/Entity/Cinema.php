@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\CinemaRepository;
-use App\Repository\CinemaSeatRepository;
 use Cocur\Slugify\Slugify;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
