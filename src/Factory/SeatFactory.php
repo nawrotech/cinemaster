@@ -32,7 +32,7 @@ final class SeatFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'colNum' => 1,
+            'seatNumInRow' => 1,
             'rowNum' => 1,
         ];
     }
@@ -45,7 +45,7 @@ final class SeatFactory extends PersistentProxyObjectFactory
                     foreach (range(1, $seatsPerRow) as $col) {
                         yield [
                             "rowNum" => $row,
-                            "colNum" => $col
+                            "seatNumInRow" => $col
                         ];
                     }
                   

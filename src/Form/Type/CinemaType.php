@@ -16,7 +16,8 @@ class CinemaType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        // dd($options["data"]);
+       $cinema = $options["data"];
+
 
         $builder
             ->add(
@@ -36,8 +37,9 @@ class CinemaType extends AbstractType
                 "label" => false,
                 'mapped' => false,
                 "max_rows_label" => "What is the biggest number of rows your screening room has in cinema?",
-                "max_seats_per_row_label" => "What is the biggest number of seats in one row in your cinema?"
-
+                "max_seats_per_row_label" => "What is the biggest number of seats in one row in your cinema?",
+                "max_rows_default" => $cinema->getMaxRows() ?? null,
+                "max_seats_per_row_default" => $cinema->getMaxSeatsPerRow() ?? null
             ])
             ->add('save', SubmitType::class, [
                 "attr" => [

@@ -12,8 +12,7 @@ class UnlockReservedSeatsHandler {
 
     public function __construct(
         private ReservationSeatRepository $reservationSeatRepository,
-        private EntityManagerInterface $em
-        )
+        private EntityManagerInterface $em)
     {
     }
 

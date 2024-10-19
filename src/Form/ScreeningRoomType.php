@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\ScreeningRoom;
+use phpDocumentor\Reflection\PseudoTypes\PositiveInteger;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
@@ -44,7 +45,7 @@ class ScreeningRoomType extends AbstractType
             ])
             ->add("seatsPerRowMax", NumberType::class, [
                 "label" => "Seats per row default",
-                'constraints' => [
+                "constraints" => [
                     new NotBlank(),
                     new  Positive(),
                     new LessThanOrEqual([
@@ -76,6 +77,7 @@ class ScreeningRoomType extends AbstractType
             ->add("maintenanceTimeInMinutes", NumberType::class, [
                 "constraints" => [
                     new NotBlank(),
+                    new PositiveInteger()
                 ]
             ])
             ->add("apply", SubmitType::class)

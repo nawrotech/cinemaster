@@ -116,14 +116,12 @@ class Cinema
         return $this;
     }
 
-
-
     /**
      * @return Collection<int, CinemaSeat>
      */
     public function getCinemaSeats(): Collection
     {
-        return $this->cinemaSeats->matching(CinemaSeatRepository::activeSeatsCriterion());
+        return $this->cinemaSeats->matching(CinemaSeatRepository::visibleSeatsCriterion());
     }
 
     public function addCinemaSeat(CinemaSeat $cinemaSeat): static

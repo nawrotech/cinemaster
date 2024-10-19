@@ -2,24 +2,24 @@
 
 namespace App\Service;
 
+use App\Contracts\SeatsManagementInterface;
 use App\Entity\Cinema;
 use App\Entity\CinemaHistory;
 use App\Entity\CinemaSeat;
+use App\Entity\ScreeningRoom;
 use App\Repository\CinemaSeatRepository;
 use App\Repository\SeatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class CinemaChangeService
+class CinemaChangeService // implements SeatsManagementInterface
 {
 
     public function __construct(
         private SeatRepository $seatRepository,
-        // common interface for srsR and csR
         private CinemaSeatRepository $cinemaSeatRepository,
         private EntityManagerInterface $em
     ) {}
 
-    // screeningRoom
     private function decreaseNumberOfSeats(
         Cinema $cinema,
         int $rowStart,
@@ -44,9 +44,8 @@ class CinemaChangeService
             $invisibleSeat->setVisible(false);
         }
 
-        $this->em->flush();
     }
-    // screeningRoom 
+
     private function increaseNumberOfSeats(
         Cinema $cinema,
         int $rowStart, 
@@ -93,6 +92,7 @@ class CinemaChangeService
        
         $lastSeat = $this->cinemaSeatRepository->findLastSeat($cinema);
 
+        // snapshot vs count(screeningRoom)
         if ($cinema->getMaxRows() > $lastSeat["lastRowNum"]) {
             $this->increaseNumberOfSeats(
                 $cinema,
@@ -102,7 +102,8 @@ class CinemaChangeService
                 $lastSeat["lastSeatNumInRow"]
             );
         }
-       
+
+       // snapshot vs count(screeningRoom)
         if ($cinema->getMaxRows() < $lastSeat["lastRowNum"]) {
             $this->decreaseNumberOfSeats(
                 $cinema,
@@ -111,12 +112,15 @@ class CinemaChangeService
                 1,
                 $lastSeat["lastSeatNumInRow"],
                 excludeFirstRow: true
-                
             );
         }
 
         $lastSeat = $this->cinemaSeatRepository->findLastSeat($cinema);
        
+        // loop over cinema
+        // check what changed in each row
+        // based on that change visibility
+        
         if ($cinema->getMaxSeatsPerRow() > $lastSeat["lastSeatNumInRow"]) {
             $this->increaseNumberOfSeats(
                 $cinema,
@@ -128,7 +132,6 @@ class CinemaChangeService
         }
     
         if ($cinema->getMaxSeatsPerRow() < $lastSeat["lastSeatNumInRow"]) {
-
             $this->decreaseNumberOfSeats(
                 $cinema,
                 1,
@@ -140,7 +143,7 @@ class CinemaChangeService
         }
     }
 
-    private function storeChanges(Cinema $cinema)
+    private function storeChanges(Cinema $cinema): void
     {
         $unitOfWork = $this->em->getUnitOfWork();
         $unitOfWork->computeChangeSets();

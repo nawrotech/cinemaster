@@ -21,6 +21,9 @@ class MovieMovieType
     #[ORM\JoinColumn(nullable: false)]
     private ?MovieType $movieType = null;
 
+
+    // create unique name from title and its format
+
     // add price multiplier maybe
     #[ORM\Column(nullable: true)]
     private ?int $quantity = null;
@@ -64,5 +67,10 @@ class MovieMovieType
         $this->quantity = $quantity;
 
         return $this;
+    }
+
+    public function getDisplayMovieWithFormat() {
+        
+        return "{$this->movie->getTitle()} {$this->movieType->getAudioVersion()} {$this->movieType->getVisualVersion()}";
     }
 }

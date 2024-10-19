@@ -38,12 +38,16 @@ class ReservationService {
         
     }
 
-    public function createReservation(SessionInterface $session) {
+    public function createReservation(SessionInterface $session): Reservation {
         $this->em->beginTransaction();
         try {
             foreach($session->get("cart") as $seatId) {
                 $reservationSeat = $this->reservationSeatRepository->find($seatId);
                 
+                if (!$reservationSeat) {
+                    throw new \Exception("Seat not found or already locked.");
+                }
+
                 $reservation = new Reservation();
                 $reservation->setEmail($reservationSeat->getEmail());
                 $reservation->setShowtime($reservationSeat->getShowtime());
@@ -57,13 +61,15 @@ class ReservationService {
 
             $this->em->flush();
             $this->em->commit();
+            $session->clear("cart");
+
+            return $reservation;
 
         } catch (\Exception $e) {
             $this->em->rollback();
             throw $e;
         }
  
-        $this->em->flush();
-        $session->clear("cart");
+    
     }
 }

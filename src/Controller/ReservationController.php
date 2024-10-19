@@ -79,6 +79,8 @@ class ReservationController extends AbstractController
         );
 
         $session = $request->getSession();
+        // $session->remove("cart");
+
         $form = $this->createForm(ReservationType::class, options: [
             "cart" => $session->get("cart")
         ]);
@@ -87,6 +89,8 @@ class ReservationController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $reservationService->lockSeats($session, $form->get("email")->getData());
+
+       
 
             return $this->redirectToRoute("app_reservation_create", [
                 "slug" => $cinema->getSlug(),
@@ -117,14 +121,14 @@ class ReservationController extends AbstractController
         ): Response {
             
         $session = $request->getSession();
-         // IF payment process successful
+        // IF payment process successful
         // dd($session->get("cart"));
         
+        // calculate total
         foreach($session->get("cart") as $seat) {
 
         }
 
-       
         $reservation = $reservationService->createReservation($session);
         $reservations = $reservationRepository->findBy(["showtime" => $showtime]);
         // dd($reservations);

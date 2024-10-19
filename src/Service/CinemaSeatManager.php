@@ -2,9 +2,11 @@
 
 namespace App\Service;
 
+use App\Contracts\SeatsManagementInterface;
 use App\Entity\Cinema;
 use App\Entity\CinemaHistory;
 use App\Entity\CinemaSeat;
+use App\Entity\ScreeningRoom;
 use App\Repository\CinemaSeatRepository;
 use App\Repository\SeatRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,46 +18,53 @@ class CinemaSeatManager
         private SeatRepository $seatRepository,
         private CinemaSeatRepository $cinemaSeatRepository,
         private EntityManagerInterface $em
-
     ) {}
 
     private function decreaseNumberOfSeats(
         Cinema $cinema,
         int $rowStart,
         int $rowEnd,
-        int $colStart,
-        int $colEnd
+        int $seatInRowStart,
+        int $seatInRowEnd,
+        bool $excludeFirstRow = false,
+        bool $excludeFirstSeatInRow = false
     ) {
+     
+        $invisibleSeats = $this->cinemaSeatRepository
+            ->findSeatsInRange($cinema,
+                $rowStart, 
+                $rowEnd, 
+                $seatInRowStart, 
+                $seatInRowEnd,
+                $excludeFirstRow,
+                $excludeFirstSeatInRow
+            );
 
-
-        $inactiveRows = $this->cinemaSeatRepository
-            ->findSeatsInGivenRange($cinema, $rowStart, $rowEnd, $colStart, $colEnd);
-
-        foreach ($inactiveRows as $inactiveRow) {
-            $inactiveRow->setStatus("inactive");
+        foreach ($invisibleSeats as $invisibleSeat) {
+            $invisibleSeat->setVisible(false);
         }
 
-        $this->em->flush();
     }
 
-    private function increseNumberOfSeats(
+    private function increaseNumberOfSeats(
         Cinema $cinema,
-        int $rowStart,
-        int $rowEnd,
-        int $colStart,
-        int $colEnd
+        int $rowStart, 
+        int $rowEnd, 
+        int $seatInRowStart, 
+        int $seatInRowEnd
     ) {
         $seats = $this->seatRepository
-            ->findSeatRowsInRange($rowStart, $rowEnd, $colStart, $colEnd);
+            ->findSeatsInRange($rowStart, $rowEnd, $seatInRowStart, $seatInRowEnd);
 
         foreach ($seats as $seat) {
             $existingSeat = $this->cinemaSeatRepository->findOneBy([
-                'cinema' => $cinema,
-                'seat' => $seat
+                "cinema" => $cinema,
+                "seat" => $seat
             ]);
             if ($existingSeat) {
-                $existingSeat->setStatus('active');
+                $existingSeat->setVisible(true);
             } else {
+                // screeningRoom Seat
                 $cinemaSeat = new CinemaSeat();
                 $cinemaSeat->setCinema($cinema);
                 $cinemaSeat->setSeat($seat);
@@ -68,81 +77,69 @@ class CinemaSeatManager
 
     public function handleSeatsChange(Cinema $cinema)
     {
-        $this->em->beginTransaction();
-
-        try {
-
-            $unitOfWork = $this->em->getUnitOfWork();
-            $unitOfWork->computeChangeSets();
-            $cinemaChange = $unitOfWork->getEntityChangeSet($cinema);
-
-
-            $cinemaHistory = new CinemaHistory();
-            $cinemaHistory->setCinema($cinema);
-            $cinemaHistory->setChanges($cinemaChange);
-            $this->em->persist($cinemaHistory);
+        $this->em->wrapInTransaction(function ($em) use($cinema) {
 
             $this->adjustSeats($cinema);
 
+            $em->flush();
+        });
 
-            $this->em->flush();
-            $this->em->commit();
-        } catch (\Exception $e) {
-            $this->em->rollback();
-            throw $e;
-        }
     }
 
     private function adjustSeats(Cinema $cinema)
     {
+       
         $lastSeat = $this->cinemaSeatRepository->findLastSeat($cinema);
 
-
-        if ($cinema->getRowsMax() > $lastSeat["row"]) {
-            $this->increseNumberOfSeats(
+        // snapshot vs count(screeningRoom)
+        if ($cinema->getMaxRows() > $lastSeat["lastRowNum"]) {
+            $this->increaseNumberOfSeats(
                 $cinema,
-                $lastSeat["row"],
-                $cinema->getRowsMax(),
+                $lastSeat["lastRowNum"],
+                $cinema->getMaxRows(),
                 1,
-                $lastSeat["col"]
+                $lastSeat["lastSeatNumInRow"]
             );
         }
 
-        if ($cinema->getRowsMax() < $lastSeat["row"]) {
-            $rowStart = $cinema->getRowsMax() + 1;
-
+       // snapshot vs count(screeningRoom)
+        if ($cinema->getMaxRows() < $lastSeat["lastRowNum"]) {
             $this->decreaseNumberOfSeats(
                 $cinema,
-                $rowStart,
-                $lastSeat["row"],
+                $cinema->getMaxRows(), 
+                $lastSeat["lastRowNum"],
                 1,
-                $lastSeat["col"]
+                $lastSeat["lastSeatNumInRow"],
+                excludeFirstRow: true
             );
         }
 
         $lastSeat = $this->cinemaSeatRepository->findLastSeat($cinema);
-
-        if ($cinema->getSeatsPerRowMax() > $lastSeat["col"]) {
-
-            $this->increseNumberOfSeats(
+       
+        // loop over cinema
+        // check what changed in each row
+        // based on that change visibility
+        
+        if ($cinema->getMaxSeatsPerRow() > $lastSeat["lastSeatNumInRow"]) {
+            $this->increaseNumberOfSeats(
                 $cinema,
                 1,
-                $lastSeat["row"],
-                $lastSeat["col"],
-                $cinema->getSeatsPerRowMax()
+                $lastSeat["lastRowNum"],
+                $lastSeat["lastSeatNumInRow"],
+                $cinema->getMaxSeatsPerRow()
             );
         }
-
-        if ($cinema->getSeatsPerRowMax() < $lastSeat["col"]) {
-            $colStart = $cinema->getSeatsPerRowMax() + 1;
-
+    
+        if ($cinema->getMaxSeatsPerRow() < $lastSeat["lastSeatNumInRow"]) {
             $this->decreaseNumberOfSeats(
                 $cinema,
                 1,
-                $lastSeat["row"],
-                $colStart,
-                $lastSeat["col"]
+                $lastSeat["lastRowNum"],
+                $cinema->getMaxSeatsPerRow(),
+                $lastSeat["lastSeatNumInRow"],
+                excludeFirstSeatInRow: true
             );
         }
     }
+
 }

@@ -13,12 +13,16 @@ class ScreeningRoomSeat
     #[ORM\Column]
     private ?int $id = null;
 
+    // available, unavailable
     #[ORM\Column(length: 100)]
     private ?string $seatStatus = "available";
 
+    // just type: regular, handicapped, 5D
     #[ORM\Column(length: 100)]
     private ?string $seatType = "regular";
 
+    // visibility
+    // there are 2 types for room truncating purposes
     #[ORM\Column(length: 15)]
     private ?string $status = "active";
 
@@ -48,8 +52,6 @@ class ScreeningRoomSeat
 
         return $this;
     }
-
-
 
     public function getScreeningRoom(): ?ScreeningRoom
     {

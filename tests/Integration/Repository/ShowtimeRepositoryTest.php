@@ -144,9 +144,10 @@ class ShowtimeRepositoryTest extends KernelTestCase
             ]
         )->_real();
 
+
         $cinema = CinemaFactory::createOne()->_real();
 
-        ShowtimeFactory::createOne([
+        $showtime = ShowtimeFactory::createOne([
             "screeningRoom" => ScreeningRoomFactory::createOne(),
             "cinema" => $cinema,
             "movieFormat" => $movieFormat,
@@ -154,14 +155,20 @@ class ShowtimeRepositoryTest extends KernelTestCase
             "endTime" => new \DateTime($showtimeEndsAt)
         ]);
 
+
+
         $resultOverlapping = $this->getShowtimeRepository()
             ->findOverlappingForMovie($cinema, $movieFormat, new \DateTime($showtimeStartsAt), new \DateTime($showtimeEndsAt));
 
         $resultNotOverlapping = $this->getShowtimeRepository()
-            ->findOverlappingForMovie($cinema, $movieFormat, new \DateTime(self::BASE_DATE . " 12:00:00"), new \DateTime(self::BASE_DATE . " 13:00:00"));
+            ->findOverlappingForMovie($cinema, $movieFormat, new \DateTime(self::BASE_DATE . " 12:00:00"), new \DateTime(self::BASE_DATE . " 12:50:00"));
         
-        $this->assertCount(1, $resultOverlapping);
-        $this->assertEmpty($resultNotOverlapping);
+
+        assert($showtime instanceof Showtime);
+
+        $this->assertSame($showtime->getId(), $resultOverlapping->getId());
+        
+        $this->assertNull($resultNotOverlapping);
 
 
     }

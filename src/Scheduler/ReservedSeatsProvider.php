@@ -8,8 +8,8 @@ use Symfony\Component\Scheduler\RecurringMessage;
 use Symfony\Component\Scheduler\Schedule;
 use Symfony\Component\Scheduler\ScheduleProviderInterface;
 
-#[AsSchedule('unlock_reserved_seats')]
-final class ReservedSeatsProvider implements ScheduleProviderInterface
+// #[AsSchedule('unlock_reserved_seats')]
+final class ReservedSeatsProvider //implements ScheduleProviderInterface
 {
   
 

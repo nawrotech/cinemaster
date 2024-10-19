@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Repository\ReservationSeatRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-
 #[ORM\Entity(repositoryClass: ReservationSeatRepository::class)]
 class ReservationSeat
 {
@@ -23,9 +22,17 @@ class ReservationSeat
     private ?ScreeningRoomSeat $seat = null;
 
     #[ORM\Column(length: 15)]
-    private ?string $status = null;
+    private ?string $status = "available";
 
-    // TO ADD reservation
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $statusLockedExpiresAt = null;
+
+    #[ORM\ManyToOne(inversedBy: 'reservationSeats')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Reservation $reservation = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $email = null;
 
     public function getId(): ?int
     {
@@ -64,6 +71,42 @@ class ReservationSeat
     public function setStatus(string $status): static
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getStatusLockedExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->statusLockedExpiresAt;
+    }
+
+    public function setStatusLockedExpiresAt(?\DateTimeImmutable $statusLockedExpiresAt): static
+    {
+        $this->statusLockedExpiresAt = $statusLockedExpiresAt;
+
+        return $this;
+    }
+
+    public function getReservation(): ?Reservation
+    {
+        return $this->reservation;
+    }
+
+    public function setReservation(?Reservation $reservation): static
+    {
+        $this->reservation = $reservation;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(?string $email): static
+    {
+        $this->email = $email;
 
         return $this;
     }

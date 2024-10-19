@@ -50,6 +50,19 @@
                     screening_room_slug: showtime.screeningRoom.slug,
                     showtime_id: showtime.id
                      }) }}">Edit</a>
+
+                {# publish/unpublish #}
+                {# get rid of those super long unituitive names #}
+                {% if not showtime.published %}
+                    <form method="POST" action="{{ path("app_showtime_publish", {
+                        slug: showtime.screeningRoom.cinema.slug,
+                        showtime_id: showtime.id}) 
+                    }}">
+                        <button class="btn btn-success">Publish Show</button>
+                    </form>
+                {% endif %}
+                
+              
             </div>
         {% endfor %}
     </div>

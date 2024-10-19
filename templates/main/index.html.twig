@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello MainController!{% endblock %}
+
+{% block body %}
+
+<div class="example-wrapper">
+    {% for distinctMovie in distinctMovies %}
+        <p>{{ distinctMovie.title }}</p>
+        {% for showtime in movieFormats[distinctMovie.id] %}
+            <a href="{{ path("app_reservation", {
+                    slug: cinema.slug,
+                    showtime_slug: showtime.slug
+            }) }}">
+                <p>{{ showtime.screeningRoom.name }}</p>
+                <p>{{ showtime.startTime|date("D M Y, h:iA")  }} - {{ showtime.endTime|date("D M Y, h:iA") }}</p>
+                <p>{{ showtime.movieFormat.displayMovieWithFormat }}</p>
+            </a>
+        {% endfor %}
+    {% endfor %}
+</div>
+
+
+{% endblock %}

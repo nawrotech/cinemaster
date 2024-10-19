@@ -16,15 +16,15 @@ class CinemaSeat
     #[ORM\Id, ORM\ManyToOne(inversedBy: 'cinemaSeats')]
     private ?Seat $seat = null;
 
-    #[ORM\Column(length: 15)]
-    private ?string $status = "active";
-
+    #[ORM\Column]
+    private ?bool $visible = true;
 
     /**
      * @var Collection<int, ScreeningRoomSeat>
      */
     #[ORM\OneToMany(targetEntity: ScreeningRoomSeat::class, mappedBy: 'seat')]
     private Collection $screeningRoomSeats;
+
 
   
     public function __construct()
@@ -87,14 +87,14 @@ class CinemaSeat
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function isVisible(): ?bool
     {
-        return $this->status;
+        return $this->visible;
     }
 
-    public function setStatus(string $status): static
+    public function setVisible(bool $visible): static
     {
-        $this->status = $status;
+        $this->visible = $visible;
 
         return $this;
     }

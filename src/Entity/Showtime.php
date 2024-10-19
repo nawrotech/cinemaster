@@ -3,9 +3,16 @@
 namespace App\Entity;
 
 use App\Repository\ShowtimeRepository;
+use Cocur\Slugify\Slugify;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
+use Doctrine\ORM\Mapping\PrePersist;
+use Doctrine\ORM\Mapping\PreUpdate;
 
+#[HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: ShowtimeRepository::class)]
 class Showtime
 {
@@ -18,11 +25,11 @@ class Showtime
     #[ORM\JoinColumn(nullable: false)]
     private ?ScreeningRoom $screeningRoom = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $startTime = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private ?\DateTimeImmutable $startTime = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $endTime = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private ?\DateTimeImmutable $endTime = null;
 
     #[ORM\Column]
     private ?int $price = null;
@@ -41,6 +48,52 @@ class Showtime
     #[ORM\JoinColumn(nullable: false)]
     private ?Cinema $cinema = null;
 
+    /**
+     * @var Collection<int, ReservationSeat>
+     */
+    #[ORM\OneToMany(targetEntity: ReservationSeat::class, mappedBy: 'showtime')]
+    private Collection $reservationSeats;
+
+    #[ORM\Column(length: 255, nullable: false)]
+    private ?string $slug = null;
+
+    /**
+     * @var Collection<int, Reservation>
+     */
+    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'showtime')]
+    private Collection $reservations;
+
+    public function __construct()
+    {
+        $this->reservationSeats = new ArrayCollection();
+        $this->reservations = new ArrayCollection();
+        
+    }
+
+    public function displaySlug() {
+        return "{$this->movieFormat->getDisplayMovieWithFormat()} - {$this->startTime->format("Y-m-d H:i:s")}";
+    }    
+
+    #[PrePersist]
+    public function createSlug(): static
+    {
+        $slugify = new Slugify();
+        $this->slug = $slugify->slugify($this->displaySlug());
+
+        return $this;
+    }
+
+    #[PreUpdate]
+    public function updateSlug(): static
+    {
+        $slugify = new Slugify();
+        $this->slug = $slugify->slugify($this->displaySlug());
+
+        return $this;
+    }
+
+  
+
     public function getId(): ?int
     {
         return $this->id;
@@ -58,24 +111,24 @@ class Showtime
         return $this;
     }
 
-    public function getStartTime(): ?\DateTimeInterface
+    public function getStartTime(): ?\DateTimeImmutable
     {
         return $this->startTime;
     }
 
-    public function setStartTime(\DateTimeInterface $startTime): static
+    public function setStartTime(\DateTimeImmutable $startTime): static
     {
         $this->startTime = $startTime;
 
         return $this;
     }
 
-    public function getEndTime(): ?\DateTimeInterface
+    public function getEndTime(): ?\DateTimeImmutable
     {
         return $this->endTime;
     }
 
-    public function setEndTime(\DateTimeInterface $endTime): static
+    public function setEndTime(\DateTimeImmutable $endTime): static
     {
         $this->endTime = $endTime;
 
@@ -138,6 +191,87 @@ class Showtime
     public function setCinema(?Cinema $cinema): static
     {
         $this->cinema = $cinema;
+
+        return $this;
+    }
+
+    public function getDuration(): int {
+        $maintenanceTime = $this->getScreeningRoom()->getMaintenanceTimeInMinutes();
+        $movieDurationTime = $this->getMovieFormat()->getMovie()->getDurationInMinutes();
+        $advertisementTime = $this->getAdvertisementTimeInMinutes();
+       
+        return $advertisementTime + $maintenanceTime + $movieDurationTime;
+
+    }
+
+    /**
+     * @return Collection<int, ReservationSeat>
+     */
+    public function getReservationSeats(): Collection
+    {
+        return $this->reservationSeats;
+    }
+
+    public function addReservationSeat(ReservationSeat $reservationSeat): static
+    {
+        if (!$this->reservationSeats->contains($reservationSeat)) {
+            $this->reservationSeats->add($reservationSeat);
+            $reservationSeat->setShowtime($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReservationSeat(ReservationSeat $reservationSeat): static
+    {
+        if ($this->reservationSeats->removeElement($reservationSeat)) {
+            // set the owning side to null (unless already changed)
+            if ($reservationSeat->getShowtime() === $this) {
+                $reservationSeat->setShowtime(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(?string $slug): static
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Reservation>
+     */
+    public function getReservations(): Collection
+    {
+        return $this->reservations;
+    }
+
+    public function addReservation(Reservation $reservation): static
+    {
+        if (!$this->reservations->contains($reservation)) {
+            $this->reservations->add($reservation);
+            $reservation->setShowtime($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReservation(Reservation $reservation): static
+    {
+        if ($this->reservations->removeElement($reservation)) {
+            // set the owning side to null (unless already changed)
+            if ($reservation->getShowtime() === $this) {
+                $reservation->setShowtime(null);
+            }
+        }
 
         return $this;
     }

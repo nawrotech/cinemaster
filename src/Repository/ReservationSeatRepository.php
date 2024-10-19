@@ -6,6 +6,7 @@ use App\Contracts\SeatsGridInterface;
 use App\Entity\ReservationSeat;
 use App\Entity\ScreeningRoom;
 use App\Entity\Showtime;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -19,6 +20,28 @@ class ReservationSeatRepository extends ServiceEntityRepository implements Seats
     {
         parent::__construct($registry, ReservationSeat::class);
     }
+
+    // also creating where clause for single filtering condition
+    // seems to be redundant, cause same can be achieved
+    // using findBy built int method
+    // however it can be still useful to use to remove n + 1 problem
+
+    // for the showtime
+    public function findExpiredLockedSeats(
+        DateTimeImmutable $currentDateTime,
+        ?string $status = "locked") {
+        return $this->createQueryBuilder("rs")
+                    ->andWhere("rs.statusLockedExpiresAt < :currentDateTime")
+                    ->andWhere("rs.status = :status")
+                    ->setParameter("currentDateTime", $currentDateTime)
+                    ->setParameter("status", $status)
+                    ->getQuery()
+                    ->getResult()
+
+        ;
+    }
+
+
 
     /**
      * @return int[]

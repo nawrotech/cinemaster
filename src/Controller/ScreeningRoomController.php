@@ -27,8 +27,8 @@ class ScreeningRoomController extends AbstractController
         Cinema $cinema,
     ) {
         return $this->json([
-            "maxColNum" => $cinema->getSeatsPerRowMax(),
-            "maxRowNum" => $cinema->getRowsMax()
+            "maxColNum" => $cinema->getMaxSeatsPerRow(),
+            "maxRowNum" => $cinema->getMaxRows()
         ]);
     }
 
@@ -60,8 +60,8 @@ class ScreeningRoomController extends AbstractController
 
         $form = $this->createForm(ScreeningRoomType::class, $screeningRoom, [
             "max_room_sizes" => [
-                "maxRowNum" => $cinema->getRowsMax(),
-                "maxColNum" => $cinema->getSeatsPerRowMax()
+                "maxRowNum" => $cinema->getMaxRows(),
+                "maxColNum" => $cinema->getMaxSeatsPerRow()
             ]
         ]);
 
@@ -72,20 +72,23 @@ class ScreeningRoomController extends AbstractController
             $seatsPerRow = $form->get("seatsPerRow")->getData();
             $rowsAndSeats = array_combine(range(1, count($seatsPerRow)), $seatsPerRow);
             
-            foreach ($rowsAndSeats as $row => $lastSeatInRow) {
-                $seatsRange = $cinemaSeatsRepository->findSeatsInGivenRange($cinema, $row, $row, 1, $lastSeatInRow);
-
-                foreach ($seatsRange as $cinemaSeat) {
-                    $screeningRoomSeat = new ScreeningRoomSeat();
-                    $screeningRoomSeat->setScreeningRoom($screeningRoom);
-                    $screeningRoomSeat->setSeat($cinemaSeat);
-                    $em->persist($screeningRoomSeat);
+            $em->wrapInTransaction(function($em) use($rowsAndSeats, $cinema, $cinemaSeatsRepository, $screeningRoom) {
+                foreach ($rowsAndSeats as $row => $lastSeatInRow) {
+                    $seatsRange = $cinemaSeatsRepository->findSeatsInRange($cinema, $row, $row, 1, $lastSeatInRow);
+    
+                    foreach ($seatsRange as $cinemaSeat) {
+                        $screeningRoomSeat = new ScreeningRoomSeat();
+                        $screeningRoomSeat->setScreeningRoom($screeningRoom);
+                        $screeningRoomSeat->setSeat($cinemaSeat);
+                        $em->persist($screeningRoomSeat);
+                    }
                 }
-            }
+    
+                $em->persist($screeningRoom);
+                $em->flush();
+            });
 
-
-            $em->persist($screeningRoom);
-            $em->flush();
+      
 
             return $this->redirectToRoute("app_screening_room", [
                 "slug" => $cinema->getSlug()

@@ -25,7 +25,7 @@ class ShowtimeRepository extends ServiceEntityRepository
         Cinema $cinema,
         \DateTimeInterface $startTime, 
         \DateTimeInterface $endTime, 
-        ?int $excludeId = null)
+        ?int $excludeId = null): QueryBuilder
     {
         $qb = $this->createQueryBuilder('s')
             ->orWhere('(:startTime >= s.startTime AND :startTime < s.endTime)')
@@ -50,7 +50,7 @@ class ShowtimeRepository extends ServiceEntityRepository
         \DateTimeInterface $startTime,
         \DateTimeInterface $endTime,
         ?int $excludeId = null
-    ) {
+    ): array {
         return $this->findOverlapping($cinema, $startTime, $endTime, $excludeId)
             ->andWhere('s.screeningRoom = :screeningRoom')
             ->setParameter("screeningRoom", $screeningRoom)
@@ -64,12 +64,12 @@ class ShowtimeRepository extends ServiceEntityRepository
         \DateTimeInterface $startTime,
         \DateTimeInterface $endTime,
         ?int $excludeId = null
-    ) {
+    ): ?Showtime {
         return $this->findOverlapping($cinema, $startTime, $endTime, $excludeId)
             ->andWhere('s.movieFormat = :movieFormat')
             ->setParameter("movieFormat", $movieFormat)
             ->getQuery()
-            ->getResult();
+            ->getOneOrNullResult();
 
     }
 
@@ -149,15 +149,54 @@ class ShowtimeRepository extends ServiceEntityRepository
         
     }
 
-
-    public function checkOne() {
+    public function findDistinctMovies(Cinema $cinema, bool $published = true) {
         return $this->createQueryBuilder("s")
-                        ->getQuery()->getResult();
+                ->innerJoin("s.movieFormat", "mf")
+                ->innerJoin("mf.movie", "m")
+                ->innerJoin("s.screeningRoom", "sr")
+                ->select("m.id, m.title, m.durationInMinutes")
+                ->distinct()
+                ->andWhere("s.published = :published")
+                ->andWhere("sr.cinema = :cinema")
+                ->setParameter("cinema", $cinema)
+                ->setParameter("published", $published)
+                ->getQuery()
+                ->getResult()
+        ;
     }
 
-    public function dummyQuery() {
-        return false;
+
+    public function findForMovie(int $id, Cinema $cinema, bool $published = true) {
+        return $this->createQueryBuilder("s")
+                    ->innerJoin("s.movieFormat", "mf")
+                    ->innerJoin("mf.movie", "m")
+                    ->addSelect("mf")
+                    ->andWhere("s.published = :published")
+                    ->andWhere("m.id = :id")
+                    ->andWhere("s.cinema = :cinema")
+                    ->setParameter("cinema", $cinema)
+                    ->setParameter("id", $id)
+                    ->setParameter("published", $published)
+                    ->getQuery()
+                    ->getResult()
+            ;
     }
 
+    // public function findMoviesWithFormats(bool $published = true)
+    // {
+    //     return $this->getEntityManager()->createQuery(
+    //         'SELECT m.id, m.title, m.durationInMinutes, 
+    //                 GROUP_CONCAT(DISTINCT mf.id) as formatIds,
+    //                 GROUP_CONCAT(DISTINCT s.id) as showIds
+    //          FROM App\Entity\Show s
+    //          JOIN s.movieFormat mf
+    //          JOIN mf.movie m
+    //          WHERE s.published = :published
+    //          GROUP BY m.id'
+    //     )
+    //     ->setParameter('published', $published)
+    //     ->getResult();
+    // }
+   
 
 }

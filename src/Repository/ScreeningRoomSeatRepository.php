@@ -60,21 +60,19 @@ class ScreeningRoomSeatRepository extends ServiceEntityRepository implements Sea
         ;
     }
 
+    // SUPER USELESS
+    // public function findBySeatId(int $roomId, int $seatId)
+    // {
 
-    public function findBySeatId(int $roomId, int $seatId)
-    {
-
-        return $this->createQueryBuilder('srs')
-            ->innerJoin("srs.screeningRoom", "sr")
-            ->innerJoin("srs.seat", "cs")
-            ->innerJoin("cs.seat", "s")
-            ->andWhere("s.id = :seatId")
-            ->andWhere("sr.id = :roomId")
-            ->setParameter("seatId", $seatId)
-            ->setParameter("roomId", $roomId)
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
+    //     return $this->createQueryBuilder('srs')
+    //         ->innerJoin("srs.screeningRoom", "sr")
+    //         ->andWhere("srs.id = :seatId")
+    //         ->andWhere("sr.id = :roomId")
+    //         ->setParameter("seatId", $seatId)
+    //         ->setParameter("roomId", $roomId)
+    //         ->getQuery()
+    //         ->getOneOrNullResult();
+    // }
 
     public function findSeatsInRange(
         ScreeningRoom $screeningRoom,
@@ -96,6 +94,8 @@ class ScreeningRoomSeatRepository extends ServiceEntityRepository implements Sea
             ->setParameter("rowEnd", $rowEnd)
             ->setParameter("colStart", $colStart)
             ->setParameter("colEnd", $colEnd)
+            ->addOrderBy("s.rowNum", "ASC")
+            ->addOrderBy("s.colNum", "ASC")
             ->getQuery()
             ->getResult();
     }
