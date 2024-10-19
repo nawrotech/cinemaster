@@ -13,44 +13,27 @@ class ScreeningRoomSeat
     #[ORM\Column]
     private ?int $id = null;
 
-    // available, unavailable
-    #[ORM\Column(length: 100)]
-    private ?string $seatStatus = "available";
-
-    // just type: regular, handicapped, 5D
-    #[ORM\Column(length: 100)]
-    private ?string $seatType = "regular";
-
-    // visibility
-    // there are 2 types for room truncating purposes
-    #[ORM\Column(length: 15)]
-    private ?string $status = "active";
-
     #[ORM\ManyToOne(inversedBy: 'screeningRoomSeats')]
     #[ORM\JoinColumn(nullable: false)]
     private ?ScreeningRoom $screeningRoom = null;
 
-    #[ORM\ManyToOne(inversedBy: 'screeningRoomSeats')]
-    #[ORM\JoinColumn(name: "cinema_id", referencedColumnName: "cinema_id")]
-    #[ORM\JoinColumn(name: "seat_id", referencedColumnName: "seat_id")]
-    private ?CinemaSeat $seat = null;
+    #[ORM\Column(length: 15)]
+    private ?string $status = null;
+
+    #[ORM\Column(length: 15)]
+    private ?string $type = null;
+
+    #[ORM\Column]
+    private ?bool $isVisible = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Seat $seat = null;
 
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getSeatStatus(): ?string
-    {
-        return $this->seatStatus;
-    }
-
-    public function setSeatStatus(string $seatStatus): static
-    {
-        $this->seatStatus = $seatStatus;
-
-        return $this;
     }
 
     public function getScreeningRoom(): ?ScreeningRoom
@@ -61,30 +44,6 @@ class ScreeningRoomSeat
     public function setScreeningRoom(?ScreeningRoom $screeningRoom): static
     {
         $this->screeningRoom = $screeningRoom;
-
-        return $this;
-    }
-
-    public function getSeatType(): ?string
-    {
-        return $this->seatType;
-    }
-
-    public function setSeatType(string $seatType): static
-    {
-        $this->seatType = $seatType;
-
-        return $this;
-    }
-
-    public function getSeat(): ?CinemaSeat
-    {
-        return $this->seat;
-    }
-
-    public function setSeat(?CinemaSeat $seat): static
-    {
-        $this->seat = $seat;
 
         return $this;
     }
@@ -100,4 +59,45 @@ class ScreeningRoomSeat
 
         return $this;
     }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): static
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function isVisible(): ?bool
+    {
+        return $this->isVisible;
+    }
+
+    public function setVisible(bool $isVisible): static
+    {
+        $this->isVisible = $isVisible;
+
+        return $this;
+    }
+
+    public function getSeat(): ?Seat
+    {
+        return $this->seat;
+    }
+
+    public function setSeat(?Seat $seat): static
+    {
+        $this->seat = $seat;
+
+        return $this;
+    }
+
+
+
+
+
 }

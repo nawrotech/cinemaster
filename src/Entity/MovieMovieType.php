@@ -19,7 +19,7 @@ class MovieMovieType
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?MovieType $movieType = null;
+    private ?Format $movieType = null;
 
 
     // create unique name from title and its format
@@ -45,12 +45,12 @@ class MovieMovieType
         return $this;
     }
 
-    public function getMovieType(): ?MovieType
+    public function getMovieType(): ?Format
     {
         return $this->movieType;
     }
 
-    public function setMovieType(?MovieType $movieType): static
+    public function setMovieType(?Format $movieType): static
     {
         $this->movieType = $movieType;
 

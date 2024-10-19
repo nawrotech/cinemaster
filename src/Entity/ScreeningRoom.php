@@ -32,7 +32,6 @@ class ScreeningRoom
     #[ORM\Column(length: 100, unique: true)]
     private ?string $slug = null;
 
-
     #[ORM\Column(length: 100)]
     private ?string $status = "available";
 
@@ -46,25 +45,21 @@ class ScreeningRoom
     private ?Cinema $cinema = null;
 
     #[ORM\Column]
-    private ?int $rowsMax = null;
-
-    #[ORM\Column]
-    private ?int $seatsPerRowMax = null;
-
-    #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $maintenanceTimeInMinutes = null;
+    
     /**
      * @var Collection<int, Showtime>
      */
     #[ORM\OneToMany(targetEntity: Showtime::class, mappedBy: 'screeningRoom')]
     private Collection $showtimes;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $maintenanceTimeInMinutes = null;
+
 
     public function __construct()
     {
@@ -175,29 +170,6 @@ class ScreeningRoom
         return $this;
     }
 
-    public function getRowsMax(): ?int
-    {
-        return $this->rowsMax;
-    }
-
-    public function setRowsMax(int $rowsMax): static
-    {
-        $this->rowsMax = $rowsMax;
-
-        return $this;
-    }
-
-    public function getSeatsPerRowMax(): ?int
-    {
-        return $this->seatsPerRowMax;
-    }
-
-    public function setSeatsPerRowMax(int $seatsPerRowMax): static
-    {
-        $this->seatsPerRowMax = $seatsPerRowMax;
-
-        return $this;
-    }
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {

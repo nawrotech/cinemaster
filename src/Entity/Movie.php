@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\MovieRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -27,6 +29,17 @@ class Movie
 
     #[ORM\Column]
     private ?int $durationInMinutes = null;
+
+    /**
+     * @var Collection<int, MovieFormat>
+     */
+    #[ORM\OneToMany(targetEntity: MovieFormat::class, mappedBy: 'movie')]
+    private Collection $movieFormats;
+
+    public function __construct()
+    {
+        $this->movieFormats = new ArrayCollection();
+    }
 
 
     public function getId(): ?int
@@ -69,6 +82,38 @@ class Movie
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, MovieFormat>
+     */
+    public function getMovieFormats(): Collection
+    {
+        return $this->movieFormats;
+    }
+
+    public function addMovieFormat(MovieFormat $movieFormat): static
+    {
+        if (!$this->movieFormats->contains($movieFormat)) {
+            $this->movieFormats->add($movieFormat);
+            $movieFormat->setMovie($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMovieFormat(MovieFormat $movieFormat): static
+    {
+        if ($this->movieFormats->removeElement($movieFormat)) {
+            // set the owning side to null (unless already changed)
+            if ($movieFormat->getMovie() === $this) {
+                $movieFormat->setMovie(null);
+            }
+        }
+
+        return $this;
+    }
+
+  
 
 
 

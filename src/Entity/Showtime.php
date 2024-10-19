@@ -25,12 +25,6 @@ class Showtime
     #[ORM\JoinColumn(nullable: false)]
     private ?ScreeningRoom $screeningRoom = null;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private ?\DateTimeImmutable $startTime = null;
-
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private ?\DateTimeImmutable $endTime = null;
-
     #[ORM\Column]
     private ?int $price = null;
 
@@ -41,8 +35,6 @@ class Showtime
     #[ORM\JoinColumn(nullable: false)]
     private ?MovieMovieType $movieFormat = null;
 
-    #[ORM\Column]
-    private ?bool $published = false;
 
     #[ORM\ManyToOne(inversedBy: 'showtimes')]
     #[ORM\JoinColumn(nullable: false)]
@@ -63,6 +55,15 @@ class Showtime
     #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'showtime')]
     private Collection $reservations;
 
+    #[ORM\Column]
+    private ?bool $isPublished = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $startsAt = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $endsAt = null;
+
     public function __construct()
     {
         $this->reservationSeats = new ArrayCollection();
@@ -71,7 +72,7 @@ class Showtime
     }
 
     public function displaySlug() {
-        return "{$this->movieFormat->getDisplayMovieWithFormat()} - {$this->startTime->format("Y-m-d H:i:s")}";
+        return "{$this->movieFormat->getDisplayMovieWithFormat()} - {$this->startsAt->format("Y-m-d H:i:s")}";
     }    
 
     #[PrePersist]
@@ -111,29 +112,8 @@ class Showtime
         return $this;
     }
 
-    public function getStartTime(): ?\DateTimeImmutable
-    {
-        return $this->startTime;
-    }
 
-    public function setStartTime(\DateTimeImmutable $startTime): static
-    {
-        $this->startTime = $startTime;
 
-        return $this;
-    }
-
-    public function getEndTime(): ?\DateTimeImmutable
-    {
-        return $this->endTime;
-    }
-
-    public function setEndTime(\DateTimeImmutable $endTime): static
-    {
-        $this->endTime = $endTime;
-
-        return $this;
-    }
 
     public function getPrice(): ?int
     {
@@ -171,17 +151,7 @@ class Showtime
         return $this;
     }
 
-    public function isPublished(): ?bool
-    {
-        return $this->published;
-    }
 
-    public function setPublished(bool $published): static
-    {
-        $this->published = $published;
-
-        return $this;
-    }
 
     public function getCinema(): ?Cinema
     {
@@ -272,6 +242,42 @@ class Showtime
                 $reservation->setShowtime(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isPublished(): ?bool
+    {
+        return $this->isPublished;
+    }
+
+    public function setPublished(bool $isPublished): static
+    {
+        $this->isPublished = $isPublished;
+
+        return $this;
+    }
+
+    public function getStartsAt(): ?\DateTimeImmutable
+    {
+        return $this->startsAt;
+    }
+
+    public function setStartsAt(\DateTimeImmutable $startsAt): static
+    {
+        $this->startsAt = $startsAt;
+
+        return $this;
+    }
+
+    public function getEndsAt(): ?\DateTimeImmutable
+    {
+        return $this->endsAt;
+    }
+
+    public function setEndsAt(\DateTimeImmutable $endsAt): static
+    {
+        $this->endsAt = $endsAt;
 
         return $this;
     }

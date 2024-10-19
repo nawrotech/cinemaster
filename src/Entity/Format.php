@@ -5,9 +5,8 @@ namespace App\Entity;
 use App\Repository\MovieTypeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-// composite key maybe
 #[ORM\Entity(repositoryClass: MovieTypeRepository::class)]
-class MovieType
+class Format
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

@@ -46,12 +46,6 @@ class Cinema
     private ?\DateTimeImmutable $updatedAt = null;
 
     /**
-     * @var Collection<int, CinemaSeat>
-     */
-    #[ORM\OneToMany(targetEntity: CinemaSeat::class, mappedBy: 'cinema')]
-    private Collection $cinemaSeats;
-
-    /**
      * @var Collection<int, ScreeningRoom>
      */
     #[ORM\OneToMany(targetEntity: ScreeningRoom::class, mappedBy: 'cinema')]
@@ -74,8 +68,6 @@ class Cinema
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
-
-        $this->cinemaSeats = new ArrayCollection();
         $this->screeningRooms = new ArrayCollection();
         $this->cinemaHistories = new ArrayCollection();
         $this->showtimes = new ArrayCollection();
@@ -116,35 +108,6 @@ class Cinema
         return $this;
     }
 
-    /**
-     * @return Collection<int, CinemaSeat>
-     */
-    public function getCinemaSeats(): Collection
-    {
-        return $this->cinemaSeats->matching(CinemaSeatRepository::visibleSeatsCriterion());
-    }
-
-    public function addCinemaSeat(CinemaSeat $cinemaSeat): static
-    {
-        if (!$this->cinemaSeats->contains($cinemaSeat)) {
-            $this->cinemaSeats->add($cinemaSeat);
-            $cinemaSeat->setCinema($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCinemaSeat(CinemaSeat $cinemaSeat): static
-    {
-        if ($this->cinemaSeats->removeElement($cinemaSeat)) {
-            // set the owning side to null (unless already changed)
-            if ($cinemaSeat->getCinema() === $this) {
-                $cinemaSeat->setCinema(null);
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, ScreeningRoom>
