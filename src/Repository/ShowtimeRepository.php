@@ -3,7 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Cinema;
-use App\Entity\MovieMovieType;
+use App\Entity\MovieFormat;
 use App\Entity\ScreeningRoom;
 use App\Entity\Showtime;
 use DateTimeInterface;
@@ -23,17 +23,17 @@ class ShowtimeRepository extends ServiceEntityRepository
 
     public function findOverlapping(
         Cinema $cinema,
-        \DateTimeInterface $startTime, 
-        \DateTimeInterface $endTime, 
+        \DateTimeInterface $startsAt, 
+        \DateTimeInterface $endsAt, 
         ?int $excludeId = null): QueryBuilder
     {
         $qb = $this->createQueryBuilder('s')
-            ->orWhere('(:startTime >= s.startTime AND :startTime < s.endTime)')
-            ->orWhere('(:endTime > s.startTime AND :endTime <= s.endTime)')
-            ->orWhere('(:startTime <= s.startTime AND :endTime >= s.endTime)')
+            ->orWhere('(:startsAt >= s.startsAt AND :startsAt < s.endsAt)')
+            ->orWhere('(:endsAt > s.startsAt AND :endsAt <= s.endsAt)')
+            ->orWhere('(:startsAt <= s.startsAt AND :endsAt >= s.endsAt)')
             ->andWhere("s.cinema = :cinema")
-            ->setParameter('startTime', $startTime)
-            ->setParameter('endTime', $endTime)
+            ->setParameter('startsAt', $startsAt)
+            ->setParameter('endsAt', $endsAt)
             ->setParameter('cinema', $cinema);
             
         if ($excludeId) {
@@ -47,11 +47,11 @@ class ShowtimeRepository extends ServiceEntityRepository
     public function findOverlappingForRoom(
         Cinema $cinema,
         ScreeningRoom $screeningRoom,
-        \DateTimeInterface $startTime,
-        \DateTimeInterface $endTime,
+        \DateTimeInterface $startsAt,
+        \DateTimeInterface $endsAt,
         ?int $excludeId = null
     ): array {
-        return $this->findOverlapping($cinema, $startTime, $endTime, $excludeId)
+        return $this->findOverlapping($cinema, $startsAt, $endsAt, $excludeId)
             ->andWhere('s.screeningRoom = :screeningRoom')
             ->setParameter("screeningRoom", $screeningRoom)
             ->getQuery()
@@ -60,12 +60,12 @@ class ShowtimeRepository extends ServiceEntityRepository
 
     public function findOverlappingForMovie(
         Cinema $cinema,
-        MovieMovieType $movieFormat,
-        \DateTimeInterface $startTime,
-        \DateTimeInterface $endTime,
+        MovieFormat $movieFormat,
+        \DateTimeInterface $startsAt,
+        \DateTimeInterface $endsAt,
         ?int $excludeId = null
     ): ?Showtime {
-        return $this->findOverlapping($cinema, $startTime, $endTime, $excludeId)
+        return $this->findOverlapping($cinema, $startsAt, $endsAt, $excludeId)
             ->andWhere('s.movieFormat = :movieFormat')
             ->setParameter("movieFormat", $movieFormat)
             ->getQuery()
@@ -81,7 +81,7 @@ class ShowtimeRepository extends ServiceEntityRepository
         ?string $movieTitle = null) {
 
         $qb = $this->createQueryBuilder('s')
-                ->addOrderBy("s.startTime")
+                ->addOrderBy("s.startsAt")
                 ->andWhere("s.cinema = :cinema")
                 ->setParameter("cinema", $cinema);
 
@@ -124,7 +124,7 @@ class ShowtimeRepository extends ServiceEntityRepository
         }
       
         return ($qb ?? $this->createQueryBuilder("s"))
-                    ->andWhere("s.startTime >= :startsAt")
+                    ->andWhere("s.startsAt >= :startsAt")
                     ->setParameter("startsAt", $startsAt);
     }
 
@@ -135,7 +135,7 @@ class ShowtimeRepository extends ServiceEntityRepository
         }
 
         return ($qb ?? $this->createQueryBuilder("s"))
-                        ->andWhere("s.endTime <= :showtimeEndTime")
+                        ->andWhere("s.endsAt <= :showtimeEndTime")
                         ->setParameter("showtimeEndTime", $endsAt);
 
     }
@@ -182,21 +182,6 @@ class ShowtimeRepository extends ServiceEntityRepository
             ;
     }
 
-    // public function findMoviesWithFormats(bool $published = true)
-    // {
-    //     return $this->getEntityManager()->createQuery(
-    //         'SELECT m.id, m.title, m.durationInMinutes, 
-    //                 GROUP_CONCAT(DISTINCT mf.id) as formatIds,
-    //                 GROUP_CONCAT(DISTINCT s.id) as showIds
-    //          FROM App\Entity\Show s
-    //          JOIN s.movieFormat mf
-    //          JOIN mf.movie m
-    //          WHERE s.published = :published
-    //          GROUP BY m.id'
-    //     )
-    //     ->setParameter('published', $published)
-    //     ->getResult();
-    // }
    
 
 }

@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\MovieFormat;
 use App\Entity\MovieMovieType;
 use App\Entity\Showtime;
 use App\Repository\ShowtimeRepository;
@@ -34,13 +35,13 @@ class ShowtimeType extends AbstractType
     {
         $builder
             ->add("movieFormat", EntityType::class, [
-                'class' => MovieMovieType::class,
+                'class' => MovieFormat::class,
                 "label" => "Select Movie",
-                'choice_label' => function (MovieMovieType $movieFormat): string {
+                "choice_label" => function (MovieFormat $movieFormat): string {
                     return "
                         Title: {$movieFormat->getMovie()->getTitle()} 
                         Duration: {$movieFormat->getMovie()->getDurationInMinutes()} minutes
-                        Format: {$movieFormat->getMovieType()->getAudioVersion()}, {$movieFormat->getMovieType()->getVisualVersion()}        
+                        Format: {$movieFormat->getFormat()->getAudioVersion()}, {$movieFormat->getFormat()->getVisualVersion()}        
                     ";
                 },
             ])

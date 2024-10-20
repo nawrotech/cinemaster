@@ -8,9 +8,9 @@
 
     {% for movie in movies %}
         <div class="card">
-            {{ movie.movie.title }}
-            {{ movie.movieType.audioVersion }}
-            {{ movie.movieType.visualVersion }}
+            <p>Movie: {{ movie.movie.title }}</p>
+            <p>Audio: {{ movie.format.audioVersion }}</p>
+            <p>Visual: {{ movie.format.visualVersion }}</p>
         </div>
     {% endfor %}
 

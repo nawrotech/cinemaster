@@ -6,7 +6,6 @@ use App\Repository\ShowtimeRepository;
 use Cocur\Slugify\Slugify;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Doctrine\ORM\Mapping\PrePersist;
@@ -33,7 +32,7 @@ class Showtime
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?MovieMovieType $movieFormat = null;
+    private ?MovieFormat $movieFormat = null;
 
 
     #[ORM\ManyToOne(inversedBy: 'showtimes')]
@@ -56,7 +55,7 @@ class Showtime
     private Collection $reservations;
 
     #[ORM\Column]
-    private ?bool $isPublished = null;
+    private ?bool $isPublished = false;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $startsAt = null;
@@ -139,12 +138,12 @@ class Showtime
         return $this;
     }
 
-    public function getMovieFormat(): ?MovieMovieType
+    public function getMovieFormat(): ?MovieFormat
     {
         return $this->movieFormat;
     }
 
-    public function setMovieFormat(?MovieMovieType $movieFormat): static
+    public function setMovieFormat(?MovieFormat $movieFormat): static
     {
         $this->movieFormat = $movieFormat;
 

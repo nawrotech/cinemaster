@@ -50,5 +50,9 @@ class MovieFormat
         return $this;
     }
     
+    public function getDisplayMovieWithFormat() {
+        return "Movie: {$this->movie->getTitle()}
+                Format: {$this->format->getAudioVersion()} {$this->format->getVisualVersion()}";
+    }
 
 }

@@ -67,6 +67,7 @@ class ShowtimeController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            
             $em->persist($showtime);
             $em->flush();
 

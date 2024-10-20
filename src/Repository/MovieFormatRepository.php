@@ -16,28 +16,21 @@ class MovieFormatRepository extends ServiceEntityRepository
         parent::__construct($registry, MovieFormat::class);
     }
 
-//    /**
-//     * @return MovieFormat[] Returns an array of MovieFormat objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('m')
-//            ->andWhere('m.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('m.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+   /**
+    * @return Movie|Format[] Returns an array of MovieFormat objects
+    */
+   public function findMovieWithFormats(): array
+   {
+       return $this->createQueryBuilder('mf')
+            ->addSelect("m")
+            ->addSelect("f")
+            ->innerJoin("mf.movie", "m")
+            ->innerJoin("mf.format", "f")
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult()
+       ;
+   }
 
-//    public function findOneBySomeField($value): ?MovieFormat
-//    {
-//        return $this->createQueryBuilder('m')
-//            ->andWhere('m.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+
 }

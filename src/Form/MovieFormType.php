@@ -18,7 +18,7 @@ class MovieFormType extends AbstractType
             ->add('title')
             ->add('description')
             ->add('durationInMinutes')
-            ->add('movieTypes', EntityType::class, [
+            ->add('movieFormats', EntityType::class, [
                 "mapped" => false,
                 "label" => "Choose movie's formats",
                 "class" => Format::class,
