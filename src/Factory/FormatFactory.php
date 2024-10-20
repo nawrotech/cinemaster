@@ -2,24 +2,26 @@
 
 namespace App\Factory;
 
-use App\Entity\Movie;
+use App\Entity\Format;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<Movie>
+ * @extends PersistentProxyObjectFactory<Format>
  */
-final class MovieFactory extends PersistentProxyObjectFactory
+final class FormatFactory extends PersistentProxyObjectFactory
 {
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
      *
      * @todo inject services if required
      */
-    public function __construct() {}
+    public function __construct()
+    {
+    }
 
     public static function class(): string
     {
-        return Movie::class;
+        return Format::class;
     }
 
     /**
@@ -30,9 +32,8 @@ final class MovieFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'title' => self::faker()->unique->word(),
-            'description' => self::faker()->text(),
-            'durationInMinutes' => self::faker()->numberBetween(90, 180),
+            'audioVersion' => self::faker()->unique()->word(),
+            'visualVersion' => self::faker()->unique()->word(),
         ];
     }
 
@@ -42,7 +43,7 @@ final class MovieFactory extends PersistentProxyObjectFactory
     protected function initialize(): static
     {
         return $this
-            // ->afterInstantiate(function(Movie $movie): void {})
+            // ->afterInstantiate(function(Format $format): void {})
         ;
     }
 }

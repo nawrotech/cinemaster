@@ -60,7 +60,6 @@ class ScreeningRoom
     private Collection $showtimes;
 
 
-
     public function __construct()
     {
 

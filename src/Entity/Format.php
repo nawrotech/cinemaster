@@ -2,10 +2,10 @@
 
 namespace App\Entity;
 
-use App\Repository\MovieTypeRepository;
+use App\Repository\FormatRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: MovieTypeRepository::class)]
+#[ORM\Entity(repositoryClass: FormatRepository::class)]
 class Format
 {
     #[ORM\Id]

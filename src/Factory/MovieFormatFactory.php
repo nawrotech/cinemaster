@@ -2,13 +2,13 @@
 
 namespace App\Factory;
 
-use App\Entity\MovieMovieType;
+use App\Entity\MovieFormat;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<MovieMovieType>
+ * @extends PersistentProxyObjectFactory<MovieFormat>
  */
-final class MovieMovieTypeFactory extends PersistentProxyObjectFactory
+final class MovieFormatFactory extends PersistentProxyObjectFactory
 {
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
@@ -21,7 +21,7 @@ final class MovieMovieTypeFactory extends PersistentProxyObjectFactory
 
     public static function class(): string
     {
-        return MovieMovieType::class;
+        return MovieFormat::class;
     }
 
     /**
@@ -32,8 +32,8 @@ final class MovieMovieTypeFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
+            'format' => FormatFactory::new(),
             'movie' => MovieFactory::new(),
-            'movieType' => MovieTypeFactory::new(),
         ];
     }
 
@@ -43,7 +43,7 @@ final class MovieMovieTypeFactory extends PersistentProxyObjectFactory
     protected function initialize(): static
     {
         return $this
-            // ->afterInstantiate(function(MovieMovieType $movieMovieType): void {})
+            // ->afterInstantiate(function(MovieFormat $movieFormat): void {})
         ;
     }
 }

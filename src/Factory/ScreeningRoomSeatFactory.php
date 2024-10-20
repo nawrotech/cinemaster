@@ -43,19 +43,15 @@ final class ScreeningRoomSeatFactory extends PersistentProxyObjectFactory
 
     public static function createForScreeningRoom(ScreeningRoom $screeningRoom) {
 
-        $maxRow = $screeningRoom->getRowsMax();
-        $maxSeatsPerRow = $screeningRoom->getRowsMax();
         $cinema = $screeningRoom->getCinema();
-
-        $seats = CinemaSeatFactory::repository()->createQueryBuilder('cs')
-            ->innerJoin("cs.seat", "s")
-            ->addSelect("s")
-            ->where('s.rowNum <= :maxRow')
-            ->andWhere('s.colNum <= :maxSeatsPerRow')
-            ->andWhere("cs.cinema = :cinema")
-            ->setParameter('maxRow', $maxRow)
+        $maxRows = rand(7, $cinema->getMaxRows());
+        $maxSeatsPerRow = rand(7, $cinema->getMaxSeatsPerRow());
+        
+        $seats = SeatFactory::repository()->createQueryBuilder('s')
+            ->andWhere('s.rowNum <= :maxRows')
+            ->andWhere('s.seatNumInRow <= :maxSeatsPerRow')
+            ->setParameter('maxRows', $maxRows)
             ->setParameter('maxSeatsPerRow', $maxSeatsPerRow)
-            ->setParameter('cinema', $cinema)
             ->getQuery()
             ->getResult();
 

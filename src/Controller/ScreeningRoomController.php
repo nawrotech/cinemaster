@@ -8,7 +8,6 @@ use App\Entity\ScreeningRoomSeat;
 use App\Enum\ScreeningRoomSeatType;
 use App\Form\ScreeningRoomType;
 use App\Form\SeatLineType;
-use App\Repository\CinemaSeatRepository;
 use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSeatRepository;
 use App\Repository\SeatRepository;

@@ -35,14 +35,6 @@ class MovieController extends AbstractController
         $form = $this->createForm(MovieFormType::class, $movie);
         $form->handleRequest($request);
 
-        // if ($form->isSubmitted()) {
-        //     // dd($form);
-
-        //     $submittedToken = $request->getPayload()->get('token');
-        //     dd($submittedToken);
-
-        // }
-
         if ($form->isSubmitted() && $form->isValid()) {
 
             $em->persist($movie);

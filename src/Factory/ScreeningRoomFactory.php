@@ -38,8 +38,7 @@ final class ScreeningRoomFactory extends PersistentProxyObjectFactory
             // 'slug' => self::faker()->text(100),
             // 'status' => self::faker()->text(100),
             'name' => self::faker()->unique()->word(),
-            'rowsMax' => self::faker()->numberBetween(5, 12),
-            'seatsPerRowMax' => self::faker()->numberBetween(5, 12),
+         
         ];
     }
 
@@ -50,13 +49,13 @@ final class ScreeningRoomFactory extends PersistentProxyObjectFactory
             $cinema = CinemaFactory::random();
             assert($cinema instanceof Cinema);
 
-            $cinemaMaxRows = $cinema->getRowsMax();
-            $cinemaMaxSeats = $cinema->getSeatsPerRowMax();
+
 
             return [
-                'cinema' => $cinema,
-                'rowsMax' => self::faker()->numberBetween(5, $cinemaMaxRows),  
-                'seatsPerRowMax' => self::faker()->numberBetween(5, $cinemaMaxSeats),  
+                "cinema" => $cinema,
+                "name" => self::faker()->unique()->word(),
+                "maintenanceTimeInMinutes" => self::faker()->numberBetween(5, 20)
+
             ];
         });
     }

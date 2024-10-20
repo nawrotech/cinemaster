@@ -33,8 +33,8 @@ class OverlappingShowtimeInSameScreeningRoomValidator extends ConstraintValidato
                                     ->findOverlappingForRoom(
                                         $value->getCinema(),
                                         $value->getScreeningRoom(), 
-                                        $value->getStartTime(), 
-                                        $value->getEndTime(),
+                                        $value->getStartsAt(), 
+                                        $value->getEndsAt(),
                                         $value->getId()
                                     );
 
@@ -56,8 +56,8 @@ class OverlappingShowtimeInSameScreeningRoomValidator extends ConstraintValidato
             return sprintf(
                 "\n- %s (%s - %s)",
                 $showtime->getMovieFormat()->getMovie()->getTitle(),
-                $showtime->getStartTime()->format('H:i'),
-                $showtime->getEndTime()->format('H:i')
+                $showtime->getStartsAt()->format('H:i'),
+                $showtime->getEndsAt()->format('H:i')
             );
         }, $overlappingShowtimes);
 

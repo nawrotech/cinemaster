@@ -4,7 +4,6 @@ namespace App\Form;
 
 use App\Entity\Format;
 use App\Entity\Movie;
-use App\Entity\MovieType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;

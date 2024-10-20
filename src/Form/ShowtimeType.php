@@ -50,17 +50,17 @@ class ShowtimeType extends AbstractType
                     new Positive()
                 ]
             ])
-            ->add("advertisement_time_in_minutes", NumberType::class, [
+            ->add("advertisementTimeInMinutes", NumberType::class, [
                 "label" => "Ads block in minutes",
                 "constraints" => [
                     new NotBlank(),
                     new Positive()
                 ]
             ])
-            ->add('start_time', DateTimeType::class, [
+            ->add('startsAt', DateTimeType::class, [
                 "label" => "Set date",
             ])
-            ->add("create_showtime", SubmitType::class)
+            ->add("submit", SubmitType::class)
             ->addEventListener(
                 FormEvents::POST_SUBMIT,
                 function (PostSubmitEvent $event): void {
@@ -70,12 +70,12 @@ class ShowtimeType extends AbstractType
 
                     if ($form->isValid()) {
                         $showtimeDuration = $showtime->getDuration();
-                        $endTime = $showtime->getStartTime()->add(new DateInterval("PT{$showtimeDuration}M"));
+                        $endsAt = $showtime->getStartsAt()->add(new DateInterval("PT{$showtimeDuration}M"));
 
-                        $showtime->setEndTime($endTime);
+                        $showtime->setEndsAt($endsAt);
                     };
 
-                    if ($showtime->getEndTime()) {
+                    if ($showtime->getEndsAt()) {
                         $overlappingViolations = $this->validator->validate($showtime, [
                                 new SameMoviePlayingInTwoRoomsAtTheSameTime(),
                                 new OverlappingShowtimeInSameScreeningRoom()
