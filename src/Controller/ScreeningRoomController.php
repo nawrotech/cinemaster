@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route("/cinemas/{slug}/rooms")]
+#[Route("/cinemas/{slug}/screening-rooms")]
 class ScreeningRoomController extends AbstractController
 {
     #[Route("/api/max-rows-constraint", name: "app_screening_rooms_max_capacity_constraint")]
@@ -27,8 +27,8 @@ class ScreeningRoomController extends AbstractController
         Cinema $cinema,
     ) {
         return $this->json([
-            "maxColNum" => $cinema->getMaxSeatsPerRow(),
-            "maxRowNum" => $cinema->getMaxRows()
+            "maxSeatsPerRow" => $cinema->getMaxSeatsPerRow(),
+            "maxRows" => $cinema->getMaxRows()
         ]);
     }
 
@@ -65,6 +65,7 @@ class ScreeningRoomController extends AbstractController
             ]
         ]);
 
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -72,14 +73,16 @@ class ScreeningRoomController extends AbstractController
             $seatsPerRow = $form->get("seatsPerRow")->getData();
             $rowsAndSeats = array_combine(range(1, count($seatsPerRow)), $seatsPerRow);
             
+    
             $em->wrapInTransaction(function($em) use($rowsAndSeats, $seatRepository, $screeningRoom) {
                 foreach ($rowsAndSeats as $row => $lastSeatInRow) {
+                 
                     $seatsRange = $seatRepository->findSeatsInRange($row, $row, 1, $lastSeatInRow);
                     
-                    foreach ($seatsRange as $cinemaSeat) {
+                    foreach ($seatsRange as $seat) {
                         $screeningRoomSeat = new ScreeningRoomSeat();
                         $screeningRoomSeat->setScreeningRoom($screeningRoom);
-                        $screeningRoomSeat->setSeat($cinemaSeat);
+                        $screeningRoomSeat->setSeat($seat);
                         $em->persist($screeningRoomSeat);
                     }
                 }
@@ -101,13 +104,6 @@ class ScreeningRoomController extends AbstractController
         ]);
     }
 
-    #[Route('/{room-slug}', name: 'app_screening_room_details')]
-    public function details(): Response
-    {
-        return $this->render('screening_room/index.html.twig', [
-            'controller_name' => 'ScreeningRoomController',
-        ]);
-    }
 
     #[Route('/seat/type/{id}', name: 'app_screening_room_seat_type_change', methods: ["POST"])]
     public function changeSeatType(

@@ -62,7 +62,7 @@ class ScreeningRoomType extends AbstractType
                     'label' => false,
                     'constraints' => [
                         new NotBlank(),
-                        new  Positive(),
+                        new Positive(),
                         new LessThanOrEqual([
                             'value' => $maxRows,
                             'message' => 'The maximum number of seats per row is {{ compared_value }}.'

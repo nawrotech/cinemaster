@@ -63,10 +63,17 @@ class Showtime
     #[ORM\Column]
     private ?\DateTimeImmutable $endsAt = null;
 
+    /**
+     * @var Collection<int, VisualFormat>
+     */
+    #[ORM\ManyToMany(targetEntity: VisualFormat::class)]
+    private Collection $supportedVisualFormats;
+
     public function __construct()
     {
         $this->reservationSeats = new ArrayCollection();
         $this->reservations = new ArrayCollection();
+        $this->supportedVisualFormats = new ArrayCollection();
         
     }
 
@@ -277,6 +284,30 @@ class Showtime
     public function setEndsAt(\DateTimeImmutable $endsAt): static
     {
         $this->endsAt = $endsAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, VisualFormat>
+     */
+    public function getSupportedVisualFormats(): Collection
+    {
+        return $this->supportedVisualFormats;
+    }
+
+    public function addSupportedVisualFormat(VisualFormat $supportedVisualFormat): static
+    {
+        if (!$this->supportedVisualFormats->contains($supportedVisualFormat)) {
+            $this->supportedVisualFormats->add($supportedVisualFormat);
+        }
+
+        return $this;
+    }
+
+    public function removeSupportedVisualFormat(VisualFormat $supportedVisualFormat): static
+    {
+        $this->supportedVisualFormats->removeElement($supportedVisualFormat);
 
         return $this;
     }

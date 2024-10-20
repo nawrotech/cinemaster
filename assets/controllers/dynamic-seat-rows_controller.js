@@ -14,8 +14,8 @@ export default class extends Controller {
        fetch(this.roomMaxCapacityUrlValue)
             .then(response => response.json())
             .then(data => {
-                this.maxRows = data?.maxRowNum; 
-                this.maxCols = data?.maxColNum;
+                this.maxRows = data?.maxRows; 
+                this.maxSeatsPerRow = data?.maxSeatsPerRow;
             });
             this.seatsPerRow = "";
         
@@ -83,7 +83,7 @@ export default class extends Controller {
   }
 
   defaultSeatsNumber() {
-    const desiredCols = parseInt(this.defaultSeatsNumberTarget.value, 10) || this.maxCols;
+    const desiredCols = parseInt(this.defaultSeatsNumberTarget.value, 10) || this.maxSeatsPerRow;
     this.seatsPerRow = this.defaultSeatsNumberTarget;
 
     if (isNaN(desiredCols) || desiredCols < 0) {
@@ -93,10 +93,10 @@ export default class extends Controller {
     }
 
 
-    if (desiredCols > this.maxCols) {
-      console.log(this.maxCols);
-      alert(`Maximum number of rows allowed for the room in the cinema is ${this.maxCols}`);
-      this.defaultSeatsNumberTarget.value = this.maxCols;
+    if (desiredCols > this.maxSeatsPerRow) {
+      console.log(this.maxSeatsPerRow);
+      alert(`Maximum number of rows allowed for the room in the cinema is ${this.maxSeatsPerRow}`);
+      this.defaultSeatsNumberTarget.value = this.maxSeatsPerRow;
       return;
     }
 

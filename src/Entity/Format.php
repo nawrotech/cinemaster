@@ -13,38 +13,43 @@ class Format
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $audioVersion = null;
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?VisualFormat $visualFormat = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $visualVersion = null;
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?AudioFormat $audioFormat = null;
+
+
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getAudioVersion(): ?string
+    public function getVisualFormat(): ?VisualFormat
     {
-        return $this->audioVersion;
+        return $this->visualFormat;
     }
 
-    public function setAudioVersion(string $audioVersion): static
+    public function setVisualFormat(?VisualFormat $visualFormat): static
     {
-        $this->audioVersion = $audioVersion;
+        $this->visualFormat = $visualFormat;
 
         return $this;
     }
 
-    public function getVisualVersion(): ?string
+    public function getAudioFormat(): ?AudioFormat
     {
-        return $this->visualVersion;
+        return $this->audioFormat;
     }
 
-    public function setVisualVersion(string $visualVersion): static
+    public function setAudioFormat(?AudioFormat $audioFormat): static
     {
-        $this->visualVersion = $visualVersion;
+        $this->audioFormat = $audioFormat;
 
         return $this;
     }
+
 }
