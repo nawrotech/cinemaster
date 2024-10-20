@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello FormatController!{% endblock %}
+
+{% block body %}
+
+{{ form_start(form) }}
+    <div {{ stimulus_controller('audio-format-collection') }}
+        data-audio-format-collection-index-value="{{ form.audioFormats|length > 0 ? form.audioFormats|last.vars.name + 1 : 0 }}"
+        data-audio-format-collection-prototype-value="{{ form_widget(form.audioFormats.vars.prototype)|e('html_attr') }}"
+    >
+        <ul {{ stimulus_target('audio-format-collection', 'collectionContainer') }}>
+            {% for audioFormat in form.audioFormats %}
+                <fieldset class="mb-3">
+                    {{ form_widget(audioFormat) }}
+                    <button class="btn btn-danger" type="button" {{ stimulus_action('audio-format-collection', 'removeCollectionElement') }}>Delete this format</button>
+                </fieldset>
+            {% endfor %}
+        </ul>
+        <button class="btn btn-secondary" type="button" {{ stimulus_action('audio-format-collection', 'addCollectionElement') }}>Add AudioFormat</button>
+    </div>
+
+
+    {{ form_row(form.save) }}
+{{ form_end(form) }}
+
+{% endblock %}

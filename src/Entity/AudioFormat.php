@@ -4,7 +4,12 @@ namespace App\Entity;
 
 use App\Repository\AudioFormatRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
+#[UniqueEntity(
+    fields: ["name"],
+    message: "Given audio format already exists!",
+)]
 #[ORM\Entity(repositoryClass: AudioFormatRepository::class)]
 class AudioFormat
 {
