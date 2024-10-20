@@ -10,8 +10,8 @@
         {{ form_rest(form) }}
     {{ form_end(form) }}
         <h1>{{ showtime.movieFormat.displayMovieWithFormat }}</h1>
-        <p>Date: {{ showtime.startTime|date("D, M Y") }} </p>
-        <p>{{ showtime.startTime|date("h:i") }} - {{ showtime.endTime|date("h:i") }}</p>
+        <p>Date: {{ showtime.startsAt|date("D, M Y") }} </p>
+        <p>{{ showtime.startsAt|date("h:i") }} - {{ showtime.endsAt|date("h:i") }}</p>
         {% for roomRow in roomRows %}
             <div class="row">
                 <h1 class="col-1">{{ roomRow }}</h1>

@@ -36,12 +36,12 @@
             <div class="card">
                 <h2>{{ showtime.movieFormat.movie.title }}</h2>
                 <p>Format:
-                     {{ showtime.movieFormat.movieType.audioVersion }}
-                     {{ showtime.movieFormat.movieType.visualVersion }}
+                     {{ showtime.movieFormat.format.audioVersion }}
+                     {{ showtime.movieFormat.format.visualVersion }}
                 </p>
                 <p>Screening room: {{ showtime.screeningRoom.name }}</p>
-                <p>Start time: {{ showtime.startTime|date("F jS \\a\\t g:ia")  }}</p>
-                <p>End time: {{ showtime.endTime|date("F jS \\a\\t g:ia")  }}</p>
+                <p>Start time: {{ showtime.startsAt|date("F jS \\a\\t g:ia")  }}</p>
+                <p>End time: {{ showtime.endsAt|date("F jS \\a\\t g:ia")  }}</p>
                 <p>Status: {{ showtime.published ? "Published" : "Unpublished"}}</p>
                 <a class="btn btn-secondary" 
                     href="{{ path("app_showtime_create",
@@ -51,8 +51,7 @@
                     showtime_id: showtime.id
                      }) }}">Edit</a>
 
-                {# publish/unpublish #}
-                {# get rid of those super long unituitive names #}
+               
                 {% if not showtime.published %}
                     <form method="POST" action="{{ path("app_showtime_publish", {
                         slug: showtime.screeningRoom.cinema.slug,

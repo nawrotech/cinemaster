@@ -149,34 +149,34 @@ class ShowtimeRepository extends ServiceEntityRepository
         
     }
 
-    public function findDistinctMovies(Cinema $cinema, bool $published = true) {
+    public function findDistinctMovies(Cinema $cinema, bool $isPublished = true) {
         return $this->createQueryBuilder("s")
                 ->innerJoin("s.movieFormat", "mf")
                 ->innerJoin("mf.movie", "m")
                 ->innerJoin("s.screeningRoom", "sr")
                 ->select("m.id, m.title, m.durationInMinutes")
                 ->distinct()
-                ->andWhere("s.published = :published")
+                ->andWhere("s.isPublished = :isPublished")
                 ->andWhere("sr.cinema = :cinema")
                 ->setParameter("cinema", $cinema)
-                ->setParameter("published", $published)
+                ->setParameter("isPublished", $isPublished)
                 ->getQuery()
                 ->getResult()
         ;
     }
 
 
-    public function findForMovie(int $id, Cinema $cinema, bool $published = true) {
+    public function findForMovie(int $id, Cinema $cinema, bool $isPublished = true) {
         return $this->createQueryBuilder("s")
                     ->innerJoin("s.movieFormat", "mf")
                     ->innerJoin("mf.movie", "m")
                     ->addSelect("mf")
-                    ->andWhere("s.published = :published")
+                    ->andWhere("s.isPublished = :isPublished")
                     ->andWhere("m.id = :id")
                     ->andWhere("s.cinema = :cinema")
                     ->setParameter("cinema", $cinema)
                     ->setParameter("id", $id)
-                    ->setParameter("published", $published)
+                    ->setParameter("isPublished", $isPublished)
                     ->getQuery()
                     ->getResult()
             ;

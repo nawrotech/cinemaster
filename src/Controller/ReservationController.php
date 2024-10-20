@@ -91,7 +91,6 @@ class ReservationController extends AbstractController
             $reservationService->lockSeats($session, $form->get("email")->getData());
 
        
-
             return $this->redirectToRoute("app_reservation_create", [
                 "slug" => $cinema->getSlug(),
                 "showtime_slug" => $showtime->getSlug()

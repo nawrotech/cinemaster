@@ -13,7 +13,7 @@
                     showtime_slug: showtime.slug
             }) }}">
                 <p>{{ showtime.screeningRoom.name }}</p>
-                <p>{{ showtime.startTime|date("D M Y, h:iA")  }} - {{ showtime.endTime|date("D M Y, h:iA") }}</p>
+                <p>{{ showtime.startsAt|date("D M Y, h:iA")  }} - {{ showtime.endsAt|date("D M Y, h:iA") }}</p>
                 <p>{{ showtime.movieFormat.displayMovieWithFormat }}</p>
             </a>
         {% endfor %}

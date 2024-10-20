@@ -21,12 +21,7 @@ class ReservationSeatRepository extends ServiceEntityRepository implements Seats
         parent::__construct($registry, ReservationSeat::class);
     }
 
-    // also creating where clause for single filtering condition
-    // seems to be redundant, cause same can be achieved
-    // using findBy built int method
-    // however it can be still useful to use to remove n + 1 problem
 
-    // for the showtime
     public function findExpiredLockedSeats(
         DateTimeImmutable $currentDateTime,
         ?string $status = "locked") {
@@ -50,12 +45,10 @@ class ReservationSeatRepository extends ServiceEntityRepository implements Seats
     {
         $result = $this->createQueryBuilder('rs')
             ->select("DISTINCT s.rowNum")
-            ->innerJoin("rs.showtime", "sh")
-            ->innerJoin("sh.screeningRoom", "sr")
-            ->innerJoin("sr.screeningRoomSeats", "srs")
-            ->innerJoin("srs.seat", "cs")
-            ->innerJoin("cs.seat", "s")
-            ->andWhere("sr = :screeningRoom")
+            ->innerJoin("rs.seat", "srs")
+            ->innerJoin("srs.seat", "s")
+            // ->innerJoin("srs.screeningRoom", "sr")
+            ->andWhere("srs.screeningRoom = :screeningRoom")
             ->setParameter("screeningRoom", $screeningRoom)
             ->addOrderBy("s.rowNum", "ASC")
             ->getQuery()
@@ -74,16 +67,13 @@ class ReservationSeatRepository extends ServiceEntityRepository implements Seats
         ?Showtime $showtime = null): array
     {
         return $this->createQueryBuilder('rs')
-            ->innerJoin("rs.showtime", "sh")
-            ->innerJoin("sh.screeningRoom", "sr")
             ->innerJoin("rs.seat", "srs")
-            ->innerJoin("srs.seat", "cs")
-            ->innerJoin("cs.seat", "s")
+            ->innerJoin("srs.seat", "s")
             ->andWhere("rs.showtime = :showtime")
-            ->andWhere("sr = :screeningRoom")
+            ->andWhere("srs.screeningRoom = :screeningRoom")
             ->andWhere("s.rowNum = :rowNum")
             ->addOrderBy("s.rowNum", "ASC")
-            ->addOrderBy("s.colNum", "ASC")
+            ->addOrderBy("s.seatNumInRow", "ASC")
             ->setParameter("rowNum", $rowNum)
             ->setParameter("screeningRoom", $screeningRoom)
             ->setParameter("showtime", $showtime)
