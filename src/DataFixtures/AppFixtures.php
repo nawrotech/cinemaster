@@ -23,23 +23,25 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         SeatFactory::createGrid();
-        CinemaFactory::createMany(2);
+        UserFactory::createOne();
 
-        $screeningRooms = ScreeningRoomFactory::createScreeningRoomsForCinemas(10);
+        // CinemaFactory::createMany(2);
 
-        foreach($screeningRooms as $screeningRoom) {
-            ScreeningRoomSeatFactory::createForScreeningRoom($screeningRoom);
-        }
+        // $screeningRooms = ScreeningRoomFactory::createScreeningRoomsForCinemas(10);
 
-        $movies = MovieFactory::createMany(2);
-        FormatFactory::createMany(4);
+        // foreach($screeningRooms as $screeningRoom) {
+        //     ScreeningRoomSeatFactory::createForScreeningRoom($screeningRoom);
+        // }
+
+        // $movies = MovieFactory::createMany(2);
+        // FormatFactory::createMany(4);
             
-        MovieFormatFactory::createMany(count($movies), function()  {
-            return [
-                "movie" => MovieFactory::random(),
-                "format" => FormatFactory::random()
-            ];
-        });
+        // MovieFormatFactory::createMany(count($movies), function()  {
+        //     return [
+        //         "movie" => MovieFactory::random(),
+        //         "format" => FormatFactory::random()
+        //     ];
+        // });
 
         // ShowtimeFactory::createMany(10, function() use($screeningRooms) {
         //     $startsAt= \DateTimeImmutable::createFromMutable(faker()->dateTimeBetween("now", "+1 week"));
