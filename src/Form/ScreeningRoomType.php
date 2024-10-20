@@ -38,7 +38,7 @@ class ScreeningRoomType extends AbstractType
                     new NotBlank(),
                     new  Positive(),
                     new LessThanOrEqual([
-                        'value' => $maxSeatsPerRow,  // Adjust this value as needed
+                        'value' => $maxRows,  
                         'message' => 'The maximum number of seats per row is {{ compared_value }}.'
                     ])
                 ]
@@ -50,7 +50,7 @@ class ScreeningRoomType extends AbstractType
                     new NotBlank(),
                     new  Positive(),
                     new LessThanOrEqual([
-                        'value' => $maxRows,  // Adjust this value as needed
+                        'value' => $maxSeatsPerRow,  
                         'message' => 'The maximum number of seats per row is {{ compared_value }}.'
                     ])
                 ]
@@ -64,7 +64,7 @@ class ScreeningRoomType extends AbstractType
                         new NotBlank(),
                         new Positive(),
                         new LessThanOrEqual([
-                            'value' => $maxRows,
+                            'value' => $maxSeatsPerRow,
                             'message' => 'The maximum number of seats per row is {{ compared_value }}.'
                         ])
                     ]
