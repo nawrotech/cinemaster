@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\Cinema;
 use App\Form\Type\CinemaType;
 use App\Repository\CinemaRepository;
-use App\Service\CinemaChangeService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +21,7 @@ class CinemaController extends AbstractController
         CinemaRepository $cinemaRepository,
     ): Response {
 
-        $cinemas = $cinemaRepository->findOrderedCinemas();
+        $cinemas = $cinemaRepository->findOrderedCinemas($this->getUser());
 
         return $this->render('cinema/index.html.twig', [
             "cinemas" => $cinemas
@@ -30,19 +29,24 @@ class CinemaController extends AbstractController
     }
 
 
-    #[Route('/create', name: 'app_cinema_create')]
+    #[Route('/create/{slug?}', name: 'app_cinema_create')]
     public function create(
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        ?Cinema $cinema = null
     ): Response {
 
-        $cinema =  new Cinema();
+        if (!$cinema) {
+            $cinema =  new Cinema();
+            $cinema->setOwner($this->getUser());
+        }
+     
         $form = $this->createForm(CinemaType::class, $cinema);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $em->persist($form->getData());
+            $em->persist($cinema);
             $em->flush();            
 
             $this->addFlash("success", "Cinema created!");
@@ -55,31 +59,7 @@ class CinemaController extends AbstractController
         ]);
     }
 
-    #[Route('/{slug}/edit', name: "app_cinema_edit")]
-    public function edit(
-        Cinema $cinema,
-        Request $request,
-        CinemaChangeService $cinemaChangeService
-    ): Response {
-
-        $form = $this->createForm(CinemaType::class, $cinema);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            try {
-                $cinemaChangeService->handleSeatsChange($cinema);
-                $this->addFlash('success', 'Cinema updated successfully.');
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'An error occurred while updating the cinema.');
-            } finally {
-                return $this->redirectToRoute("app_cinema");
-            }
-        }
-
-        return $this->render('cinema/edit.html.twig', [
-            "form" => $form
-        ]);
-    }
+    
 
 
 

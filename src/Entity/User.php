@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -33,6 +35,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
+
+    /**
+     * @var Collection<int, Cinema>
+     */
+    #[ORM\OneToMany(targetEntity: Cinema::class, mappedBy: 'owner')]
+    private Collection $cinemas;
+
+    public function __construct()
+    {
+        $this->cinemas = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -107,5 +120,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    /**
+     * @return Collection<int, Cinema>
+     */
+    public function getCinemas(): Collection
+    {
+        return $this->cinemas;
+    }
+
+    public function addCinema(Cinema $cinema): static
+    {
+        if (!$this->cinemas->contains($cinema)) {
+            $this->cinemas->add($cinema);
+            $cinema->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCinema(Cinema $cinema): static
+    {
+        if ($this->cinemas->removeElement($cinema)) {
+            // set the owning side to null (unless already changed)
+            if ($cinema->getOwner() === $this) {
+                $cinema->setOwner(null);
+            }
+        }
+
+        return $this;
     }
 }

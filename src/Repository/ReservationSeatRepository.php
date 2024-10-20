@@ -8,7 +8,6 @@ use App\Entity\ScreeningRoom;
 use App\Entity\Showtime;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -36,8 +35,6 @@ class ReservationSeatRepository extends ServiceEntityRepository implements Seats
         ;
     }
 
-
-
     /**
      * @return int[]
      */
@@ -47,7 +44,6 @@ class ReservationSeatRepository extends ServiceEntityRepository implements Seats
             ->select("DISTINCT s.rowNum")
             ->innerJoin("rs.seat", "srs")
             ->innerJoin("srs.seat", "s")
-            // ->innerJoin("srs.screeningRoom", "sr")
             ->andWhere("srs.screeningRoom = :screeningRoom")
             ->setParameter("screeningRoom", $screeningRoom)
             ->addOrderBy("s.rowNum", "ASC")

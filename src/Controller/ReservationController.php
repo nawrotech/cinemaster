@@ -120,13 +120,14 @@ class ReservationController extends AbstractController
         ): Response {
             
         $session = $request->getSession();
-        // IF payment process successful
-        // dd($session->get("cart"));
-        
+
         // calculate total
         foreach($session->get("cart") as $seat) {
 
         }
+
+        // IF payment process successful
+        // dd($session->get("cart"));
 
         $reservation = $reservationService->createReservation($session);
         $reservations = $reservationRepository->findBy(["showtime" => $showtime]);

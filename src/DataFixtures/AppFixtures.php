@@ -23,7 +23,7 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         SeatFactory::createGrid();
-        $cinemas = CinemaFactory::createMany(2);
+        CinemaFactory::createMany(2);
 
         $screeningRooms = ScreeningRoomFactory::createScreeningRoomsForCinemas(10);
 
@@ -32,7 +32,7 @@ class AppFixtures extends Fixture
         }
 
         $movies = MovieFactory::createMany(2);
-        $formats = FormatFactory::createMany(4);
+        FormatFactory::createMany(4);
             
         MovieFormatFactory::createMany(count($movies), function()  {
             return [

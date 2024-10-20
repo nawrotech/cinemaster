@@ -50,11 +50,6 @@ class Cinema
     #[ORM\OneToMany(targetEntity: ScreeningRoom::class, mappedBy: 'cinema')]
     private Collection $screeningRooms;
 
-    /**
-     * @var Collection<int, CinemaHistory>
-     */
-    #[ORM\OneToMany(targetEntity: CinemaHistory::class, mappedBy: 'cinema')]
-    private Collection $cinemaHistories;
 
     /**
      * @var Collection<int, Showtime>
@@ -62,13 +57,33 @@ class Cinema
     #[ORM\OneToMany(targetEntity: Showtime::class, mappedBy: 'cinema')]
     private Collection $showtimes;
 
+    #[ORM\Column(length: 50)]
+    private ?string $streetName = null;
+
+    #[ORM\Column(length: 10)]
+    private ?string $buildingNumber = null;
+
+    #[ORM\Column(length: 6)]
+    private ?string $postalCode = null;
+
+    #[ORM\Column(length: 25)]
+    private ?string $city = null;
+
+    #[ORM\Column(length: 30)]
+    private ?string $district = null;
+
+    #[ORM\Column(length: 50)]
+    private ?string $country = null;
+
+    #[ORM\ManyToOne(inversedBy: 'cinemas')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $owner = null;
 
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
         $this->screeningRooms = new ArrayCollection();
-        $this->cinemaHistories = new ArrayCollection();
         $this->showtimes = new ArrayCollection();
     }
 
@@ -179,36 +194,6 @@ class Cinema
         return $this;
     }
 
-    /**
-     * @return Collection<int, CinemaHistory>
-     */
-    public function getCinemaHistories(): Collection
-    {
-        return $this->cinemaHistories;
-    }
-
-    public function addCinemaHistory(CinemaHistory $cinemaHistory): static
-    {
-        if (!$this->cinemaHistories->contains($cinemaHistory)) {
-            $this->cinemaHistories->add($cinemaHistory);
-            $cinemaHistory->setCinema($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCinemaHistory(CinemaHistory $cinemaHistory): static
-    {
-        if ($this->cinemaHistories->removeElement($cinemaHistory)) {
-            // set the owning side to null (unless already changed)
-            if ($cinemaHistory->getCinema() === $this) {
-                $cinemaHistory->setCinema(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function getMaxRows(): ?int
     {
         return $this->maxRows;
@@ -259,6 +244,90 @@ class Cinema
                 $showtime->setCinema(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getStreetName(): ?string
+    {
+        return $this->streetName;
+    }
+
+    public function setStreetName(string $streetName): static
+    {
+        $this->streetName = $streetName;
+
+        return $this;
+    }
+
+    public function getBuildingNumber(): ?string
+    {
+        return $this->buildingNumber;
+    }
+
+    public function setBuildingNumber(string $buildingNumber): static
+    {
+        $this->buildingNumber = $buildingNumber;
+
+        return $this;
+    }
+
+    public function getPostalCode(): ?string
+    {
+        return $this->postalCode;
+    }
+
+    public function setPostalCode(string $postalCode): static
+    {
+        $this->postalCode = $postalCode;
+
+        return $this;
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    public function setCity(string $city): static
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    public function getDistrict(): ?string
+    {
+        return $this->district;
+    }
+
+    public function setDistrict(string $district): static
+    {
+        $this->district = $district;
+
+        return $this;
+    }
+
+    public function getCountry(): ?string
+    {
+        return $this->country;
+    }
+
+    public function setCountry(string $country): static
+    {
+        $this->country = $country;
+
+        return $this;
+    }
+
+    public function getOwner(): ?User
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(?User $owner): static
+    {
+        $this->owner = $owner;
 
         return $this;
     }
