@@ -79,12 +79,19 @@ class Cinema
     #[ORM\JoinColumn(nullable: false)]
     private ?User $owner = null;
 
+    /**
+     * @var Collection<int, VisualFormat>
+     */
+    #[ORM\OneToMany(targetEntity: VisualFormat::class, mappedBy: 'cinema', cascade: ["persist"])]
+    private Collection $visualFormats;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
         $this->screeningRooms = new ArrayCollection();
         $this->showtimes = new ArrayCollection();
+        $this->visualFormats = new ArrayCollection();
     }
 
     #[PrePersist]
@@ -331,4 +338,36 @@ class Cinema
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, VisualFormat>
+     */
+    public function getVisualFormats(): Collection
+    {
+        return $this->visualFormats;
+    }
+
+    public function addVisualFormat(VisualFormat $visualFormat): static
+    {
+        if (!$this->visualFormats->contains($visualFormat)) {
+            $this->visualFormats->add($visualFormat);
+            $visualFormat->setCinema($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVisualFormat(VisualFormat $visualFormat): static
+    {
+        if ($this->visualFormats->removeElement($visualFormat)) {
+            // set the owning side to null (unless already changed)
+            if ($visualFormat->getCinema() === $this) {
+                $visualFormat->setCinema(null);
+            }
+        }
+
+        return $this;
+    }
+
+    
 }

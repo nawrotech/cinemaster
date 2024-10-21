@@ -3,7 +3,9 @@
 namespace App\Form\Type;
 
 use App\Entity\Cinema;
+use App\Form\VisualFormatType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -68,6 +70,17 @@ class CinemaType extends AbstractType
             ->add("city")
             ->add("district")
             ->add("country")
+            ->add('visualFormats', CollectionType::class, [
+                "label" => "Visual format available in your cinema",
+                "entry_type" => VisualFormatType::class,
+                "entry_options" => ["label" => false],
+                "allow_add" => true,
+                "allow_delete" => true,
+                "by_reference" => false,
+                "prototype" => true,
+                "prototype_name" => "__visual_format_name__"
+                
+            ])
             ->add('save', SubmitType::class, [
                 "attr" => [
                     "class" => "btn-success",

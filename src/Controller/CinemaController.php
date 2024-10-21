@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Cinema;
 use App\Form\Type\CinemaType;
 use App\Repository\CinemaRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,10 +42,21 @@ class CinemaController extends AbstractController
             $cinema->setOwner($this->getUser());
         }
      
+        $originalVisualFormats = new ArrayCollection();
+        foreach($cinema->getVisualFormats() as $visualFormat) {
+            $originalVisualFormats->add($visualFormat);
+        }
+
         $form = $this->createForm(CinemaType::class, $cinema);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            foreach($originalVisualFormats as $visualFormat) {
+                if (false === $cinema->getVisualFormats()->contains($visualFormat)) {
+                    $em->remove($visualFormat);
+                }
+            }
 
             $em->persist($cinema);
             $em->flush();            
@@ -54,7 +66,7 @@ class CinemaController extends AbstractController
             return $this->redirectToRoute("app_cinema");
         }
 
-        return $this->render('cinema/screening_room_max_size.html.twig', [
+        return $this->render('cinema/create.html.twig', [
             "form" => $form
         ]);
     }

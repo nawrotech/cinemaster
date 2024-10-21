@@ -1,0 +1,25 @@
+{% extends "base.html.twig" %}
+
+
+{% block body %}
+
+{{ form_start(form) }}
+    <div {{ stimulus_controller("form-visual-format-collection") }}
+            data-form-visual-format-collection-index-value="{{ form.visualFormats|length > 0 ? form.visualFormats|last.vars.name + 1 : 0 }}"
+            data-form-visual-format-collection-prototype-value="{{ form_widget(form.visualFormats.vars.prototype)|e('html_attr') }}"
+    >
+        <ul {{ stimulus_target("form-visual-format-collection", "collectionContainer") }}>
+            {% for visualFormat in form.visualFormats %}
+                <li>
+                     {{ form_row(visualFormat) }}
+                </li>
+            {% endfor %}
+        </ul>
+        <button class="btn btn-primary" type="button" {{ stimulus_action('form-visual-format-collection', 'addCollectionElement') }}>Add visual format</button>
+    </div>
+
+
+{{ form_end(form) }}
+   
+
+{% endblock %}
