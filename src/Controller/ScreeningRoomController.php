@@ -38,6 +38,11 @@ class ScreeningRoomController extends AbstractController
         ]);
     }
 
+    #[Route('/type', name: 'app_screening_room_category')]
+    public function createType(Request $request) {
+
+    }
+
     #[Route('/create', name: 'app_screening_room_create')]
     public function create(
         Request $request,
