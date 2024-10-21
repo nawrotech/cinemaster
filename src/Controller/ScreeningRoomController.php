@@ -7,11 +7,13 @@ use App\Entity\ScreeningRoom;
 use App\Entity\ScreeningRoomSeat;
 use App\Enum\ScreeningRoomSeatType;
 use App\Form\ScreeningRoomType;
+use App\Form\ScreeningRoomTypesType;
 use App\Form\SeatLineType;
 use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSeatRepository;
 use App\Repository\SeatRepository;
 use App\Service\SeatsService;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,6 +25,8 @@ use Symfony\Component\Routing\Attribute\Route;
 class ScreeningRoomController extends AbstractController
 {
 
+
+ 
     // plus filtering
     #[Route('/', name: 'app_screening_room')]
     public function index(
@@ -38,10 +42,32 @@ class ScreeningRoomController extends AbstractController
         ]);
     }
 
-    #[Route('/type', name: 'app_screening_room_category')]
-    public function createType(Request $request) {
+
+    #[Route('/types', name: 'app_screening_room_category')]
+    public function createType(
+        Request $request,
+        EntityManagerInterface $em,
+        Cinema $cinema,
+        ): Response {
+
+
+
+        $form = $this->createForm(ScreeningRoomTypesType::class, $cinema);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+
+            $em->flush();
+        }
+
+        return $this->render("screening_room/create_type.html.twig", [
+            "form" => $form
+        ]);
+
 
     }
+
 
     #[Route('/create', name: 'app_screening_room_create')]
     public function create(

@@ -88,7 +88,7 @@ class Cinema
     /**
      * @var Collection<int, ScreeningSetupType>
      */
-    #[ORM\OneToMany(targetEntity: ScreeningSetupType::class, mappedBy: 'cinema')]
+    #[ORM\OneToMany(targetEntity: ScreeningSetupType::class, mappedBy: 'cinema',  cascade: ["persist"])]
     private Collection $screeningSetupTypes;
 
     public function __construct()
