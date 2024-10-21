@@ -16,6 +16,10 @@ class VisualFormat
     #[ORM\Column(length: 10)]
     private ?string $name = null;
 
+    #[ORM\ManyToOne(inversedBy: 'visualFormats')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Cinema $cinema = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -29,6 +33,18 @@ class VisualFormat
     public function setName(string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getCinema(): ?Cinema
+    {
+        return $this->cinema;
+    }
+
+    public function setCinema(?Cinema $cinema): static
+    {
+        $this->cinema = $cinema;
 
         return $this;
     }
