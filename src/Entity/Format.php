@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\LanguagePresentation;
 use App\Repository\FormatRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -17,10 +18,8 @@ class Format
     #[ORM\JoinColumn(nullable: false)]
     private ?VisualFormat $visualFormat = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?AudioFormat $audioFormat = null;
-
+    #[ORM\Column(type: "string", enumType: LanguagePresentation::class)]
+    private ?LanguagePresentation $languagePresentation = null;
 
 
     public function getId(): ?int
@@ -40,16 +39,17 @@ class Format
         return $this;
     }
 
-    public function getAudioFormat(): ?AudioFormat
+    public function getLanguagePresentation(): ?string
     {
-        return $this->audioFormat;
+        return $this->languagePresentation;
     }
 
-    public function setAudioFormat(?AudioFormat $audioFormat): static
+    public function setLanguagePresentation(string $languagePresentation): static
     {
-        $this->audioFormat = $audioFormat;
+        $this->languagePresentation = $languagePresentation;
 
         return $this;
     }
+
 
 }
