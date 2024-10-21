@@ -7,5 +7,4 @@ enum ReservationSeatStatus: string {
     case RESERVED = "reserved";
     case AVAILABLE = "available";
 
-    
 }
