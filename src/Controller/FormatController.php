@@ -20,14 +20,11 @@ class FormatController extends AbstractController
         EntityManagerInterface $em): Response
     {
 
-        
-
         $form = $this->createForm(AudioFormatsType::class, $audioFormatRepository->findAll());
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-         
             foreach($form->get("audioFormats")->getData() as $audioFormat) {
                 $em->persist($audioFormat);
             }

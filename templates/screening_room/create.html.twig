@@ -9,7 +9,7 @@
 <div {{ stimulus_controller('dynamic-seat-rows') }}
      data-dynamic-seat-rows-prototype-value="{{ form_widget(form.seatsPerRow.vars.prototype)|e('html_attr') }}"
      data-dynamic-seat-rows-index-value="{{ form.seatsPerRow|length }}"
-     data-dynamic-seat-rows-room-max-capacity-url-value="{{ path("app_screening_rooms_max_capacity_constraint", {
+     data-dynamic-seat-rows-room-max-capacity-url-value="{{ path("app_screening_room_create", {
      slug: cinema_slug}) }}"
      
 

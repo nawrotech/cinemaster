@@ -11,7 +11,10 @@ export default class extends Controller {
     }
 
     connect() {
-       fetch(this.roomMaxCapacityUrlValue)
+
+       fetch(`${this.roomMaxCapacityUrlValue}?` + new URLSearchParams({
+          ajaxCall: 1,
+       }).toString())
             .then(response => response.json())
             .then(data => {
                 this.maxRows = data?.maxRows; 

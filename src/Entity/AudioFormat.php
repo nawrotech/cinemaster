@@ -20,7 +20,7 @@ class AudioFormat
 
     #[ORM\Column(length: 15)]
     private ?string $name = null;
-
+    
     public function getId(): ?int
     {
         return $this->id;

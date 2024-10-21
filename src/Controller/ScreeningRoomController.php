@@ -22,15 +22,6 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route("/cinemas/{slug}/screening-rooms")]
 class ScreeningRoomController extends AbstractController
 {
-    #[Route("/api/max-rows-constraint", name: "app_screening_rooms_max_capacity_constraint")]
-    public function maxRowsConstraint(
-        Cinema $cinema,
-    ) {
-        return $this->json([
-            "maxSeatsPerRow" => $cinema->getMaxSeatsPerRow(),
-            "maxRows" => $cinema->getMaxRows()
-        ]);
-    }
 
     // plus filtering
     #[Route('/', name: 'app_screening_room')]
@@ -58,14 +49,19 @@ class ScreeningRoomController extends AbstractController
         $screeningRoom =  new ScreeningRoom();
         $screeningRoom->setCinema($cinema);
 
+        if ($request->query->get("ajaxCall")) {
+            return $this->json([
+                "maxSeatsPerRow" => $cinema->getMaxSeatsPerRow(),
+                "maxRows" => $cinema->getMaxRows()
+            ]);
+        }
+
         $form = $this->createForm(ScreeningRoomType::class, $screeningRoom, [
             "max_room_sizes" => [
                 "maxRows" => $cinema->getMaxRows(),
                 "maxSeatsPerRow" => $cinema->getMaxSeatsPerRow()
             ]
         ]);
-
-
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -92,7 +88,6 @@ class ScreeningRoomController extends AbstractController
             });
 
       
-
             return $this->redirectToRoute("app_screening_room", [
                 "slug" => $cinema->getSlug()
             ]);
