@@ -4,7 +4,6 @@
 
 {% block body %}
 
-{# {{ form(form) }} #}
 
 <div {{ stimulus_controller('dynamic-seat-rows') }}
      data-dynamic-seat-rows-prototype-value="{{ form_widget(form.seatsPerRow.vars.prototype)|e('html_attr') }}"
@@ -12,7 +11,6 @@
      data-dynamic-seat-rows-room-max-capacity-url-value="{{ path("app_screening_room_create", {
      slug: cinema_slug}) }}"
      
-
      >
    
     {{ form_start(form) }}
@@ -20,30 +18,26 @@
         {{ form_row(form.name) }}
         {{ form_errors(form) }}
 
-        {{ form_row(form.seatsPerRowMax, {
+        {{ form_row(form.maxRows, {
             "attr": {
-                "data-dynamic-seat-rows-target": "defaultSeatsNumber",
-                "data-action": "blur->dynamic-seat-rows#defaultSeatsNumber"
+                "data-dynamic-seat-rows-target": "rows",
             }
         }) }}
 
-        {{ form_row(form.rowsMax, {
+        {{ form_row(form.maxSeatsPerRow, {
             "attr": {
-                "data-dynamic-seat-rows-target": "desiredRows",
-                "data-action": "blur->dynamic-seat-rows#renderRows"
+                "data-dynamic-seat-rows-target": "seatsInRow",
+                "data-action": "blur->dynamic-seat-rows#renderSeatsInRow"
             }
         }) }}
+
+        <button class="btn btn-success" {{ stimulus_action("dynamic-seat-rows", "renderRows") }}>Generate Rows</button>
 
        
         <div {{ stimulus_target('dynamic-seat-rows', 'collectionHolder') }}>
             {% for seatRow in form.seatsPerRow %}
-                <div>
-                    <div class="row-container">
-                        {{ form_row(seatRow, {'label': 'Row ' ~ loop.index}) }}
-                    </div>
-                </div>
+                {{ form_row(seatRow, {'label': 'Row ' ~ loop.index}) }}
             {% endfor %}
-              
         </div>
 
         {{ form_row(form.maintenanceTimeInMinutes) }}

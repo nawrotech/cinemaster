@@ -46,15 +46,15 @@ class ScreeningRoomController extends AbstractController
         Cinema $cinema,
     ): Response {
 
-        $screeningRoom =  new ScreeningRoom();
-        $screeningRoom->setCinema($cinema);
-
         if ($request->query->get("ajaxCall")) {
             return $this->json([
                 "maxSeatsPerRow" => $cinema->getMaxSeatsPerRow(),
                 "maxRows" => $cinema->getMaxRows()
             ]);
         }
+
+        $screeningRoom =  new ScreeningRoom();
+        $screeningRoom->setCinema($cinema);
 
         $form = $this->createForm(ScreeningRoomType::class, $screeningRoom, [
             "max_room_sizes" => [
