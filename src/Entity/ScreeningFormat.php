@@ -21,6 +21,10 @@ class ScreeningFormat
     #[ORM\Column(type: "string", enumType: LanguagePresentation::class)]
     private ?LanguagePresentation $languagePresentation = null;
 
+    #[ORM\ManyToOne(inversedBy: 'screeningFormats')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Cinema $cinema = null;
+
 
     public function getId(): ?int
     {
@@ -47,6 +51,18 @@ class ScreeningFormat
     public function setLanguagePresentation(string $languagePresentation): static
     {
         $this->languagePresentation = $languagePresentation;
+
+        return $this;
+    }
+
+    public function getCinema(): ?Cinema
+    {
+        return $this->cinema;
+    }
+
+    public function setCinema(?Cinema $cinema): static
+    {
+        $this->cinema = $cinema;
 
         return $this;
     }
