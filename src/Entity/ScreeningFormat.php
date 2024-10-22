@@ -3,11 +3,11 @@
 namespace App\Entity;
 
 use App\Enum\LanguagePresentation;
-use App\Repository\FormatRepository;
+use App\Repository\ScreeningFormatRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: FormatRepository::class)]
-class Format
+#[ORM\Entity(repositoryClass: ScreeningFormatRepository::class)]
+class ScreeningFormat
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

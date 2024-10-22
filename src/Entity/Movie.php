@@ -31,14 +31,14 @@ class Movie
     private ?int $durationInMinutes = null;
 
     /**
-     * @var Collection<int, MovieFormat>
+     * @var Collection<int, MovieScreeningFormat>
      */
-    #[ORM\OneToMany(targetEntity: MovieFormat::class, mappedBy: 'movie')]
-    private Collection $movieFormats;
+    #[ORM\OneToMany(targetEntity: MovieScreeningFormat::class, mappedBy: 'movie')]
+    private Collection $movieScreeningFormats;
 
     public function __construct()
     {
-        $this->movieFormats = new ArrayCollection();
+        $this->movieScreeningFormats = new ArrayCollection();
     }
 
 
@@ -84,29 +84,29 @@ class Movie
     }
 
     /**
-     * @return Collection<int, MovieFormat>
+     * @return Collection<int, MovieScreeningFormat>
      */
-    public function getMovieFormats(): Collection
+    public function getMovieScreeningFormats(): Collection
     {
-        return $this->movieFormats;
+        return $this->movieScreeningFormats;
     }
 
-    public function addMovieFormat(MovieFormat $movieFormat): static
+    public function addMovieScreeningFormat(MovieScreeningFormat $movieScreeningFormat): static
     {
-        if (!$this->movieFormats->contains($movieFormat)) {
-            $this->movieFormats->add($movieFormat);
-            $movieFormat->setMovie($this);
+        if (!$this->movieScreeningFormats->contains($movieScreeningFormat)) {
+            $this->movieScreeningFormats->add($movieScreeningFormat);
+            $movieScreeningFormat->setMovie($this);
         }
 
         return $this;
     }
 
-    public function removeMovieFormat(MovieFormat $movieFormat): static
+    public function removeMovieScreeningFormat(MovieScreeningFormat $movieScreeningFormat): static
     {
-        if ($this->movieFormats->removeElement($movieFormat)) {
+        if ($this->movieScreeningFormats->removeElement($movieScreeningFormat)) {
             // set the owning side to null (unless already changed)
-            if ($movieFormat->getMovie() === $this) {
-                $movieFormat->setMovie(null);
+            if ($movieScreeningFormat->getMovie() === $this) {
+                $movieScreeningFormat->setMovie(null);
             }
         }
 

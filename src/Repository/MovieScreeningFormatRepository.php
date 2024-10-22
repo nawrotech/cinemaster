@@ -2,22 +2,23 @@
 
 namespace App\Repository;
 
-use App\Entity\MovieFormat;
+use App\Entity\Movie;
+use App\Entity\MovieScreeningFormat;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<MovieFormat>
+ * @extends ServiceEntityRepository<MovieScreeningFormat>
  */
-class MovieFormatRepository extends ServiceEntityRepository
+class MovieScreeningFormatRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, MovieFormat::class);
+        parent::__construct($registry, MovieScreeningFormat::class);
     }
 
    /**
-    * @return Movie|Format[] Returns an array of MovieFormat objects
+    * @return Movie|ScreeningFormat[] Returns an array of MovieScreeningFormat objects
     */
    public function findMovieWithFormats(): array
    {

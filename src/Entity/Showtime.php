@@ -32,7 +32,7 @@ class Showtime
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?MovieFormat $movieFormat = null;
+    private ?MovieScreeningFormat $movieScreeningFormat = null;
 
 
     #[ORM\ManyToOne(inversedBy: 'showtimes')]
@@ -78,7 +78,7 @@ class Showtime
     }
 
     public function displaySlug() {
-        return "{$this->movieFormat->getDisplayMovieWithFormat()} - {$this->startsAt->format("Y-m-d H:i:s")}";
+        return "{$this->movieScreeningFormat->getDisplayMovieScreeningFormat()} - {$this->startsAt->format("Y-m-d H:i:s")}";
     }    
 
     #[PrePersist]
@@ -145,14 +145,14 @@ class Showtime
         return $this;
     }
 
-    public function getMovieFormat(): ?MovieFormat
+    public function getMovieScreeningFormat(): ?MovieScreeningFormat
     {
-        return $this->movieFormat;
+        return $this->movieScreeningFormat;
     }
 
-    public function setMovieFormat(?MovieFormat $movieFormat): static
+    public function setMovieScreeningFormat(?MovieScreeningFormat $movieScreeningFormat): static
     {
-        $this->movieFormat = $movieFormat;
+        $this->movieScreeningFormat = $movieScreeningFormat;
 
         return $this;
     }
@@ -172,8 +172,8 @@ class Showtime
     }
 
     public function getDuration(): int {
-        $maintenanceTime = $this->getScreeningRoom()->getMaintenanceTimeInMinutes();
-        $movieDurationTime = $this->getMovieFormat()->getMovie()->getDurationInMinutes();
+        $maintenanceTime = $this->screeningRoom->getMaintenanceTimeInMinutes();
+        $movieDurationTime = $this->movieScreeningFormat->getMovie()->getDurationInMinutes();
         $advertisementTime = $this->getAdvertisementTimeInMinutes();
        
         return $advertisementTime + $maintenanceTime + $movieDurationTime;

@@ -2,18 +2,18 @@
 
 namespace App\Repository;
 
-use App\Entity\Format;
+use App\Entity\ScreeningFormat;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<MovieType>
  */
-class FormatRepository extends ServiceEntityRepository
+class ScreeningFormatRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Format::class);
+        parent::__construct($registry, ScreeningFormat::class);
     }
 
     //    /**
