@@ -4,13 +4,11 @@
     data-form-collection-wrapper-class-name-value="{{ wrapperClassName }}"
 >
     <ul {{ stimulus_target('form-collection', 'collectionContainer') }}>
-        {% if collectionType is not empty %}
-            <li>
-                {% for formField in collectionType %}
+            {% for formField in collectionType %}
+                <li>
                     {{ form_row(formField) }}
-                {% endfor %}
-            </li>
-        {% endif %}
+                </li>
+            {% endfor %}
     </ul>
     <button class="btn btn-primary" type="button" {{ stimulus_action('form-collection', 'addCollectionElement') }}>{{ addButtonText }}</button>
 </div>
