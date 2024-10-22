@@ -3,6 +3,8 @@
 namespace App\Factory;
 
 use App\Entity\Cinema;
+use Faker\Provider\ar_EG\Address;
+use Faker\Provider\ar_JO\Address as Ar_JOAddress;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
@@ -32,12 +34,17 @@ final class CinemaFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
+            'buildingNumber' => self::faker()->buildingNumber(),
+            'city' => self::faker()->city(),
+            'country' => self::faker()->country(),
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
-            'updatedAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
-            // 'maxRows' => self::faker()->numberBetween(10, 15),
-            // 'maxSeatsPerRow' => self::faker()->numberBetween(10, 15),
+            'district' => self::faker()->state(),
+            'maxRows' => self::faker()->numberBetween(5, 15),
+            'maxSeatsPerRow' => self::faker()->numberBetween(5, 15),
             'name' => self::faker()->word(),
-
+            'postalCode' => self::faker()->numberBetween(9999, 99999),
+            'streetName' => self::faker()->streetName(),
+            'updatedAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
         ];
     }
 

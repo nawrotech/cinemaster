@@ -14,6 +14,7 @@ use App\Factory\ScreeningRoomFactory;
 use App\Factory\ScreeningRoomSeatFactory;
 use App\Factory\SeatFactory;
 use App\Factory\UserFactory;
+use App\Factory\VisualFormatFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
@@ -23,7 +24,20 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         SeatFactory::createGrid();
+
         UserFactory::createOne();
+
+        CinemaFactory::createMany(3, [
+            "owner" => UserFactory::random()
+        ]);
+
+        VisualFormatFactory::createMany(12, function() {
+            return [
+                "cinema" => CinemaFactory::random()
+            ];
+        });
+
+
 
         // CinemaFactory::createMany(2);
 
