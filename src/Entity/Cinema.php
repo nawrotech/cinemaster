@@ -82,13 +82,13 @@ class Cinema
     /**
      * @var Collection<int, VisualFormat>
      */
-    #[ORM\OneToMany(targetEntity: VisualFormat::class, mappedBy: 'cinema', cascade: ["persist"])]
+    #[ORM\OneToMany(targetEntity: VisualFormat::class, mappedBy: 'cinema', cascade: ["persist"], orphanRemoval: true)]
     private Collection $visualFormats;
 
     /**
      * @var Collection<int, ScreeningSetupType>
      */
-    #[ORM\OneToMany(targetEntity: ScreeningSetupType::class, mappedBy: 'cinema',  cascade: ["persist"])]
+    #[ORM\OneToMany(targetEntity: ScreeningSetupType::class, mappedBy: 'cinema',  cascade: ["persist"], orphanRemoval: true)]
     private Collection $screeningSetupTypes;
 
     public function __construct()
