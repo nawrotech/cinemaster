@@ -1,0 +1,17 @@
+<div {{ stimulus_controller('form-collection') }}
+    data-form-collection-index-value="{{ collectionType|length > 0 ? collectionType|last.vars.name + 1 : 0 }}"
+    data-form-collection-prototype-value="{{ form_widget(collectionType.vars.prototype)|e('html_attr') }}"
+    data-form-collection-wrapper-class-name-value="{{ wrapperClassName }}"
+>
+    <ul {{ stimulus_target('form-collection', 'collectionContainer') }}>
+        {% if collectionType is not empty %}
+            <li>
+                {% for formField in collectionType %}
+                    {{ form_row(formField) }}
+                {% endfor %}
+            </li>
+        {% endif %}
+    </ul>
+    <button class="btn btn-primary" type="button" {{ stimulus_action('form-collection', 'addCollectionElement') }}>{{ addButtonText }}</button>
+</div>
+
