@@ -8,13 +8,12 @@ export default class extends Controller {
     static values = {
         index: Number,
         prototype: String,
-        wrapperElement: String,
         wrapperClassName: String
     }
 
     addCollectionElement()
     {
-        const item = document.createElement(this.wrapperElementValue);
+        const item = document.createElement("li");
         item.classList = this.wrapperClassNameValue;
         item.innerHTML = this.prototypeValue.replace(/__name__/g, this.indexValue);
         this.collectionContainerTarget.appendChild(item);
