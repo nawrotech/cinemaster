@@ -30,38 +30,34 @@ class CinemaController extends AbstractController
     }
 
 
-    #[Route('/create/{slug?}', name: 'app_cinema_create')]
+ #[Route('/create/{slug?}', name: 'app_cinema_create')]
     public function create(
         Request $request,
         EntityManagerInterface $em,
+        ?string $slug = null,
         ?Cinema $cinema = null
-    ): Response {
+    ): Response {   
 
         if (!$cinema) {
             $cinema =  new Cinema();
             $cinema->setOwner($this->getUser());
         }
-     
-        $originalVisualFormats = new ArrayCollection();
-        foreach($cinema->getVisualFormats() as $visualFormat) {
-            $originalVisualFormats->add($visualFormat);
-        }
+
 
         $form = $this->createForm(CinemaType::class, $cinema);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            foreach($originalVisualFormats as $visualFormat) {
-                if (false === $cinema->getVisualFormats()->contains($visualFormat)) {
-                    $em->remove($visualFormat);
-                }
-            }
-
             $em->persist($cinema);
-            $em->flush();            
+            $em->flush();
 
-            $this->addFlash("success", "Cinema created!");
+            if (!$slug) {
+                $this->addFlash("success", "Cinema created!");
+            } else {
+                $this->addFlash("success", "Cinema updated!");
+            }
+            
             
             return $this->redirectToRoute("app_cinema");
         }
