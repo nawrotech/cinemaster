@@ -18,13 +18,13 @@ class ScreeningRoomSetup
     #[ORM\Column(length: 50)]
     private ?string $soundFormat = null;
 
-    #[ORM\ManyToOne(inversedBy: 'screeningSetupTypes')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Cinema $cinema = null;
-
-    #[ORM\ManyToOne(inversedBy: 'screeningSetupTypes')]
+    #[ORM\ManyToOne(inversedBy: 'screeningRoomSetups')]
     #[ORM\JoinColumn(nullable: false)]
     private ?VisualFormat $visualFormat = null;
+
+    #[ORM\ManyToOne(inversedBy: 'screeningRoomSetups')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Cinema $cinema = null;
 
     /**
      * @var Collection<int, ScreeningRoom>
@@ -107,5 +107,9 @@ class ScreeningRoomSetup
         }
 
         return $this;
+    }
+
+    public function getDisplaySetup() {
+        return "Sound: {$this->soundFormat} Vision: {$this->visualFormat->getName()}";
     }
 }

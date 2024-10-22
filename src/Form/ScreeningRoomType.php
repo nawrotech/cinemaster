@@ -3,6 +3,10 @@
 namespace App\Form;
 
 use App\Entity\ScreeningRoom;
+use App\Entity\ScreeningRoomSetup;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
@@ -22,6 +26,8 @@ class ScreeningRoomType extends AbstractType
             "maxRows" => $maxRowsConstraint,
             "maxSeatsPerRow" => $maxSeatsPerRowConstraint
         ] = $options["max_room_sizes"];
+
+        $cinema = $options["data"]->getCinema();
 
         $builder
             ->add('name', TextType::class, [
@@ -78,6 +84,16 @@ class ScreeningRoomType extends AbstractType
                     new NotBlank(),
                     new Positive()
                 ]
+            ])
+            ->add("screeningRoomSetup", EntityType::class, [
+                "class" => ScreeningRoomSetup::class,
+                "query_builder" => function(EntityRepository $er) use($cinema): QueryBuilder  {
+                    return $er->createQueryBuilder("srs")
+                            ->where("srs.cinema = :cinema")
+                            ->setParameter("cinema", $cinema);
+                },
+                'choice_label' => 'displaySetup',
+
             ])
             ->add("apply", SubmitType::class)
         ;
