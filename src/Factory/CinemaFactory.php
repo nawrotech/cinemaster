@@ -3,8 +3,6 @@
 namespace App\Factory;
 
 use App\Entity\Cinema;
-use Faker\Provider\ar_EG\Address;
-use Faker\Provider\ar_JO\Address as Ar_JOAddress;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**

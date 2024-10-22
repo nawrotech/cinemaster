@@ -59,6 +59,9 @@ class ScreeningRoom
     #[ORM\OneToMany(targetEntity: Showtime::class, mappedBy: 'screeningRoom')]
     private Collection $showtimes;
 
+    #[ORM\ManyToOne(inversedBy: 'screeningRooms')]
+    private ?ScreeningRoomSetup $screeningRoomSetup = null;
+
     
 
     public function __construct()
@@ -233,6 +236,18 @@ class ScreeningRoom
     public function setMaintenanceTimeInMinutes(?int $maintenanceTimeInMinutes): static
     {
         $this->maintenanceTimeInMinutes = $maintenanceTimeInMinutes;
+
+        return $this;
+    }
+
+    public function getScreeningRoomSetup(): ?ScreeningRoomSetup
+    {
+        return $this->screeningRoomSetup;
+    }
+
+    public function setScreeningRoomSetup(?ScreeningRoomSetup $screeningRoomSetup): static
+    {
+        $this->screeningRoomSetup = $screeningRoomSetup;
 
         return $this;
     }
