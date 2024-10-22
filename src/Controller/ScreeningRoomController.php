@@ -6,6 +6,7 @@ use App\Entity\Cinema;
 use App\Entity\ScreeningRoom;
 use App\Entity\ScreeningRoomSeat;
 use App\Enum\ScreeningRoomSeatType;
+use App\Form\ScreeningRoomSetupCollectionType;
 use App\Form\ScreeningRoomType;
 use App\Form\ScreeningRoomTypesType;
 use App\Form\SeatLineType;
@@ -47,7 +48,8 @@ class ScreeningRoomController extends AbstractController
         Cinema $cinema,
         ): Response {
 
-        $form = $this->createForm(ScreeningRoomTypesType::class, $cinema);
+
+        $form = $this->createForm(ScreeningRoomSetupCollectionType::class, $cinema);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

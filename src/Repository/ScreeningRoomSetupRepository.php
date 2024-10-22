@@ -2,39 +2,39 @@
 
 namespace App\Repository;
 
-use App\Entity\AudioFormat;
+use App\Entity\ScreeningRoomSetup;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<AudioFormat>
+ * @extends ServiceEntityRepository<ScreeningSetupType>
  */
-class AudioFormatRepository extends ServiceEntityRepository
+class ScreeningRoomSetupRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, AudioFormat::class);
+        parent::__construct($registry, ScreeningRoomSetup::class);
     }
 
     //    /**
-    //     * @return AudioFormat[] Returns an array of AudioFormat objects
+    //     * @return ScreeningSetupType[] Returns an array of ScreeningSetupType objects
     //     */
     //    public function findByExampleField($value): array
     //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
+    //        return $this->createQueryBuilder('s')
+    //            ->andWhere('s.exampleField = :val')
     //            ->setParameter('val', $value)
-    //            ->orderBy('a.id', 'ASC')
+    //            ->orderBy('s.id', 'ASC')
     //            ->setMaxResults(10)
     //            ->getQuery()
     //            ->getResult()
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?AudioFormat
+    //    public function findOneBySomeField($value): ?ScreeningSetupType
     //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
+    //        return $this->createQueryBuilder('s')
+    //            ->andWhere('s.exampleField = :val')
     //            ->setParameter('val', $value)
     //            ->getQuery()
     //            ->getOneOrNullResult()

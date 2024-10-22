@@ -10,15 +10,15 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 
-class ScreeningRoomTypesType extends AbstractType
+class ScreeningRoomSetupCollectionType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
 
         $builder
-           ->add("screeningSetupTypes", CollectionType::class, [
+           ->add("screeningRoomSetups", CollectionType::class, [
                 "label" => "Enter types can be played in your screening rooms",
-                "entry_type" => ScreeningSetupTypeType::class,
+                "entry_type" => ScreeningRoomSetupType::class,
                 "entry_options" => [
                     "label" => false,
                     "query_constraint" => $options["data"] 

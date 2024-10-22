@@ -86,10 +86,10 @@ class Cinema
     private Collection $visualFormats;
 
     /**
-     * @var Collection<int, ScreeningSetupType>
+     * @var Collection<int, ScreeningRoomSetup>
      */
-    #[ORM\OneToMany(targetEntity: ScreeningSetupType::class, mappedBy: 'cinema',  cascade: ["persist"], orphanRemoval: true)]
-    private Collection $screeningSetupTypes;
+    #[ORM\OneToMany(targetEntity: ScreeningRoomSetup::class, mappedBy: 'cinema',  cascade: ["persist"], orphanRemoval: true)]
+    private Collection $screeningRoomSetups;
 
     public function __construct()
     {
@@ -98,7 +98,7 @@ class Cinema
         $this->screeningRooms = new ArrayCollection();
         $this->showtimes = new ArrayCollection();
         $this->visualFormats = new ArrayCollection();
-        $this->screeningSetupTypes = new ArrayCollection();
+        $this->screeningRoomSetups = new ArrayCollection();
     }
 
     #[PrePersist]
@@ -377,29 +377,29 @@ class Cinema
     }
 
     /**
-     * @return Collection<int, ScreeningSetupType>
+     * @return Collection<int, ScreeningRoomSetup>
      */
-    public function getScreeningSetupTypes(): Collection
+    public function getScreeningRoomSetups(): Collection
     {
-        return $this->screeningSetupTypes;
+        return $this->screeningRoomSetups;
     }
 
-    public function addScreeningSetupType(ScreeningSetupType $screeningSetupType): static
+    public function addScreeningRoomSetup(ScreeningRoomSetup $screeningRoomSetup): static
     {
-        if (!$this->screeningSetupTypes->contains($screeningSetupType)) {
-            $this->screeningSetupTypes->add($screeningSetupType);
-            $screeningSetupType->setCinema($this);
+        if (!$this->screeningRoomSetups->contains($screeningRoomSetup)) {
+            $this->screeningRoomSetups->add($screeningRoomSetup);
+            $screeningRoomSetup->setCinema($this);
         }
 
         return $this;
     }
 
-    public function removeScreeningSetupType(ScreeningSetupType $screeningSetupType): static
+    public function removeScreeningRoomSetup(ScreeningRoomSetup $screeningRoomSetup): static
     {
-        if ($this->screeningSetupTypes->removeElement($screeningSetupType)) {
+        if ($this->screeningRoomSetups->removeElement($screeningRoomSetup)) {
             // set the owning side to null (unless already changed)
-            if ($screeningSetupType->getCinema() === $this) {
-                $screeningSetupType->setCinema(null);
+            if ($screeningRoomSetup->getCinema() === $this) {
+                $screeningRoomSetup->setCinema(null);
             }
         }
 

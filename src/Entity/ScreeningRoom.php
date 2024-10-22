@@ -59,6 +59,7 @@ class ScreeningRoom
     #[ORM\OneToMany(targetEntity: Showtime::class, mappedBy: 'screeningRoom')]
     private Collection $showtimes;
 
+    
 
     public function __construct()
     {

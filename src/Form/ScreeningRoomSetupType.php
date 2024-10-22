@@ -2,7 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\ScreeningSetupType;
+use App\Entity\ScreeningRoomSetup;
 use App\Entity\VisualFormat;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -13,7 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class ScreeningSetupTypeType extends AbstractType
+class ScreeningRoomSetupType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -43,7 +43,7 @@ class ScreeningSetupTypeType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => ScreeningSetupType::class,
+            'data_class' => ScreeningRoomSetup::class,
             "query_constraint" => null
         ]);
     }

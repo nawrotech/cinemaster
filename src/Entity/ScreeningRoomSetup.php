@@ -2,11 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\ScreeningSetupTypeRepository;
+use App\Repository\ScreeningRoomSetupRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: ScreeningSetupTypeRepository::class)]
-class ScreeningSetupType
+#[ORM\Entity(repositoryClass: ScreeningRoomSetupRepository::class)]
+class ScreeningRoomSetup
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

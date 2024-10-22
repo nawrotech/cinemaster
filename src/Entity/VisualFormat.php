@@ -23,14 +23,14 @@ class VisualFormat
     private ?Cinema $cinema = null;
 
     /**
-     * @var Collection<int, ScreeningSetupType>
+     * @var Collection<int, ScreeningRoomSetup>
      */
-    #[ORM\OneToMany(targetEntity: ScreeningSetupType::class, mappedBy: 'visualFormat', orphanRemoval: true)]
-    private Collection $screeningSetupTypes;
+    #[ORM\OneToMany(targetEntity: ScreeningRoomSetup::class, mappedBy: 'visualFormat', orphanRemoval: true)]
+    private Collection $screeningRoomSetups;
 
     public function __construct()
     {
-        $this->screeningSetupTypes = new ArrayCollection();
+        $this->screeningRoomSetups = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -63,29 +63,29 @@ class VisualFormat
     }
 
     /**
-     * @return Collection<int, ScreeningSetupType>
+     * @return Collection<int, ScreeningRoomSetup>
      */
-    public function getScreeningSetupTypes(): Collection
+    public function getScreeningRoomSetups(): Collection
     {
-        return $this->screeningSetupTypes;
+        return $this->screeningRoomSetups;
     }
 
-    public function addScreeningSetupType(ScreeningSetupType $screeningSetupType): static
+    public function addScreeningRoomSetup(ScreeningRoomSetup $screeningRoomSetup): static
     {
-        if (!$this->screeningSetupTypes->contains($screeningSetupType)) {
-            $this->screeningSetupTypes->add($screeningSetupType);
-            $screeningSetupType->setVisualFormat($this);
+        if (!$this->screeningRoomSetups->contains($screeningRoomSetup)) {
+            $this->screeningRoomSetups->add($screeningRoomSetup);
+            $screeningRoomSetup->setVisualFormat($this);
         }
 
         return $this;
     }
 
-    public function removeScreeningSetupType(ScreeningSetupType $screeningSetupType): static
+    public function removeScreeningRoomSetup(ScreeningRoomSetup $screeningRoomSetup): static
     {
-        if ($this->screeningSetupTypes->removeElement($screeningSetupType)) {
+        if ($this->screeningRoomSetups->removeElement($screeningRoomSetup)) {
             // set the owning side to null (unless already changed)
-            if ($screeningSetupType->getVisualFormat() === $this) {
-                $screeningSetupType->setVisualFormat(null);
+            if ($screeningRoomSetup->getVisualFormat() === $this) {
+                $screeningRoomSetup->setVisualFormat(null);
             }
         }
 
