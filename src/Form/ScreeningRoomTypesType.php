@@ -14,11 +14,15 @@ class ScreeningRoomTypesType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+
         $builder
            ->add("screeningSetupTypes", CollectionType::class, [
                 "label" => "Enter types can be played in your screening rooms",
                 "entry_type" => ScreeningSetupTypeType::class,
-                "entry_options" => ["label" => false],
+                "entry_options" => [
+                    "label" => false,
+                    "query_constraint" => $options["data"] 
+                ],
                 "allow_add" => true,
                 "allow_delete" => true,
                 "by_reference" => false,

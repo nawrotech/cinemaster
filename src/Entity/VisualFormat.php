@@ -15,7 +15,7 @@ class VisualFormat
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 10)]
+    #[ORM\Column(length: 40)]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'visualFormats')]
