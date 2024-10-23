@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello MovieController!{% endblock %}
+
+{% block body %}
+
+{{ form_start(form) }}
+    {{ include("partials/_dynamic_collection_type.html.twig", {
+        collectionType: form.screeningFormats,
+        addButtonText: "Add Screening Format"
+    }) }}
+{{ form_end(form) }}
+
+{% endblock %}

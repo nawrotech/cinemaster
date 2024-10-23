@@ -52,7 +52,7 @@ class ScreeningFormat
     {
 
         if (!in_array($languagePresentation, LanguagePresentation::getValuesArray())) {
-            throw new \InvalidArgumentException("Invalid status");
+            throw new \InvalidArgumentException("Invalid language presentation");
         }
         $this->languagePresentation = $languagePresentation;
 

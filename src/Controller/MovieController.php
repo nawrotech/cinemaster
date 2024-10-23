@@ -2,10 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Cinema;
 use App\Entity\Movie;
 use App\Entity\MovieFormat;
+use App\Entity\MovieScreeningFormat;
 use App\Form\MovieFormType;
-use App\Repository\MovieFormatRepository;
+use App\Form\ScreeningFormatCollectionType;
+use App\Repository\MovieScreeningFormatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,15 +20,39 @@ class MovieController extends AbstractController
 {
     // with filtring using get params
     #[Route('/', name: 'app_movie')]
-    public function index(MovieFormatRepository $movieFormatRepository): Response
+    public function index(MovieScreeningFormatRepository $movieScreeningFormatRepository): Response
     {
         
 
         return $this->render('movie/index.html.twig', [
-            "movies" =>  $movieFormatRepository->findMovieWithFormats()
+            "movies" =>  $movieScreeningFormatRepository->findMovieWithFormats()
         ]);
     }
+ 
 
+    #[Route("/formats/{slug}/create", name: "app_movie_create_screening_formats")]
+    public function createScreeningFormats(
+        EntityManagerInterface $em,
+        Cinema $cinema,
+        Request $request): Response
+    {
+        $form = $this->createForm(ScreeningFormatCollectionType::class, $cinema);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $em->flush();            
+
+            $this->addFlash("success", "Screening formats have been created!");
+            
+            return $this->redirectToRoute("app_cinema");
+        }
+
+        return $this->render('movie/screening_formats_form.html.twig', [
+            "form" => $form
+        ]);
+
+    }
 
     #[Route('/create', name: 'app_movie_create')]
     public function create(
@@ -42,7 +69,7 @@ class MovieController extends AbstractController
             $em->persist($movie);
 
             foreach($form->get("movieFormats")->getData() as $movieType) {
-                $movieFormat = new MovieFormat();
+                $movieFormat = new MovieScreeningFormat();
                 $movieFormat->setMovie($movie);
                 $movieFormat->setFormat($movieType);
 
