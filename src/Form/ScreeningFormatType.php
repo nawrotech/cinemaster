@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\ScreeningFormat;
 use App\Entity\VisualFormat;
+use App\Enum\LanguagePresentation;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ButtonType;
@@ -18,7 +19,7 @@ class ScreeningFormatType extends AbstractType
     {
         $builder
             ->add('languagePresentation', ChoiceType::class, [
-                "choices" => $options["language_presentation_choices"],
+                "choices" => LanguagePresentation::getValuesArray(),
                 "choice_label" => function($choice): TranslatableMessage|string {
                     return $choice;
                 },
@@ -44,7 +45,6 @@ class ScreeningFormatType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => ScreeningFormat::class,
-            "language_presentation_choices" => null
         ]);
     }
 }

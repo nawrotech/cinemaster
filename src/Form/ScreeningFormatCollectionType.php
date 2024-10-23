@@ -16,12 +16,11 @@ class ScreeningFormatCollectionType extends AbstractType
     {
 
         $builder
-           ->add("screeningRoomSetups", CollectionType::class, [
+           ->add("screeningFormats", CollectionType::class, [
                 "label" => false,
                 "entry_type" => ScreeningFormatType::class,
                 "entry_options" => [
                     "label" => false,
-                    "language_presentation_choices" => $options["language_presentation_choices"]
                 ],
                 "allow_add" => true,
                 "allow_delete" => true,
@@ -37,7 +36,6 @@ class ScreeningFormatCollectionType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Cinema::class,
-            "language_presentation_choices" => null
         ]);
     }
 }
