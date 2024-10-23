@@ -4,19 +4,12 @@
 
 {% block body %}
 
-<div class="example-wrapper">
 
-    {% for movie in movies %}
+    {% for movieWithScreeningFormat in moviesWithScreeningFormats %}
         <div class="card">
-            <p>Movie: {{ movie.movie.title }}</p>
-            <p>Audio: {{ movie.format.audioVersion }}</p>
-            <p>Visual: {{ movie.format.visualVersion }}</p>
+            <p>{{ movieWithScreeningFormat.displayMovieScreeningFormat }}</p>
         </div>
     {% endfor %}
 
-    <ul>
-        <li>Your controller at <code>/home/nawrotech/webdev/movie_reservator_9000/src/Controller/MovieController.php</code></li>
-        <li>Your template at <code>/home/nawrotech/webdev/movie_reservator_9000/templates/movie/index.html.twig</code></li>
-    </ul>
-</div>
+
 {% endblock %}

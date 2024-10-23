@@ -38,12 +38,12 @@ class MovieScreeningFormat
         return $this;
     }
 
-    public function getFormat(): ?ScreeningFormat
+    public function getScreeningFormat(): ?ScreeningFormat
     {
         return $this->screeningFormat;
     }
 
-    public function setFormat(?ScreeningFormat $screeningFormat): static
+    public function setScreeningFormat(?ScreeningFormat $screeningFormat): static
     {
         $this->screeningFormat = $screeningFormat;
 

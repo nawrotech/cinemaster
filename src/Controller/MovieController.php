@@ -23,9 +23,8 @@ class MovieController extends AbstractController
     public function index(MovieScreeningFormatRepository $movieScreeningFormatRepository): Response
     {
         
-
         return $this->render('movie/index.html.twig', [
-            "movies" =>  $movieScreeningFormatRepository->findMovieWithFormats()
+            "moviesWithScreeningFormats" =>  $movieScreeningFormatRepository->findMovieWithFormats()
         ]);
     }
  
@@ -68,12 +67,12 @@ class MovieController extends AbstractController
 
             $em->persist($movie);
 
-            foreach($form->get("movieFormats")->getData() as $movieType) {
-                $movieFormat = new MovieScreeningFormat();
-                $movieFormat->setMovie($movie);
-                $movieFormat->setFormat($movieType);
+            foreach($form->get("movieFormats")->getData() as $screeningFormat) {
+                $movieScreeningFormat = new MovieScreeningFormat();
+                $movieScreeningFormat->setMovie($movie);
+                $movieScreeningFormat->setScreeningFormat($screeningFormat);
 
-                $em->persist($movieFormat);
+                $em->persist($movieScreeningFormat);
             }
 
             $em->flush();

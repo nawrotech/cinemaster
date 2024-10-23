@@ -2,7 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\Format;
+use App\Entity\ScreeningFormat;
 use App\Entity\Movie;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -21,9 +21,9 @@ class MovieFormType extends AbstractType
             ->add('movieFormats', EntityType::class, [
                 "mapped" => false,
                 "label" => "Choose movie's formats",
-                "class" => Format::class,
-                'choice_label' => function (Format $format): string {
-                    return "{$format->getAudioVersion()} {$format->getVisualVersion()}";;
+                "class" => ScreeningFormat::class,
+                'choice_label' => function (ScreeningFormat $screeningFormat): string {
+                    return "{$screeningFormat->getLanguagePresentation()} {$screeningFormat->getVisualFormat()->getName()}";;
                 },
                 "multiple" => true,
                 "expanded" => true

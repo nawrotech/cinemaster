@@ -22,11 +22,11 @@ class MovieScreeningFormatRepository extends ServiceEntityRepository
     */
    public function findMovieWithFormats(): array
    {
-       return $this->createQueryBuilder('mf')
+       return $this->createQueryBuilder('msf')
             ->addSelect("m")
-            ->addSelect("f")
-            ->innerJoin("mf.movie", "m")
-            ->innerJoin("mf.format", "f")
+            ->addSelect("sf")
+            ->innerJoin("msf.movie", "m")
+            ->innerJoin("msf.screeningFormat", "sf")
             ->setMaxResults(10)
             ->getQuery()
             ->getResult()
