@@ -60,9 +60,8 @@ class ScreeningRoom
     private Collection $showtimes;
 
     #[ORM\ManyToOne(inversedBy: 'screeningRooms')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')] 
     private ?ScreeningRoomSetup $screeningRoomSetup = null;
-
-    
 
     public function __construct()
     {
@@ -251,4 +250,6 @@ class ScreeningRoom
 
         return $this;
     }
+
+ 
 }

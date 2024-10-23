@@ -6,6 +6,7 @@ use App\Repository\ScreeningRoomSetupRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\JoinColumn;
 
 #[ORM\Entity(repositoryClass: ScreeningRoomSetupRepository::class)]
 class ScreeningRoomSetup
@@ -36,6 +37,8 @@ class ScreeningRoomSetup
     {
         $this->screeningRooms = new ArrayCollection();
     }
+
+
 
     public function getId(): ?int
     {
@@ -79,6 +82,11 @@ class ScreeningRoomSetup
         return $this;
     }
 
+
+    public function getDisplaySetup() {
+        return "Sound: {$this->soundFormat} Vision: {$this->visualFormat->getName()}";
+    }
+
     /**
      * @return Collection<int, ScreeningRoom>
      */
@@ -107,9 +115,5 @@ class ScreeningRoomSetup
         }
 
         return $this;
-    }
-
-    public function getDisplaySetup() {
-        return "Sound: {$this->soundFormat} Vision: {$this->visualFormat->getName()}";
     }
 }
