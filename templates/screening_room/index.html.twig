@@ -15,6 +15,7 @@
             <div class="card-body">
             <h5 class="card-title">Room name: {{ room.name }}</h5>
             <p class="card-text">Capacity: {{ room.screeningRoomSeats|length }}</p>
+            <p class="card-text">Screening setup: {{ room.screeningRoomSetup.displaySetup ?? null }}</p>
             <a class="d-block" href="{{path("app_screening_room_edit",
                 {screening_room_slug: room.slug,
                     slug: cinema.slug}
