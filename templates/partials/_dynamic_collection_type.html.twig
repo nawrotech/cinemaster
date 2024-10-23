@@ -1,3 +1,4 @@
+{% set wrapperClassName = "collection-element-wrapper" %}
 <div {{ stimulus_controller('form-collection') }}
     data-form-collection-index-value="{{ collectionType|length > 0 ? collectionType|last.vars.name + 1 : 0 }}"
     data-form-collection-prototype-value="{{ form_widget(collectionType.vars.prototype)|e('html_attr') }}"
@@ -5,7 +6,7 @@
 >
     <ul {{ stimulus_target('form-collection', 'collectionContainer') }}>
             {% for formField in collectionType %}
-                <li>
+                <li class="{{ wrapperClassName }}">
                     {{ form_row(formField) }}
                 </li>
             {% endfor %}
