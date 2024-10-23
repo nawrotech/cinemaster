@@ -18,8 +18,8 @@ class ScreeningFormat
     #[ORM\JoinColumn(nullable: false)]
     private ?VisualFormat $visualFormat = null;
 
-    #[ORM\Column(type: "string", enumType: LanguagePresentation::class)]
-    private ?LanguagePresentation $languagePresentation = null;
+    #[ORM\Column()]
+    private ?string $languagePresentation = null;
 
     #[ORM\ManyToOne(inversedBy: 'screeningFormats')]
     #[ORM\JoinColumn(nullable: false)]
@@ -50,6 +50,10 @@ class ScreeningFormat
 
     public function setLanguagePresentation(string $languagePresentation): static
     {
+
+        if (!in_array($languagePresentation, LanguagePresentation::getValuesArray())) {
+            throw new \InvalidArgumentException("Invalid status");
+        }
         $this->languagePresentation = $languagePresentation;
 
         return $this;
