@@ -14,7 +14,7 @@ class ScreeningFormat
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(inversedBy: "screeningFormats")]
     #[ORM\JoinColumn(nullable: false)]
     private ?VisualFormat $visualFormat = null;
 
@@ -25,7 +25,6 @@ class ScreeningFormat
     #[ORM\JoinColumn(nullable: false)]
     private ?Cinema $cinema = null;
 
-    #[ORM\OneToMany(mappedBy: "screeningFormat")]
 
 
     // /**
