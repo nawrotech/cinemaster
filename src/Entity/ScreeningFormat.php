@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Enum\LanguagePresentation;
 use App\Repository\ScreeningFormatRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: ScreeningFormatRepository::class)]
 class ScreeningFormat
@@ -25,37 +26,8 @@ class ScreeningFormat
     #[ORM\JoinColumn(nullable: false)]
     private ?Cinema $cinema = null;
 
-
-
-    // /**
-    //  * @return Collection<int, VisualFormat>
-    //  */
-    // public function getVisualFormats(): Collection
-    // {
-    //     return $this->visualFormats;
-    // }
-
-    // public function addVisualFormat(VisualFormat $visualFormat): static
-    // {
-    //     if (!$this->visualFormats->contains($visualFormat)) {
-    //         $this->visualFormats->add($visualFormat);
-    //         $visualFormat->setCinema($this);
-    //     }
-
-    //     return $this;
-    // }
-
-    // public function removeVisualFormat(VisualFormat $visualFormat): static
-    // {
-    //     if ($this->visualFormats->removeElement($visualFormat)) {
-    //         // set the owning side to null (unless already changed)
-    //         if ($visualFormat->getCinema() === $this) {
-    //             $visualFormat->setCinema(null);
-    //         }
-    //     }
-
-    //     return $this;
-    // }
+    #[ORM\OneToMany(mappedBy: "screeningFormat", targetEntity: MovieScreeningFormat::class, orphanRemoval: true)]
+    private Collection $movieScreeningFormats;
 
 
     public function getId(): ?int
