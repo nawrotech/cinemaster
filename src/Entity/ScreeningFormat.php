@@ -25,6 +25,39 @@ class ScreeningFormat
     #[ORM\JoinColumn(nullable: false)]
     private ?Cinema $cinema = null;
 
+    #[ORM\OneToMany(mappedBy: "screeningFormat")]
+
+
+    // /**
+    //  * @return Collection<int, VisualFormat>
+    //  */
+    // public function getVisualFormats(): Collection
+    // {
+    //     return $this->visualFormats;
+    // }
+
+    // public function addVisualFormat(VisualFormat $visualFormat): static
+    // {
+    //     if (!$this->visualFormats->contains($visualFormat)) {
+    //         $this->visualFormats->add($visualFormat);
+    //         $visualFormat->setCinema($this);
+    //     }
+
+    //     return $this;
+    // }
+
+    // public function removeVisualFormat(VisualFormat $visualFormat): static
+    // {
+    //     if ($this->visualFormats->removeElement($visualFormat)) {
+    //         // set the owning side to null (unless already changed)
+    //         if ($visualFormat->getCinema() === $this) {
+    //             $visualFormat->setCinema(null);
+    //         }
+    //     }
+
+    //     return $this;
+    // }
+
 
     public function getId(): ?int
     {
