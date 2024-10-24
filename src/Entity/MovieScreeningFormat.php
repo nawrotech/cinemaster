@@ -21,6 +21,10 @@ class MovieScreeningFormat
     #[ORM\JoinColumn(nullable: false)]
     private ?ScreeningFormat $screeningFormat = null;
 
+    #[ORM\ManyToOne(inversedBy: 'movieScreeningFormats')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Cinema $cinema = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -54,6 +58,18 @@ class MovieScreeningFormat
         return "Movie: {$this->movie->getTitle()}
                 ScreeningFormat: {$this->screeningFormat->getVisualFormat()->getName()} 
                                     {$this->screeningFormat->getLanguagePresentation()}";
+    }
+
+    public function getCinema(): ?Cinema
+    {
+        return $this->cinema;
+    }
+
+    public function setCinema(?Cinema $cinema): static
+    {
+        $this->cinema = $cinema;
+
+        return $this;
     }
 
 }
