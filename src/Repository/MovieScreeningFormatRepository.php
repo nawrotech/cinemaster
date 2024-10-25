@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Cinema;
 use App\Entity\Movie;
 use App\Entity\MovieScreeningFormat;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -31,6 +32,30 @@ class MovieScreeningFormatRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult()
        ;
+   }
+
+   public function findScreeningFormatIdsByMovie(Movie $movie, Cinema $cinema) {
+        $result = $this->createQueryBuilder('msf')
+                    ->innerJoin("msf.screeningFormat", "sf")
+                    ->select("sf.id")
+                    ->andWhere("msf.cinema = :cinema")
+                    ->andWhere("msf.movie = :movie")
+                    ->setParameter("movie", $movie)
+                    ->setParameter("cinema", $cinema)
+                    ->getQuery()
+                    ->getResult()
+        ;
+        return array_column($result, "id");
+   }
+
+   public function findByScreeningFormatIds(array $screeningFormatIds) {
+        return $this->createQueryBuilder('msf')
+                    ->innerJoin("msf.screeningFormat", "sf")
+                    ->andWhere("sf.id IN (:screeningFormatIds)")
+                    ->setParameter("screeningFormatIds", $screeningFormatIds)
+                    ->getQuery()
+                    ->getResult()
+        ;
    }
 
 

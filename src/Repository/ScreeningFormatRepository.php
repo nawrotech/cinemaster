@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Cinema;
 use App\Entity\ScreeningFormat;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -16,26 +17,22 @@ class ScreeningFormatRepository extends ServiceEntityRepository
         parent::__construct($registry, ScreeningFormat::class);
     }
 
-    //    /**
-    //     * @return MovieType[] Returns an array of MovieType objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('m')
-    //            ->andWhere('m.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('m.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    
+       public function findByIds(array $screeningFormatIds): array
+       {
+           return $this->createQueryBuilder('sf')
+                ->andWhere("sf.if IN :screeningFormatIds")
+                ->setParameter("screeningFormatIds", $screeningFormatIds)
+                ->getQuery()
+                ->getResult()
+           ;
+       }
 
-    //    public function findOneBySomeField($value): ?MovieType
+    //    public function findOneBySomeField($cinema): ?MovieType
     //    {
-    //        return $this->createQueryBuilder('m')
-    //            ->andWhere('m.exampleField = :val')
-    //            ->setParameter('val', $value)
+    //        return $this->createQueryBuilder('sf')
+    //            ->andWhere('sf.exampleField = :val')
+    //            ->setParameter('val', $cinema)
     //            ->getQuery()
     //            ->getOneOrNullResult()
     //        ;

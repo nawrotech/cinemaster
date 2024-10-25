@@ -1,0 +1,15 @@
+{% extends "base.html.twig" %}
+
+
+{% block body %}
+
+    {{ form_start(form) }}   
+
+        {{ include("partials/_dynamic_collection_type.html.twig", {
+            collectionType: form.movieScreeningFormats,
+            addButtonText: "Assing movie to the format"
+        }) }}
+        
+    {{ form_end(form) }}   
+
+{% endblock %}

@@ -3,10 +3,17 @@
 namespace App\Controller;
 
 use App\Entity\Cinema;
+use App\Entity\MovieScreeningFormat;
+use App\Form\MovieScreeningFormatCollectionType;
 use App\Form\Type\CinemaType;
 use App\Repository\CinemaRepository;
+use App\Repository\MovieRepository;
+use App\Repository\MovieScreeningFormatRepository;
+use App\Repository\ScreeningFormatRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
+use Proxies\__CG__\App\Entity\MovieFormat;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -67,7 +74,109 @@ class CinemaController extends AbstractController
         ]);
     }
 
+    #[Route('/{slug?}/add-movies/', name: 'app_cinema_add_movies')]
+    public function addMovies(
+        MovieRepository $movieRepository,
+        ScreeningFormatRepository $screeningFormatRepository,
+        MovieScreeningFormatRepository $movieScreeningFormatRepository,
+        Cinema $cinema
+    ): Response {
+
+        $movies = $movieRepository->findAll();
+
+        $screeningFormats = $screeningFormatRepository->findBy([
+            "cinema" => $cinema
+        ]);
+
+        $screeningFormatIdsForMovie = [];
+        foreach ($movies as $movie) {
+            $screeningFormatIdsForMovie[$movie->getId()] = $movieScreeningFormatRepository->findScreeningFormatIdsByMovie($movie, $cinema);
+        }
+
+
+        return $this->render('movie/movie_screening_formats.html.twig', [
+            "cinema" => $cinema,
+            "movies" => $movies,
+            "screeningFormats" => $screeningFormats,
+            "screeningFormatIdsForMovie" => $screeningFormatIdsForMovie
+        ]);
+    }
+
+    #[Route('/{slug?}/update-movie-screening/', name: 'app_cinema_update_movie_screening_format', methods: ["POST"])]
+    public function updateMovieScreeningFormat(
+        MovieRepository $movieRepository,
+        Request $request,
+        EntityManagerInterface $em,
+        ScreeningFormatRepository $screeningFormatRepository,
+        MovieScreeningFormatRepository $movieScreeningFormatRepository,
+        Cinema $cinema
+    ): Response {
+
+        // validate data
+        // if entity by id not found add flash message!
+
+        $screeningFormatIds = array_map("intval", $request->get("screeningFormats", []));
+        $screeningFormats = $screeningFormatRepository->findBy(["id" => $screeningFormatIds]);
+        
+        $movie = $movieRepository->find($request->get("movieId"));
+
+        if (count($screeningFormatIds) !== count($screeningFormats)) {
+            $this->addFlash("error", "Invalid screening formats!");
+
+            return $this->redirectToRoute("app_cinema_add_movies", [
+                "slug" => $cinema->getSlug()
+            ]);
+        }
+
+        if (!$movie) {
+            $this->addFlash("error", "Invalid movie!");
+
+            return $this->redirectToRoute("app_cinema_add_movies", [
+                "slug" => $cinema->getSlug()
+            ]);
+        }
+
+        $existingScreeningFormatIds = $movieScreeningFormatRepository
+                                ->findScreeningFormatIdsByMovie($movie, $cinema);
+
+        $noLongerExisting = array_diff($existingScreeningFormatIds, $screeningFormatIds);
+        $noLongerExistingMovieScreeningFormats = $movieScreeningFormatRepository->findByScreeningFormatIds($noLongerExisting);
+
+        foreach ($noLongerExistingMovieScreeningFormats as $noLongerExistingMovieScreeningFormat) {
+                $em->remove($noLongerExistingMovieScreeningFormat);
+                $em->flush();
+        }
+
     
+        foreach ($screeningFormats as $screeningFormat) {
+            if ($movieScreeningFormatRepository->findBy([
+                "cinema" => $cinema,
+                "movie" => $movie,
+                "screeningFormat" => $screeningFormat
+
+            ])) {
+                continue;
+            }
+
+            $msf = new MovieScreeningFormat();
+            $msf->setCinema($cinema);
+            $msf->setMovie($movie);
+            $msf->setScreeningFormat($screeningFormat);
+
+            $em->persist($msf);
+            $em->flush();
+
+        }
+
+    
+        $this->addFlash("success", "Movie screening formats successfully updated!");
+
+        return $this->redirectToRoute("app_cinema_add_movies", [
+            "slug" => $cinema->getSlug()
+        ]);
+
+
+    }
 
 
 
