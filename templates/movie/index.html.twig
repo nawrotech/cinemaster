@@ -5,9 +5,10 @@
 {% block body %}
 
 
-    {% for movieWithScreeningFormat in moviesWithScreeningFormats %}
+    {% for movie in movies %}
         <div class="card">
-            <p>{{ movieWithScreeningFormat.displayMovieScreeningFormat }}</p>
+            <p>{{ movie.title }}</p>
+            <a href="{{ path("app_movie") }}">Add movie</a>
         </div>
     {% endfor %}
 
