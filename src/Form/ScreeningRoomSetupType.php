@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\ScreeningRoomSetup;
 use App\Entity\VisualFormat;
+use App\Form\Type\RemoveButtonType;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -31,12 +32,7 @@ class ScreeningRoomSetupType extends AbstractType
 
                 'choice_label' => 'name',
             ])
-            ->add("remove", ButtonType::class, [
-                "attr" => [
-                    "data-form-collection-target" => "removeButton",
-                    "data-action" => "click->form-collection#removeElement"
-                ]
-            ])
+            ->add("remove", RemoveButtonType::class)
         ;
     }
 

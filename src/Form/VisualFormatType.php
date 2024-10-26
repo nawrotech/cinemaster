@@ -3,8 +3,8 @@
 namespace App\Form;
 
 use App\Entity\VisualFormat;
+use App\Form\Type\RemoveButtonType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ButtonType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -20,13 +20,7 @@ class VisualFormatType extends AbstractType
                     "placeholder" => "eg. IMAX, 3D",
                 ],
             ])
-            ->add("remove", ButtonType::class, [
-                "attr" => [
-                    "data-form-visual-format-collection-target" => "removeButton",
-                    "data-action" => "click->form-visual-format-collection#removeElement"
-                ]
-            ]
-            )
+            ->add("remove", RemoveButtonType::class)
         ;
     }
 
