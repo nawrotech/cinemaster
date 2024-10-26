@@ -32,7 +32,7 @@ class SameMoviePlayingInTwoRoomsAtTheSameTimeValidator  extends ConstraintValida
         $concurrentlyPlayingShowtime = $this->showtimeRepository
                                     ->findOverlappingForMovie(
                                         $value->getCinema(),
-                                        $value->getMovieFormat(), 
+                                        $value->getMovieScreeningFormat(), 
                                         $value->getStartsAt(), 
                                         $value->getEndsAt(),
                                         $value->getId()
@@ -46,7 +46,7 @@ class SameMoviePlayingInTwoRoomsAtTheSameTimeValidator  extends ConstraintValida
 
 
         $this->context->buildViolation($constraint->message)
-            ->setParameter("{{ movieTitle }}", $value->getMovieFormat()->getMovie()->getTitle())
+            ->setParameter("{{ movieTitle }}", $value->getMovieScreeningFormat()->getMovie()->getTitle())
             ->setParameter("{{ roomName }}", $concurrentlyPlayingShowtime->getScreeningRoom()->getName())
             ->setParameter("{{ date }}", $concurrentlyPlayingShowtime->getStartsAt()->format("d-m-y"))
             ->setParameter("{{ startsAt }}", $concurrentlyPlayingShowtime->getStartsAt()->format("h:i"))

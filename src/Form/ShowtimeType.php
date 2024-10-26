@@ -2,8 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\MovieFormat;
-use App\Entity\MovieMovieType;
+use App\Entity\MovieScreeningFormat;
 use App\Entity\Showtime;
 use App\Repository\ShowtimeRepository;
 use App\Validator\OverlappingShowtimeInSameScreeningRoom;
@@ -34,14 +33,14 @@ class ShowtimeType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add("movieFormat", EntityType::class, [
-                'class' => MovieFormat::class,
+            ->add("movieScreeningFormat", EntityType::class, [
+                'class' => MovieScreeningFormat::class,
                 "label" => "Select Movie",
-                "choice_label" => function (MovieFormat $movieFormat): string {
+                "choice_label" => function (MovieScreeningFormat $movieScreeningFormat): string {
                     return "
-                        Title: {$movieFormat->getMovie()->getTitle()} 
-                        Duration: {$movieFormat->getMovie()->getDurationInMinutes()} minutes
-                        Format: {$movieFormat->getFormat()->getAudioVersion()}, {$movieFormat->getFormat()->getVisualVersion()}        
+                        Title: {$movieScreeningFormat->getMovie()->getTitle()} 
+                        Duration: {$movieScreeningFormat->getMovie()->getDurationInMinutes()} minutes
+                        Format: {$movieScreeningFormat->getDisplayMovieScreeningFormat()}      
                     ";
                 },
             ])

@@ -3,7 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Cinema;
-use App\Entity\MovieFormat;
+use App\Entity\MovieScreeningFormat;
 use App\Entity\ScreeningRoom;
 use App\Entity\Showtime;
 use DateTimeInterface;
@@ -60,14 +60,14 @@ class ShowtimeRepository extends ServiceEntityRepository
 
     public function findOverlappingForMovie(
         Cinema $cinema,
-        MovieFormat $movieFormat,
+        MovieScreeningFormat $movieScreeningFormat,
         \DateTimeInterface $startsAt,
         \DateTimeInterface $endsAt,
         ?int $excludeId = null
     ): ?Showtime {
         return $this->findOverlapping($cinema, $startsAt, $endsAt, $excludeId)
-            ->andWhere('s.movieFormat = :movieFormat')
-            ->setParameter("movieFormat", $movieFormat)
+            ->andWhere('s.movieScreeningFormat = :movieScreeningFormat')
+            ->setParameter("movieScreeningFormat", $movieScreeningFormat)
             ->getQuery()
             ->getOneOrNullResult();
 
@@ -107,7 +107,7 @@ class ShowtimeRepository extends ServiceEntityRepository
 
     public function findByMovieTitle(string $movieTitle, ?QueryBuilder $qb = null) {
         return ($qb ?? $this->createQueryBuilder("s"))
-                        ->innerJoin("s.movieFormat", "mf")
+                        ->innerJoin("s.movieScreeningFormat", "mf")
                         ->innerJoin("mf.movie", "m")
                         ->andWhere("m.title LIKE :movieTitle")
                         ->setParameter("movieTitle", "%{$movieTitle}%");
@@ -151,7 +151,7 @@ class ShowtimeRepository extends ServiceEntityRepository
 
     public function findDistinctMovies(Cinema $cinema, bool $isPublished = true) {
         return $this->createQueryBuilder("s")
-                ->innerJoin("s.movieFormat", "mf")
+                ->innerJoin("s.movieScreeningFormat", "mf")
                 ->innerJoin("mf.movie", "m")
                 ->innerJoin("s.screeningRoom", "sr")
                 ->select("m.id, m.title, m.durationInMinutes")
@@ -168,7 +168,7 @@ class ShowtimeRepository extends ServiceEntityRepository
 
     public function findForMovie(int $id, Cinema $cinema, bool $isPublished = true) {
         return $this->createQueryBuilder("s")
-                    ->innerJoin("s.movieFormat", "mf")
+                    ->innerJoin("s.movieScreeningFormat", "mf")
                     ->innerJoin("mf.movie", "m")
                     ->addSelect("mf")
                     ->andWhere("s.isPublished = :isPublished")

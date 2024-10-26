@@ -3,7 +3,7 @@
 {% block body %}
 
 
-    <form action="">
+    <form>
         <select name="screeningRoomName" id="">
             <option value="">All rooms</option>
             {% for roomName in availableRoomNames %}
@@ -34,10 +34,9 @@
     <div class="container d-grid gap-2">
         {% for showtime in showtimes %}
             <div class="card">
-                <h2>{{ showtime.movieFormat.movie.title }}</h2>
+                <h2>{{ showtime.movieScreeningFormat.movie.title }}</h2>
                 <p>Format:
-                     {{ showtime.movieFormat.format.audioVersion }}
-                     {{ showtime.movieFormat.format.visualVersion }}
+                     {{ showtime.movieScreeningFormat.displayMovieScreeningFormat }}
                 </p>
                 <p>Screening room: {{ showtime.screeningRoom.name }}</p>
                 <p>Start time: {{ showtime.startsAt|date("F jS \\a\\t g:ia")  }}</p>

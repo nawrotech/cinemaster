@@ -55,7 +55,7 @@ class OverlappingShowtimeInSameScreeningRoomValidator extends ConstraintValidato
         $formattedOverlaps = array_map(function (Showtime $showtime) {
             return sprintf(
                 "\n- %s (%s - %s)",
-                $showtime->getMovieFormat()->getMovie()->getTitle(),
+                $showtime->getMovieScreeningFormat()->getMovie()->getTitle(),
                 $showtime->getStartsAt()->format('H:i'),
                 $showtime->getEndsAt()->format('H:i')
             );

@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Cinema;
-use App\Form\Type\CinemaType;
+use App\Form\CinemaType;
 use App\Repository\CinemaRepository;
 use App\Repository\MovieRepository;
 use App\Repository\MovieScreeningFormatRepository;
@@ -12,7 +12,6 @@ use App\Service\MovieScreeningFormatService;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
-use Pagerfanta\View\ViewFactoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -64,7 +63,6 @@ class CinemaController extends AbstractController
                 $this->addFlash("success", "Cinema updated!");
             }
             
-            
             return $this->redirectToRoute("app_cinema");
         }
 
@@ -84,7 +82,6 @@ class CinemaController extends AbstractController
     ): Response {
 
       
-        // dd($searchTerm);
         $adapter = new QueryAdapter($movieRepository->findBySearchTerm($searchTerm, true));
         $pagerfanta = new Pagerfanta($adapter);
 
@@ -125,24 +122,23 @@ class CinemaController extends AbstractController
         $screeningFormatIds = array_map("intval", $request->get("screeningFormats", []));
         $screeningFormats = $screeningFormatRepository->findBy(["id" => $screeningFormatIds]);
         
+        $redirectRoute = $this->redirectToRoute("app_cinema_add_movies", [
+            "slug" => $cinema->getSlug(),
+            "page" => $page,
+            "searchTerm" => $searchTerm
+        ]);
+
         if (count($screeningFormatIds) !== count($screeningFormats)) {
             $this->addFlash("error", "Invalid screening formats!");
 
-            return $this->redirectToRoute("app_cinema_add_movies", [
-                "slug" => $cinema->getSlug(),
-                "page" => $page,
-                "searchTerm" => $searchTerm
-            ]);
+            return $redirectRoute;
         }
 
         if (!$movie) {
             $this->addFlash("error", "Invalid movie!");
+            
+            return $redirectRoute;
 
-            return $this->redirectToRoute("app_cinema_add_movies", [
-                "slug" => $cinema->getSlug(),
-                "page" => $page,
-                "searchTerm" => $searchTerm
-            ]);
         }
 
         $movieScreeningFormatService->update($cinema, $movie, $screeningFormatIds);
@@ -150,11 +146,8 @@ class CinemaController extends AbstractController
         
         $this->addFlash("success", "Movie screening formats successfully updated for {$movie->getTitle()}!");
 
-        return $this->redirectToRoute("app_cinema_add_movies", [
-            "slug" => $cinema->getSlug(),
-            "page" => $page,
-            "searchTerm" => $searchTerm
-        ]);
+        return $redirectRoute;
+
 
 
     }
