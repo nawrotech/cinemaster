@@ -51,7 +51,6 @@ class CinemaController extends AbstractController
             $cinema->setOwner($this->getUser());
         }
 
-
         $form = $this->createForm(CinemaType::class, $cinema);
         $form->handleRequest($request);
 
@@ -94,7 +93,7 @@ class CinemaController extends AbstractController
             $screeningFormatIdsForMovie[$movie->getId()] = $movieScreeningFormatRepository->findScreeningFormatIdsByMovie($movie, $cinema);
         }
 
-        return $this->render('movie/movie_screening_formats.html.twig', [
+        return $this->render('cinema/movie_screening_formats.html.twig', [
             "cinema" => $cinema,
             "movies" => $movies,
             "screeningFormats" => $screeningFormats,
