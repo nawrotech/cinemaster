@@ -21,7 +21,7 @@ class MovieScreeningFormat
     #[ORM\JoinColumn(nullable: false)]
     private ?Movie $movie = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(inversedBy: "movieScreeningFormats")]
     #[ORM\JoinColumn(nullable: false)]
     private ?ScreeningFormat $screeningFormat = null;
 

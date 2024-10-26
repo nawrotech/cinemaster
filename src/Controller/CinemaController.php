@@ -3,21 +3,20 @@
 namespace App\Controller;
 
 use App\Entity\Cinema;
-use App\Entity\MovieScreeningFormat;
-use App\Form\MovieScreeningFormatCollectionType;
 use App\Form\Type\CinemaType;
 use App\Repository\CinemaRepository;
 use App\Repository\MovieRepository;
 use App\Repository\MovieScreeningFormatRepository;
 use App\Repository\ScreeningFormatRepository;
 use App\Service\MovieScreeningFormatService;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
-use Proxies\__CG__\App\Entity\MovieFormat;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
+use Pagerfanta\Pagerfanta;
+use Pagerfanta\View\ViewFactoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -79,25 +78,35 @@ class CinemaController extends AbstractController
         MovieRepository $movieRepository,
         ScreeningFormatRepository $screeningFormatRepository,
         MovieScreeningFormatRepository $movieScreeningFormatRepository,
-        Cinema $cinema
+        Cinema $cinema,
+        #[MapQueryParameter] ?int $page = null
     ): Response {
 
-        $movies = $movieRepository->findAll();
+
+        $moviesQb = $movieRepository->createQueryBuilder("m");
+        // $movies = $movieRepository->findAll();
+
+        $adapter = new QueryAdapter($moviesQb);
+        $pagerfanta = new Pagerfanta($adapter);
+
+        $pagerfanta->setMaxPerPage(10);
+        $pagerfanta->setCurrentPage($page ?? 1);
+
 
         $screeningFormats = $screeningFormatRepository->findBy([
             "cinema" => $cinema
         ]);
 
         $screeningFormatIdsForMovie = [];
-        foreach ($movies as $movie) {
+        foreach ($moviesQb->getQuery()->getResult() as $movie) {
             $screeningFormatIdsForMovie[$movie->getId()] = $movieScreeningFormatRepository->findScreeningFormatIdsByMovie($movie, $cinema);
         }
 
         return $this->render('cinema/movie_screening_formats.html.twig', [
             "cinema" => $cinema,
-            "movies" => $movies,
             "screeningFormats" => $screeningFormats,
-            "screeningFormatIdsForMovie" => $screeningFormatIdsForMovie
+            "screeningFormatIdsForMovie" => $screeningFormatIdsForMovie,
+            "pager" => $pagerfanta
         ]);
     }
 
@@ -107,8 +116,10 @@ class CinemaController extends AbstractController
         Request $request,
         ScreeningFormatRepository $screeningFormatRepository,
         MovieScreeningFormatService $movieScreeningFormatService,
-        Cinema $cinema
+        Cinema $cinema,
+        #[MapQueryParameter] int $page
     ): Response {
+
         $movie = $movieRepository->find($request->get("movieId"));
 
         $screeningFormatIds = array_map("intval", $request->get("screeningFormats", []));
@@ -118,7 +129,8 @@ class CinemaController extends AbstractController
             $this->addFlash("error", "Invalid screening formats!");
 
             return $this->redirectToRoute("app_cinema_add_movies", [
-                "slug" => $cinema->getSlug()
+                "slug" => $cinema->getSlug(),
+                "page" => $page
             ]);
         }
 
@@ -126,18 +138,19 @@ class CinemaController extends AbstractController
             $this->addFlash("error", "Invalid movie!");
 
             return $this->redirectToRoute("app_cinema_add_movies", [
-                "slug" => $cinema->getSlug()
+                "slug" => $cinema->getSlug(),
+                "page" => $page
             ]);
         }
 
         $movieScreeningFormatService->update($cinema, $movie, $screeningFormatIds);
         $movieScreeningFormatService->create($cinema, $movie, $screeningFormats);
         
-
         $this->addFlash("success", "Movie screening formats successfully updated for {$movie->getTitle()}!");
 
         return $this->redirectToRoute("app_cinema_add_movies", [
-            "slug" => $cinema->getSlug()
+            "slug" => $cinema->getSlug(),
+            "page" => $page
         ]);
 
 

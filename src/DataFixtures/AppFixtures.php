@@ -38,6 +38,8 @@ class AppFixtures extends Fixture
         });
 
 
+        MovieFactory::createMany(32);
+
 
         // CinemaFactory::createMany(2);
 
