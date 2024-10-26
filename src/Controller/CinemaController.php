@@ -79,14 +79,13 @@ class CinemaController extends AbstractController
         ScreeningFormatRepository $screeningFormatRepository,
         MovieScreeningFormatRepository $movieScreeningFormatRepository,
         Cinema $cinema,
+        #[MapQueryParameter] ?string $searchTerm = null,
         #[MapQueryParameter] ?int $page = null
     ): Response {
 
-
-        $moviesQb = $movieRepository->createQueryBuilder("m");
-        // $movies = $movieRepository->findAll();
-
-        $adapter = new QueryAdapter($moviesQb);
+      
+        // dd($searchTerm);
+        $adapter = new QueryAdapter($movieRepository->findBySearchTerm($searchTerm, true));
         $pagerfanta = new Pagerfanta($adapter);
 
         $pagerfanta->setMaxPerPage(10);
@@ -98,7 +97,7 @@ class CinemaController extends AbstractController
         ]);
 
         $screeningFormatIdsForMovie = [];
-        foreach ($moviesQb->getQuery()->getResult() as $movie) {
+        foreach ($movieRepository->findAll() as $movie) {
             $screeningFormatIdsForMovie[$movie->getId()] = $movieScreeningFormatRepository->findScreeningFormatIdsByMovie($movie, $cinema);
         }
 
@@ -117,7 +116,8 @@ class CinemaController extends AbstractController
         ScreeningFormatRepository $screeningFormatRepository,
         MovieScreeningFormatService $movieScreeningFormatService,
         Cinema $cinema,
-        #[MapQueryParameter] int $page
+        #[MapQueryParameter] int $page,
+        #[MapQueryParameter] ?string $searchTerm = null,
     ): Response {
 
         $movie = $movieRepository->find($request->get("movieId"));
@@ -130,7 +130,8 @@ class CinemaController extends AbstractController
 
             return $this->redirectToRoute("app_cinema_add_movies", [
                 "slug" => $cinema->getSlug(),
-                "page" => $page
+                "page" => $page,
+                "searchTerm" => $searchTerm
             ]);
         }
 
@@ -139,7 +140,8 @@ class CinemaController extends AbstractController
 
             return $this->redirectToRoute("app_cinema_add_movies", [
                 "slug" => $cinema->getSlug(),
-                "page" => $page
+                "page" => $page,
+                "searchTerm" => $searchTerm
             ]);
         }
 
@@ -150,7 +152,8 @@ class CinemaController extends AbstractController
 
         return $this->redirectToRoute("app_cinema_add_movies", [
             "slug" => $cinema->getSlug(),
-            "page" => $page
+            "page" => $page,
+            "searchTerm" => $searchTerm
         ]);
 
 

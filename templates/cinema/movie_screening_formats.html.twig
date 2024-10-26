@@ -8,12 +8,20 @@
 {% endblock %} #}
 
 {% block body %}
+        {{ include("partials/_search_input.html.twig", {
+            action_route: path("app_cinema_add_movies", {
+                slug: cinema.slug,
+            }),
+            query_value: app.request.query.get('searchTerm') ?? null
+        }) }}
+
         {% for movie in pager %}
             <div class="card">
                 <h1>{{ movie.title }}</h1>
                 <form id="form-{{ movie.id }}" method="post" action="{{path("app_cinema_update_movie_screening_format", {
                         slug: cinema.name,
-                        page: app.request.query.get('page') ?? 1
+                        page: app.request.query.get('page') ?? 1,
+                        searchTerm: app.request.query.get("searchTerm") ?? null
                     })}}">
 
                     <input name="movieId" value="{{ movie.id }}" type="hidden">
