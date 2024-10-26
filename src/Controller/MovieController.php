@@ -8,6 +8,7 @@ use App\Entity\MovieFormat;
 use App\Entity\MovieScreeningFormat;
 use App\Form\MovieFormType;
 use App\Form\ScreeningFormatCollectionType;
+use App\Repository\MovieRepository;
 use App\Repository\MovieScreeningFormatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,11 +21,12 @@ class MovieController extends AbstractController
 {
     // with filtring using get params
     #[Route('/', name: 'app_movie')]
-    public function index(MovieScreeningFormatRepository $movieScreeningFormatRepository): Response
+    public function index(
+        MovieRepository $movieRepository
+        ): Response
     {
-        
         return $this->render('movie/index.html.twig', [
-            "moviesWithScreeningFormats" =>  $movieScreeningFormatRepository->findMovieWithFormats()
+            "movies" =>  $movieRepository->findAll()
         ]);
     }
  
@@ -66,15 +68,6 @@ class MovieController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
 
             $em->persist($movie);
-
-            foreach($form->get("movieFormats")->getData() as $screeningFormat) {
-                $movieScreeningFormat = new MovieScreeningFormat();
-                $movieScreeningFormat->setMovie($movie);
-                $movieScreeningFormat->setScreeningFormat($screeningFormat);
-
-                $em->persist($movieScreeningFormat);
-            }
-
             $em->flush();
 
             $this->addFlash('success', 'Movie created successfully!');
