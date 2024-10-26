@@ -30,3 +30,7 @@
 .seat-form {
     width: min-content;
 }
+
+.msf-legend {
+    font-size: 1rem;
+}

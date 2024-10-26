@@ -4,7 +4,11 @@ namespace App\Entity;
 
 use App\Repository\MovieScreeningFormatRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 
+#[UniqueConstraint(
+    fields: ["movie", "cinema", "screeningFormat"],
+)]
 #[ORM\Entity(repositoryClass: MovieScreeningFormatRepository::class)]
 class MovieScreeningFormat
 {

@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello MovieController!{% endblock %}
+
+{% block body %}
+        {% for movie in movies %}
+            <div class="card">
+                <h1>{{ movie.title }}</h1>
+                <form id="form-{{ movie.id }}" method="post" action="{{path("app_cinema_update_movie_screening_format", {
+                    slug: cinema.name
+                    })}}">
+
+                    <input name="movieId" value="{{ movie.id }}" type="hidden">
+
+                    <fieldset>
+                        <legend class="msf-legend">Screening formats available in your cinema:</legend>
+                        {% for screeningFormat in screeningFormats %}
+                            <label>
+                                <input 
+                                    name="screeningFormats[]" 
+                                    type="checkbox" 
+                                    value="{{ screeningFormat.id }}"
+                                    {{ screeningFormat.id in screeningFormatIdsForMovie[movie.id] ? "checked" : null  }}
+                                >
+                                {{ screeningFormat.displayScreeningFormat }} 
+                            </label>
+                        {% endfor %}
+                    </fieldset>
+                   
+                    <button class="btn btn-outline-success" name="form-{{ movie.id }}">Save screening formats</button>
+                </form>
+            </div>
+    {% endfor %}
+  
+
+{% endblock %}

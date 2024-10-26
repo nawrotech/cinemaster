@@ -18,16 +18,6 @@ class MovieFormType extends AbstractType
             ->add('title')
             ->add('description')
             ->add('durationInMinutes')
-            ->add('movieFormats', EntityType::class, [
-                "mapped" => false,
-                "label" => "Choose movie's formats",
-                "class" => ScreeningFormat::class,
-                'choice_label' => function (ScreeningFormat $screeningFormat): string {
-                    return "{$screeningFormat->getLanguagePresentation()} {$screeningFormat->getVisualFormat()->getName()}";;
-                },
-                "multiple" => true,
-                "expanded" => true
-            ])
             ->add("save", SubmitType::class)
         ;
     }
