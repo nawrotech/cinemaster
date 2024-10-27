@@ -4,7 +4,6 @@ namespace App\Form;
 
 use App\Entity\MovieScreeningFormat;
 use App\Entity\Showtime;
-use App\Entity\VisualFormat;
 use App\Repository\ShowtimeRepository;
 use App\Validator\OverlappingShowtimeInSameScreeningRoom;
 use App\Validator\SameMoviePlayingInTwoRoomsAtTheSameTime;

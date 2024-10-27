@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Make reservation for {{ showtime.movieFormat.displayMovieWithFormat }}{% endblock %}
+{% block title %}Make reservation for {{ showtime.movieScreeningFormat.displayMovieScreeningFormat }}{% endblock %}
 
 {% block body %}
     {{ form_start(form) }}
@@ -9,7 +9,7 @@
         {{ form_row(form.submit) }}
         {{ form_rest(form) }}
     {{ form_end(form) }}
-        <h1>{{ showtime.movieFormat.displayMovieWithFormat }}</h1>
+        <h1>{{ showtime.movieScreeningFormat.displayMovieScreeningFormat }}</h1>
         <p>Date: {{ showtime.startsAt|date("D, M Y") }} </p>
         <p>{{ showtime.startsAt|date("h:i") }} - {{ showtime.endsAt|date("h:i") }}</p>
         {% for roomRow in roomRows %}

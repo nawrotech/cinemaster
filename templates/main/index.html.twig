@@ -14,7 +14,7 @@
             }) }}">
                 <p>{{ showtime.screeningRoom.name }}</p>
                 <p>{{ showtime.startsAt|date("D M Y, h:iA")  }} - {{ showtime.endsAt|date("D M Y, h:iA") }}</p>
-                <p>{{ showtime.movieFormat.displayMovieWithFormat }}</p>
+                <p>{{ showtime.movieScreeningFormat.displayMovieScreeningFormat }}</p>
             </a>
         {% endfor %}
     {% endfor %}
