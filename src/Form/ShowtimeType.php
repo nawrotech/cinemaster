@@ -4,10 +4,13 @@ namespace App\Form;
 
 use App\Entity\MovieScreeningFormat;
 use App\Entity\Showtime;
+use App\Entity\VisualFormat;
 use App\Repository\ShowtimeRepository;
 use App\Validator\OverlappingShowtimeInSameScreeningRoom;
 use App\Validator\SameMoviePlayingInTwoRoomsAtTheSameTime;
 use DateInterval;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Event\PostSubmitEvent;
@@ -32,9 +35,19 @@ class ShowtimeType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $showtime = $options["data"];
+        $screeningRoom = $showtime->getScreeningRoom();
+        $screeningRoomVisualFormat = $screeningRoom->getScreeningRoomSetup()->getVisualFormat();
+
         $builder
             ->add("movieScreeningFormat", EntityType::class, [
                 'class' => MovieScreeningFormat::class,
+                "query_builder" => function (EntityRepository $er) use($screeningRoomVisualFormat): QueryBuilder {
+                    return $er->createQueryBuilder('msf')
+                        ->innerJoin("msf.screeningFormat", "sf")
+                        ->andWhere("sf.visualFormat = :screeningRoomVisualFormat")
+                        ->setParameter("screeningRoomVisualFormat", $screeningRoomVisualFormat);
+                },
                 "label" => "Select Movie",
                 "choice_label" => function (MovieScreeningFormat $movieScreeningFormat): string {
                     return "
