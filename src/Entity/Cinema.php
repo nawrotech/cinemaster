@@ -103,6 +103,12 @@ class Cinema
     #[ORM\OneToMany(targetEntity: MovieScreeningFormat::class, mappedBy: 'cinema')]
     private Collection $movieScreeningFormats;
 
+    /**
+     * @var Collection<int, Movie>
+     */
+    #[ORM\OneToMany(targetEntity: Movie::class, mappedBy: 'cinema')]
+    private Collection $movies;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -113,6 +119,7 @@ class Cinema
         $this->screeningRoomSetups = new ArrayCollection();
         $this->screeningFormats = new ArrayCollection();
         $this->movieScreeningFormats = new ArrayCollection();
+        $this->movies = new ArrayCollection();
     }
 
     #[PrePersist]
@@ -474,6 +481,36 @@ class Cinema
             // set the owning side to null (unless already changed)
             if ($movieScreeningFormat->getCinema() === $this) {
                 $movieScreeningFormat->setCinema(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Movie>
+     */
+    public function getMovies(): Collection
+    {
+        return $this->movies;
+    }
+
+    public function addMovie(Movie $movie): static
+    {
+        if (!$this->movies->contains($movie)) {
+            $this->movies->add($movie);
+            $movie->setCinema($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMovie(Movie $movie): static
+    {
+        if ($this->movies->removeElement($movie)) {
+            // set the owning side to null (unless already changed)
+            if ($movie->getCinema() === $this) {
+                $movie->setCinema(null);
             }
         }
 

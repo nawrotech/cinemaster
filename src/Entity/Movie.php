@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Contracts\MovieInterface;
 use App\Repository\MovieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -14,20 +15,20 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
     message: "Movie of that title already exists",
 )]
 #[ORM\Entity(repositoryClass: MovieRepository::class)]
-class Movie
+class Movie implements MovieInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(nullable: true)]
+    private ?int $tmdbId = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
     private ?string $title = null;
 
-    #[ORM\Column(type: Types::TEXT)]
-    private ?string $description = null;
-
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?int $durationInMinutes = null;
 
     /**
@@ -35,6 +36,18 @@ class Movie
      */
     #[ORM\OneToMany(targetEntity: MovieScreeningFormat::class, mappedBy: 'movie')]
     private Collection $movieScreeningFormats;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $overview = null;
+
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $releaseDate = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $posterPath = null;
+
+    #[ORM\ManyToOne(inversedBy: 'movies')]
+    private ?Cinema $cinema = null;
 
     public function __construct()
     {
@@ -59,17 +72,6 @@ class Movie
         return $this;
     }
 
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(string $description): static
-    {
-        $this->description = $description;
-
-        return $this;
-    }
 
     public function getDurationInMinutes(): ?int
     {
@@ -109,6 +111,66 @@ class Movie
                 $movieScreeningFormat->setMovie(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getTmdbId(): ?int
+    {
+        return $this->tmdbId;
+    }
+
+    public function setTmdbId(?int $tmdbId): static
+    {
+        $this->tmdbId = $tmdbId;
+
+        return $this;
+    }
+
+    public function getOverview(): ?string
+    {
+        return $this->overview;
+    }
+
+    public function setOverview(string $overview): static
+    {
+        $this->overview = $overview;
+
+        return $this;
+    }
+
+    public function getReleaseDate(): ?\DateTimeImmutable
+    {
+        return $this->releaseDate;
+    }
+
+    public function setReleaseDate(\DateTimeImmutable $releaseDate): static
+    {
+        $this->releaseDate = $releaseDate;
+
+        return $this;
+    }
+
+    public function getPosterPath(): ?string
+    {
+        return $this->posterPath;
+    }
+
+    public function setPosterPath(?string $posterPath): static
+    {
+        $this->posterPath = $posterPath;
+
+        return $this;
+    }
+
+    public function getCinema(): ?Cinema
+    {
+        return $this->cinema;
+    }
+
+    public function setCinema(?Cinema $cinema): static
+    {
+        $this->cinema = $cinema;
 
         return $this;
     }
