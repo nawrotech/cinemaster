@@ -17,7 +17,7 @@ class TmdbAdapterFactory {
     public function create(string $endpoint, array $parameters = []) {
 
         $url = "https://api.themoviedb.org/3/$endpoint";
-        $parameters = array($parameters, [
+        $parameters = array_merge($parameters, [
             "api_key" => $this->tmdbApiKey,
         ]);
 
