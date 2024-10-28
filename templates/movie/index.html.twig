@@ -4,12 +4,18 @@
 
 {% block body %}
 
+    {{ include("partials/_search_input.html.twig", {
+        action_route: "",
+        query_value: app.request.get("q"),
+        name: "q"
+    }) }}
     <div class="grid-container">
-        {% for movie in movies %}
+        {% for movie in pager %}
             <form action="{{path("app_cinema_select_movie", {slug: cinemaSlug, tmdbId: movie.id})}}" method="post" class="card" style="width: 18rem;">
                     <input type="hidden" name="token" value="{{ csrf_token('select-movie') }}">
                 
-                    <img src="{{ "https://image.tmdb.org/t/p/w300" ~ movie.poster_path }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
+                    <img
+                        src="{{ "https://image.tmdb.org/t/p/w300" ~ movie.poster_path }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
                     <div class="card-body">
                       <h5 class="card-title">{{ movie.title }}</h5>
                       <p class="card-text text-truncate">{{ movie.overview }}</p>
@@ -23,8 +29,10 @@
                     
             </form>
         {% endfor %}
-    </div>
 
+        
+    </div>
+    {{ pagerfanta(pager, "twitter_bootstrap5") }}
 
 
 {% endblock %}
