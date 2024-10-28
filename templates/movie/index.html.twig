@@ -4,13 +4,27 @@
 
 {% block body %}
 
+    <div class="grid-container">
+        {% for movie in movies %}
+            <form action="{{path("app_cinema_select_movie", {slug: cinemaSlug, tmdbId: movie.id})}}" method="post" class="card" style="width: 18rem;">
+                    <input type="hidden" name="token" value="{{ csrf_token('select-movie') }}">
+                
+                    <img src="{{ "https://image.tmdb.org/t/p/w300" ~ movie.poster_path }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
+                    <div class="card-body">
+                      <h5 class="card-title">{{ movie.title }}</h5>
+                      <p class="card-text text-truncate">{{ movie.overview }}</p>
+                    </div>
 
-    {% for movie in movies %}
-        <div class="card">
-            <p>{{ movie.title }}</p>
-            <a href="{{ path("app_movie") }}">Add movie</a>
-        </div>
-    {% endfor %}
+                    {% if movie.id in storedTmdbIds %}
+                        <button name="remove-movie" value="1" class="btn btn-danger">Remove movie</button>
+                        {% else %}
+                        <button name="add-movie" value="1" class="btn btn-success">Add movie</button>
+                    {% endif %}
+                    
+            </form>
+        {% endfor %}
+    </div>
+
 
 
 {% endblock %}

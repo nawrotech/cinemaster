@@ -3,12 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\Cinema;
+use App\Entity\Movie;
 use App\Form\CinemaType;
 use App\Repository\CinemaRepository;
 use App\Repository\MovieRepository;
 use App\Repository\MovieScreeningFormatRepository;
 use App\Repository\ScreeningFormatRepository;
 use App\Service\MovieScreeningFormatService;
+use App\Service\TmdbApiService;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
@@ -70,6 +72,54 @@ class CinemaController extends AbstractController
             "form" => $form
         ]);
     }
+
+    #[Route('/{slug}/select-movie/{tmdbId}', name: 'app_cinema_select_movie', methods: ["POST"])]
+    public function selectMovie(
+        TmdbApiService $tmdbApiService,
+        Request $request,
+        EntityManagerInterface $em,
+        MovieRepository $movieRepository,
+        Cinema $cinema,
+        int $tmdbId
+        ): Response
+    {
+        $submittedToken = $request->get("token");
+        if (!$this->isCsrfTokenValid("select-movie", $submittedToken)) {
+            $this->addFlash("error", "Invalid CSRF token");
+            return $this->redirectToRoute("app_movie");
+        }
+
+        if ($request->get("add-movie")) {
+            $movieTmdbDto = $tmdbApiService->cacheMovie($tmdbId);
+
+            $movie = new Movie();
+            $movie->setTmdbId($tmdbId);
+            $movie->setTitle($movieTmdbDto->getTitle());
+            $movie->setDurationInMinutes($movieTmdbDto->getDurationInMinutes());
+            $movie->setCinema($cinema);
+    
+            $em->persist($movie);
+            $em->flush();
+    
+            $this->addFlash("success", "Movie has been added");
+        }
+
+        if ($request->get("remove-movie")) {
+            $tmdbApiService->deleteMovie($tmdbId);
+
+            $movie = $movieRepository->findOneBy(["tmdbId" => $tmdbId]);
+            $em->remove($movie);
+            $em->flush();
+
+            $this->addFlash("warning", "Movie has been removed");
+        }
+
+        return $this->redirectToRoute("app_movie", [
+            "slug" => $cinema->getSlug()
+        ]);
+   
+    }
+
 
     #[Route('/{slug?}/add-movies/', name: 'app_cinema_add_movies')]
     public function addMovies(

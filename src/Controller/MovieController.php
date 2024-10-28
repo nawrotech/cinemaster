@@ -10,6 +10,7 @@ use App\Form\MovieFormType;
 use App\Form\ScreeningFormatCollectionType;
 use App\Repository\MovieRepository;
 use App\Repository\MovieScreeningFormatRepository;
+use App\Service\TmdbApiService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,13 +21,22 @@ use Symfony\Component\Routing\Attribute\Route;
 class MovieController extends AbstractController
 {
     // with filtring using get params
-    #[Route('/', name: 'app_movie')]
+    #[Route('/cinemas/{slug}', name: 'app_movie')]
     public function index(
-        MovieRepository $movieRepository
+        MovieRepository $movieRepository,
+        TmdbApiService $tmdbApiService,
+        Cinema $cinema
         ): Response
     {
+
+        $movies = $tmdbApiService->fetchMovies()["results"];
+
+        $storedTmdbIds = $movieRepository->findTmdbIds($cinema);
+        
         return $this->render('movie/index.html.twig', [
-            "movies" =>  $movieRepository->findAll()
+            "movies" =>  $movies,
+            "cinemaSlug" => $cinema->getSlug(),
+            "storedTmdbIds" => $storedTmdbIds
         ]);
     }
  

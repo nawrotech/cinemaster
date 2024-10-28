@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Cinema;
 use App\Entity\Movie;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -37,5 +38,16 @@ class MovieRepository extends ServiceEntityRepository
                             ->getResult();
     }
 
+    /**
+    * @return int[] returns array of tmdbIds for cinema
+    */
+    public function findTmdbIds(Cinema $cinema): array {
+        return $this->createQueryBuilder('m')
+                    ->select("m.tmdbId")
+                    ->where("m.cinema = :cinema")
+                    ->setParameter("cinema", $cinema)
+                    ->getQuery()
+                    ->getSingleColumnResult();
+    }
 
 }

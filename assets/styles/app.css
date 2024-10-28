@@ -34,3 +34,9 @@
 .msf-legend {
     font-size: 1rem;
 }
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, min-content);
+    gap: 2rem;
+}
