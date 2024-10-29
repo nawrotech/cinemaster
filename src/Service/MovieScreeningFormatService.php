@@ -6,12 +6,14 @@ use App\Entity\Cinema;
 use App\Entity\Movie;
 use App\Entity\MovieScreeningFormat;
 use App\Repository\MovieScreeningFormatRepository;
+use App\Repository\ScreeningFormatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class MovieScreeningFormatService {
 
     public function __construct(
         private MovieScreeningFormatRepository $movieScreeningFormatRepository,
+        private ScreeningFormatRepository $screeningFormatRepository,
         private EntityManagerInterface $em
         )
     {
@@ -24,8 +26,6 @@ class MovieScreeningFormatService {
 
         $existingScreeningFormatIdsForMovieAtCinema = $this->movieScreeningFormatRepository
                                                   ->findScreeningFormatIdsForMovieAtCinema($movie, $cinema);
-
-        // dd($screeningFormatIds);
 
         $removedScreeningFormatIds = array_diff($existingScreeningFormatIdsForMovieAtCinema, $screeningFormatIds);
 
@@ -42,7 +42,10 @@ class MovieScreeningFormatService {
     /**
      * @var $screeningFormats ScreeningFormat[]
      */
-    public function create(Cinema $cinema, Movie $movie, array $screeningFormats) {
+    public function create(Cinema $cinema, Movie $movie, array $screeningFormatIds) {
+
+        $screeningFormats = $this->screeningFormatRepository->findBy(["id" => $screeningFormatIds]);
+
         foreach ($screeningFormats as $screeningFormat) {
             if ($this->movieScreeningFormatRepository->findBy([
                 "cinema" => $cinema,

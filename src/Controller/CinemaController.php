@@ -3,14 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Cinema;
-use App\Entity\Movie;
 use App\Form\CinemaType;
 use App\Repository\CinemaRepository;
 use App\Repository\MovieRepository;
 use App\Repository\MovieScreeningFormatRepository;
 use App\Repository\ScreeningFormatRepository;
-use App\Service\MovieScreeningFormatService;
-use App\Service\TmdbApiService;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
@@ -33,7 +30,7 @@ class CinemaController extends AbstractController
         $cinemas = $cinemaRepository->findOrderedCinemas($this->getUser());
 
         return $this->render('cinema/index.html.twig', [
-            "cinemas" => $cinemas
+            "cinemas" => $cinemas,
         ]);
     }
 

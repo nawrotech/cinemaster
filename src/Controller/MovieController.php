@@ -16,12 +16,10 @@ use App\Service\TmdbApiService;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Pagerfanta;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[Route("/movies")]
 class MovieController extends AbstractController
@@ -43,6 +41,7 @@ class MovieController extends AbstractController
         $params = $q ? ["query" => $q] : [];
 
         $adapter = $tmdbAdapterFactory->create($endpoint, $params);
+
         $pagerfanta = new Pagerfanta($adapter);
 
         $currentPage = max(1, $page);
@@ -76,7 +75,6 @@ class MovieController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         MovieRepository $movieRepository,
-        ScreeningFormatRepository $screeningFormatRepository,
         MovieScreeningFormatService $movieScreeningFormatService,
         Cinema $cinema,
         int $tmdbId,
@@ -94,14 +92,7 @@ class MovieController extends AbstractController
             $movieTmdbDto = $tmdbApiService->cacheMovie($tmdbId);
             
             $screeningFormatIds = array_map("intval", $request->get("screeningFormats", []));
-            $screeningFormats = $screeningFormatRepository->findBy(["id" => $screeningFormatIds]);
             
-            if (count($screeningFormatIds) !== count($screeningFormats)) {
-                $this->addFlash("error", "Invalid screening formats!");
-    
-                return dd("Welcome");
-            }
-    
             $movie = $movieRepository->findOneBy(["tmdbId" => $tmdbId]);
 
             if (!$movie) {
@@ -112,12 +103,15 @@ class MovieController extends AbstractController
                 $movie->setCinema($cinema);
                 $em->persist($movie);
                 $em->flush();
+                $this->addFlash("success", "Movie has been added");
+
+            } else {
+                $this->addFlash("success", "Movie has been updated");
             }
             
             $movieScreeningFormatService->update($cinema, $movie, $screeningFormatIds);    
-            $movieScreeningFormatService->create($cinema, $movie, $screeningFormats); 
+            $movieScreeningFormatService->create($cinema, $movie, $screeningFormatIds); 
 
-            $this->addFlash("success", "Movie has been added");
         }
 
         if ($request->get("remove-movie")) {
@@ -130,6 +124,7 @@ class MovieController extends AbstractController
             $this->addFlash("warning", "Movie has been removed");
         }
         
+ 
         return $this->redirectToRoute("app_movie", [
             "slug" => $cinema->getSlug(),
             "page" => $page,
