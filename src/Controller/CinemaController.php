@@ -73,53 +73,6 @@ class CinemaController extends AbstractController
         ]);
     }
 
-    #[Route('/{slug}/select-movie/{tmdbId}', name: 'app_cinema_select_movie', methods: ["POST"])]
-    public function selectMovie(
-        TmdbApiService $tmdbApiService,
-        Request $request,
-        EntityManagerInterface $em,
-        MovieRepository $movieRepository,
-        Cinema $cinema,
-        int $tmdbId
-        ): Response
-    {
-        $submittedToken = $request->get("token");
-        if (!$this->isCsrfTokenValid("select-movie", $submittedToken)) {
-            $this->addFlash("error", "Invalid CSRF token");
-            return $this->redirectToRoute("app_movie");
-        }
-
-        if ($request->get("add-movie")) {
-            $movieTmdbDto = $tmdbApiService->cacheMovie($tmdbId);
-
-            $movie = new Movie();
-            $movie->setTmdbId($tmdbId);
-            $movie->setTitle($movieTmdbDto->getTitle());
-            $movie->setDurationInMinutes($movieTmdbDto->getDurationInMinutes());
-            $movie->setCinema($cinema);
-    
-            $em->persist($movie);
-            $em->flush();
-    
-            $this->addFlash("success", "Movie has been added");
-        }
-
-        if ($request->get("remove-movie")) {
-            $tmdbApiService->deleteMovie($tmdbId);
-
-            $movie = $movieRepository->findOneBy(["tmdbId" => $tmdbId]);
-            $em->remove($movie);
-            $em->flush();
-
-            $this->addFlash("warning", "Movie has been removed");
-        }
-
-        return $this->redirectToRoute("app_movie", [
-            "slug" => $cinema->getSlug()
-        ]);
-   
-    }
-
 
     #[Route('/{slug?}/add-movies/', name: 'app_cinema_add_movies')]
     public function addMovies(
@@ -156,51 +109,7 @@ class CinemaController extends AbstractController
         ]);
     }
 
-    #[Route('/{slug?}/update-movie-screening/', name: 'app_cinema_update_movie_screening_format', methods: ["POST"])]
-    public function updateMovieScreeningFormat(
-        MovieRepository $movieRepository,
-        Request $request,
-        ScreeningFormatRepository $screeningFormatRepository,
-        MovieScreeningFormatService $movieScreeningFormatService,
-        Cinema $cinema,
-        #[MapQueryParameter] int $page,
-        #[MapQueryParameter] ?string $searchTerm = null,
-    ): Response {
-
-        $movie = $movieRepository->find($request->get("movieId"));
-
-        $screeningFormatIds = array_map("intval", $request->get("screeningFormats", []));
-        $screeningFormats = $screeningFormatRepository->findBy(["id" => $screeningFormatIds]);
-        
-        $redirectRoute = $this->redirectToRoute("app_cinema_add_movies", [
-            "slug" => $cinema->getSlug(),
-            "page" => $page,
-            "searchTerm" => $searchTerm
-        ]);
-
-        if (count($screeningFormatIds) !== count($screeningFormats)) {
-            $this->addFlash("error", "Invalid screening formats!");
-
-            return $redirectRoute;
-        }
-
-        if (!$movie) {
-            $this->addFlash("error", "Invalid movie!");
-            
-            return $redirectRoute;
-
-        }
-
-        $movieScreeningFormatService->update($cinema, $movie, $screeningFormatIds);
-        $movieScreeningFormatService->create($cinema, $movie, $screeningFormats);
-        
-        $this->addFlash("success", "Movie screening formats successfully updated for {$movie->getTitle()}!");
-
-        return $redirectRoute;
-
-
-
-    }
+  
 
 
 

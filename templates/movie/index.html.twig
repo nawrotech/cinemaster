@@ -9,23 +9,55 @@
         query_value: app.request.get("q"),
         name: "q"
     }) }}
+    
     <div class="grid-container">
         {% for movie in pager %}
-            <form action="{{path("app_cinema_select_movie", {slug: cinemaSlug, tmdbId: movie.id})}}" method="post" class="card" style="width: 18rem;">
+            <form action="{{path("app_movie_select", {
+                slug: cinemaSlug, 
+                tmdbId: movie.id,
+                q: app.request.get("q"),
+                page: app.request.get("page")  
+            
+            })}}#form{{ loop.index }}" 
+            method="post" 
+            class="card"
+            id="{{ "form" ~ loop.index }}"
+            style="width: 18rem;">
                     <input type="hidden" name="token" value="{{ csrf_token('select-movie') }}">
-                
-                    <img
-                        src="{{ "https://image.tmdb.org/t/p/w300" ~ movie.poster_path }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
-                    <div class="card-body">
-                      <h5 class="card-title">{{ movie.title }}</h5>
-                      <p class="card-text text-truncate">{{ movie.overview }}</p>
-                    </div>
+                    <input type="hidden" name="formId" value="{{ "form" ~ loop.index }}">
 
-                    {% if movie.id in storedTmdbIds %}
-                        <button name="remove-movie" value="1" class="btn btn-danger">Remove movie</button>
-                        {% else %}
-                        <button name="add-movie" value="1" class="btn btn-success">Add movie</button>
-                    {% endif %}
+
+                    <img src="{{ "https://image.tmdb.org/t/p/w300" ~ movie.poster_path }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ movie.title }}</h5>
+                        <p class="card-text text-truncate">{{ movie.overview }}</p>
+                        <fieldset>
+                            <legend class="msf-legend">Screening formats available in your cinema:</legend>
+                            {% for screeningFormat in screeningFormats %}
+                                <label>
+                                    <input 
+                                        name="screeningFormats[]" 
+                                        type="checkbox" 
+                                        value="{{ screeningFormat.id }}"
+                                        {{ screeningFormat.id in (screeningFormatIdsForMovie[movie.id] | default([])) ? "checked" : null  }}
+                                        
+                                    >
+                                    {{ screeningFormat.displayScreeningFormat }} 
+                                </label>
+                            {% endfor %}
+                        </fieldset>
+                    </div>
+                 
+
+
+
+                {% if movie.id in storedTmdbIds %}
+                    <button name="update-movie" value="1" class="btn btn-info">Update movie</button>
+                    <button name="remove-movie" value="1" class="btn btn-danger">Remove movie</button>
+                    {% else %}
+                    <button name="add-movie" value="1" class="btn btn-success">Add movie with formats</button>
+                {% endif %}
+
                     
             </form>
         {% endfor %}

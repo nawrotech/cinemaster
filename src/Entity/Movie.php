@@ -34,7 +34,7 @@ class Movie implements MovieInterface
     /**
      * @var Collection<int, MovieScreeningFormat>
      */
-    #[ORM\OneToMany(targetEntity: MovieScreeningFormat::class, mappedBy: 'movie')]
+    #[ORM\OneToMany(targetEntity: MovieScreeningFormat::class, mappedBy: 'movie', orphanRemoval: true)]
     private Collection $movieScreeningFormats;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

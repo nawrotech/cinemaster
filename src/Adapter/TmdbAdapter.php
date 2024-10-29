@@ -7,6 +7,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class TmdbAdapter implements AdapterInterface {
 
+    const int MAX_PER_PAGE = 20;
+
     public function __construct(
         private HttpClientInterface $client, 
         private string $url,

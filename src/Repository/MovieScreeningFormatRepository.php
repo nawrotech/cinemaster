@@ -35,10 +35,10 @@ class MovieScreeningFormatRepository extends ServiceEntityRepository
    }
 
     /**
-    * @return int[] Returns an array of ScreeningFormat ids
+    * @return int[] Returns an array of ScreeningFormat ids for movie at cinema
     */
-   public function findScreeningFormatIdsByMovie(Movie $movie, Cinema $cinema) {
-        $result = $this->createQueryBuilder('msf')
+   public function findScreeningFormatIdsForMovieAtCinema(Movie $movie, Cinema $cinema) {
+          return $this->createQueryBuilder('msf')
                     ->innerJoin("msf.screeningFormat", "sf")
                     ->select("sf.id")
                     ->andWhere("msf.cinema = :cinema")
@@ -46,9 +46,8 @@ class MovieScreeningFormatRepository extends ServiceEntityRepository
                     ->setParameter("movie", $movie)
                     ->setParameter("cinema", $cinema)
                     ->getQuery()
-                    ->getResult()
+                    ->getSingleColumnResult()
         ;
-        return array_column($result, "id");
    }
 
     /**

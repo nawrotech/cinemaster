@@ -22,10 +22,12 @@ class MovieScreeningFormatService {
      */
     public function update(Cinema $cinema, Movie $movie, array $screeningFormatIds) {
 
-        $existingScreeningFormatIdsByMovie = $this->movieScreeningFormatRepository
-                                                  ->findScreeningFormatIdsByMovie($movie, $cinema);
+        $existingScreeningFormatIdsForMovieAtCinema = $this->movieScreeningFormatRepository
+                                                  ->findScreeningFormatIdsForMovieAtCinema($movie, $cinema);
 
-        $removedScreeningFormatIds = array_diff($existingScreeningFormatIdsByMovie, $screeningFormatIds);
+        // dd($screeningFormatIds);
+
+        $removedScreeningFormatIds = array_diff($existingScreeningFormatIdsForMovieAtCinema, $screeningFormatIds);
 
         $removedScreeningFormats = $this->movieScreeningFormatRepository
                                         ->findByScreeningFormatIds($removedScreeningFormatIds, $movie);
