@@ -82,7 +82,7 @@ class CinemaController extends AbstractController
     ): Response {
 
       
-        $adapter = new QueryAdapter($movieRepository->findBySearchTerm($searchTerm, true));
+        $adapter = new QueryAdapter($movieRepository->findBySearchTerm($cinema, $searchTerm, true));
         $pagerfanta = new Pagerfanta($adapter);
 
         $pagerfanta->setMaxPerPage(10);

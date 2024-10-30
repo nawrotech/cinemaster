@@ -5,16 +5,18 @@
 {% block body %}
 
 
-    <a class="btn btn-primary" href="{{ path("app_movie_create") }}">
-        Create movies
-    </a>
-
     {% if cinemas is empty %}
         <a href="{{ path("app_cinema_create") }}">Look like you haven't created cinema yet, let's change that!</a>
     {% endif %}
     
 
     {% for cinema in cinemas %}
+        <a class="btn btn-primary" href="{{ path("app_movie_create", {slug: cinema.slug}) }}">
+            Create movie
+        </a>
+        <a class="btn btn-info" href="{{ path("app_movie_select_movies", {slug: cinema.slug}) }}">
+            Add movies
+        </a>
         <div class="card">
             <h2>{{ cinema.name }}</h2>
             <p>Screening rooms: {{ cinema.screeningRooms|length }}</p>
@@ -35,8 +37,9 @@
                
                 <a class="btn btn-warning" href="{{path("app_movie_create_screening_formats", {slug: cinema.slug})}}">Create screening formats</a>
                 
-                <a class="btn btn-outline-warning" href="{{path("app_movie", {slug: cinema.slug})}}">Add movies to the cinema</a>
-
+                {# <a class="btn btn-outline-warning" href="{{path("app_movie", {slug: cinema.slug})}}">Add movies to the cinema</a> #}
+                
+                <a class="btn btn-secondary" href="{{ path("app_movie_available_movies", {slug: cinema.slug}) }}">Available movies</a>
 
             {% endif %}
             

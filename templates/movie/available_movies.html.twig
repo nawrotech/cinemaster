@@ -25,7 +25,6 @@
                   <input type="hidden" name="token" value="{{ csrf_token('add-movie-formats-token') }}">
                   <input type="hidden" name="formId" value="{{ "form" ~ loop.index }}">
 
-
                   <img src="{{ movie.posterPath }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
                   <div class="card-body">
                       <h5 class="card-title">{{ movie.title }}</h5>
@@ -46,9 +45,14 @@
                       </fieldset>
                   </div>
 
-                  <button name="apply-formats" value="1" class="btn btn-info">Apply screening formats</button>
-
-
+                  <div class="row">
+                    <button  name="apply-formats" value="1" class="btn btn-info">Apply screening formats</button>
+                    <a href="{{ path("app_movie_create", {
+                        id: movie.id,
+                        slug:  app.current_route_parameters.slug, 
+                    }) }}" class="btn btn-secondary">Edit</a>
+                  </div>
+      
 
                   
           </form>
