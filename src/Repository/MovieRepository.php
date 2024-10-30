@@ -41,7 +41,7 @@ class MovieRepository extends ServiceEntityRepository
     /**
     * @return int[] returns array of tmdbIds for cinema
     */
-    public function findTmdbIds(Cinema $cinema): array {
+    public function findTmdbIdsForCinema(Cinema $cinema): array {
         return $this->createQueryBuilder('m')
                     ->select("m.tmdbId")
                     ->where("m.cinema = :cinema")

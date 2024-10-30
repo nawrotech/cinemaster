@@ -30,10 +30,10 @@ class TmdbApiService {
         return $response->toArray();
     }
 
-    public function cacheMovie(int $tmdbId) {
+    public function cacheMovie(int $tmdbId): TmdbMovieDto {
         $cacheKey = "tmdb_movie" . $tmdbId;
 
-        return $this->cache->get($cacheKey, function (ItemInterface $item) use($tmdbId): TmdbMovieDto {
+        return $this->cache->get($cacheKey, function (ItemInterface $item) use($tmdbId) {
             $item->expiresAfter(86400);
         
             $response = $this->client->request('GET', "https://api.themoviedb.org/3/movie/$tmdbId", [
@@ -45,6 +45,7 @@ class TmdbApiService {
             return TmdbMovieDto::fromResponse($movieData);
         });
     }
+
 
     public function deleteMovie(int $tmdbId): void {
         $cacheKey = "tmdb_movie" . $tmdbId;

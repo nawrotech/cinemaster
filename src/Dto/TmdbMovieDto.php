@@ -5,15 +5,29 @@ namespace App\Dto;
 use App\Contracts\MovieInterface;
 
 class TmdbMovieDto implements MovieInterface {
-    public function __construct(
-        public readonly int $id,
-        public readonly string $title,
-        public readonly string $overview,
-        public readonly string $posterPath,
-        public readonly string $releaseDate,
-        public readonly int $durationInMinutes
-    ) {}
+    private int $id;
+    private string $title;
+    private string $overview;
+    private string $posterPath;
+    private \DateTimeImmutable $releaseDate;
+    private int $durationInMinutes;
 
+    public function __construct(
+        int $id,
+        string $title,
+        string $overview,
+        string $posterPath,
+        string $releaseDate,
+        int $durationInMinutes
+    ) {
+        $this->id = $id;
+        $this->title = $title;
+        $this->overview = $overview;
+        $this->posterPath = $this->buildPosterUrl($posterPath);
+        $this->releaseDate = new \DateTimeImmutable($releaseDate);
+        $this->durationInMinutes = $durationInMinutes;
+    }
+    
     public static function fromResponse(array $data): self
     {
         return new self(
@@ -26,27 +40,38 @@ class TmdbMovieDto implements MovieInterface {
         );
     }
 
-    public function getId(): ?int {
-        return $this->id;
-    }   
-
-    public function getPosterPath(): ?string {
-        return "https://image.tmdb.org/t/p/w300{$this->posterPath}";
+    private function buildPosterUrl(string $posterPath): string
+    {
+        return "https://image.tmdb.org/t/p/w300$posterPath";
     }
 
-    public function getTitle(): ?string {
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getTitle(): string
+    {
         return $this->title;
     }
 
-    public function getOverview(): ?string {
+    public function getOverview(): string
+    {
         return $this->overview;
     }
 
-    public function getReleaseDate(): ?\DateTimeImmutable {
-        return new \DateTimeImmutable($this->releaseDate);
+    public function getPosterPath(): string
+    {
+        return $this->posterPath;
     }
 
-    public function getDurationInMinutes(): ?int {
+    public function getReleaseDate(): \DateTimeImmutable
+    {
+        return $this->releaseDate;
+    }
+
+    public function getDurationInMinutes(): int
+    {
         return $this->durationInMinutes;
     }
 

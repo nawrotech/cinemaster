@@ -11,7 +11,6 @@ use App\Form\ScreeningFormatCollectionType;
 use App\Repository\MovieRepository;
 use App\Repository\MovieScreeningFormatRepository;
 use App\Repository\ScreeningFormatRepository;
-use App\Service\MovieScreeningFormatService;
 use App\Service\TmdbApiService;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Pagerfanta;
@@ -24,7 +23,7 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route("/movies")]
 class MovieController extends AbstractController
 {
-    #[Route('/cinemas/{slug}', name: 'app_movie')]
+    #[Route('/select-movies/cinemas/{slug}', name: 'app_movie')]
     public function index(
         MovieRepository $movieRepository,
         TmdbAdapterFactory $tmdbAdapterFactory,
@@ -57,11 +56,9 @@ class MovieController extends AbstractController
             $screeningFormatIdsForMovie[$movie->getTmdbId()] = $movieScreeningFormatRepository
                                                             ->findScreeningFormatIdsForMovieAtCinema($movie, $cinema);
         }
-
-        $storedTmdbIds = $movieRepository->findTmdbIds($cinema);
+        $storedTmdbIds = $movieRepository->findTmdbIdsForCinema($cinema);
         
         return $this->render('movie/index.html.twig', [
-            "cinemaSlug" => $cinema->getSlug(),
             "storedTmdbIds" => $storedTmdbIds,
             "pager" => $pagerfanta,
             "screeningFormats" => $screeningFormats,
@@ -69,13 +66,12 @@ class MovieController extends AbstractController
         ]);
     }
 
-    #[Route('/{slug}/select-movie/{tmdbId}', name: 'app_movie_select', methods: ["POST"])]
-    public function select(
+    #[Route('/{slug}/add-movie/{tmdbId}', name: 'app_movie_add', methods: ["POST"])]
+    public function add(
         TmdbApiService $tmdbApiService,
         Request $request,
         EntityManagerInterface $em,
         MovieRepository $movieRepository,
-        MovieScreeningFormatService $movieScreeningFormatService,
         Cinema $cinema,
         int $tmdbId,
         #[MapQueryParameter] int $page = 1,
@@ -83,34 +79,23 @@ class MovieController extends AbstractController
         ): Response
     {
         $submittedToken = $request->get("token");
-        if (!$this->isCsrfTokenValid("select-movie", $submittedToken)) {
+        if (!$this->isCsrfTokenValid("add-movie", $submittedToken)) {
             $this->addFlash("error", "Invalid CSRF token");
             return $this->redirectToRoute("app_movie");
         }
 
-        if ($request->get("add-movie") || $request->get("update-movie")) {
+        if ($request->get("add-movie")) {
             $movieTmdbDto = $tmdbApiService->cacheMovie($tmdbId);
             
-            $screeningFormatIds = array_map("intval", $request->get("screeningFormats", []));
-            
-            $movie = $movieRepository->findOneBy(["tmdbId" => $tmdbId]);
+            $movie = new Movie();
+            $movie->setTmdbId($tmdbId);
+            $movie->setTitle($movieTmdbDto->getTitle());
+            $movie->setDurationInMinutes($movieTmdbDto->getDurationInMinutes());
+            $movie->setCinema($cinema);
+            $em->persist($movie);
+            $em->flush();
 
-            if (!$movie) {
-                $movie = new Movie();
-                $movie->setTmdbId($tmdbId);
-                $movie->setTitle($movieTmdbDto->getTitle());
-                $movie->setDurationInMinutes($movieTmdbDto->getDurationInMinutes());
-                $movie->setCinema($cinema);
-                $em->persist($movie);
-                $em->flush();
-                $this->addFlash("success", "Movie has been added");
-
-            } else {
-                $this->addFlash("success", "Movie has been updated");
-            }
-            
-            $movieScreeningFormatService->update($cinema, $movie, $screeningFormatIds);    
-            $movieScreeningFormatService->create($cinema, $movie, $screeningFormatIds); 
+            $this->addFlash("success", "Movie has been added");
 
         }
 
@@ -124,14 +109,15 @@ class MovieController extends AbstractController
             $this->addFlash("warning", "Movie has been removed");
         }
         
- 
         return $this->redirectToRoute("app_movie", [
             "slug" => $cinema->getSlug(),
             "page" => $page,
             "q" => $q,
             "_fragment" => $request->get("formId")
         ]);
+
     }
+
  
 
     #[Route("/formats/{slug}/create", name: "app_movie_create_screening_formats")]
@@ -183,13 +169,7 @@ class MovieController extends AbstractController
     }
 
 
-    #[Route('/{slug}', name: 'app_cinema_movies_details')]
-    public function details(): Response
-    {
-        return $this->render('movie/index.html.twig', [
-            'controller_name' => 'MovieController',
-        ]);
-    }
+   
 
     #[Route('/{slug}/edit', name: 'app_cinema_movies_edit')]
     public function edit(): Response
