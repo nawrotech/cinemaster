@@ -11,9 +11,13 @@ use App\Form\ScreeningFormatCollectionType;
 use App\Repository\MovieRepository;
 use App\Repository\MovieScreeningFormatRepository;
 use App\Repository\ScreeningFormatRepository;
+use App\Service\MovieDataMerger;
+use App\Service\MovieScreeningFormatService;
 use App\Service\TmdbApiService;
 use Doctrine\ORM\EntityManagerInterface;
+use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -66,16 +70,18 @@ class MovieController extends AbstractController
         ]);
     }
 
-    #[Route('/{slug}/add-movie/{tmdbId}', name: 'app_movie_add', methods: ["POST"])]
+    #[Route('/{slug}/add-movie/{id}', name: 'app_movie_add', methods: ["POST"])]
     public function add(
         TmdbApiService $tmdbApiService,
         Request $request,
         EntityManagerInterface $em,
         MovieRepository $movieRepository,
         Cinema $cinema,
-        int $tmdbId,
-        #[MapQueryParameter] int $page = 1,
-        #[MapQueryParameter] ?string $q = null,
+        int $id,
+        #[MapQueryParameter] 
+        int $page = 1,
+        #[MapQueryParameter] 
+        string $q = null,
         ): Response
     {
         $submittedToken = $request->get("token");
@@ -85,10 +91,10 @@ class MovieController extends AbstractController
         }
 
         if ($request->get("add-movie")) {
-            $movieTmdbDto = $tmdbApiService->cacheMovie($tmdbId);
+            $movieTmdbDto = $tmdbApiService->cacheMovie($id);
             
             $movie = new Movie();
-            $movie->setTmdbId($tmdbId);
+            $movie->setTmdbId($id);
             $movie->setTitle($movieTmdbDto->getTitle());
             $movie->setDurationInMinutes($movieTmdbDto->getDurationInMinutes());
             $movie->setCinema($cinema);
@@ -100,9 +106,9 @@ class MovieController extends AbstractController
         }
 
         if ($request->get("remove-movie")) {
-            $tmdbApiService->deleteMovie($tmdbId);
+            $tmdbApiService->deleteMovie($id);
 
-            $movie = $movieRepository->findOneBy(["tmdbId" => $tmdbId]);
+            $movie = $movieRepository->findOneBy(["id" => $id]);
             $em->remove($movie);
             $em->flush();
 
@@ -169,6 +175,83 @@ class MovieController extends AbstractController
     }
 
 
+ #[Route('/cinemas/{slug}/available-movies', name: 'app_movie_available_movies')]
+ public function availableMovies(
+     MovieRepository $movieRepository,
+     MovieDataMerger $movieDataMerger,
+     ScreeningFormatRepository $screeningFormatRepository,
+     MovieScreeningFormatRepository $movieScreeningFormatRepository,
+     Cinema $cinema,
+     #[MapQueryParameter()]
+     int $page = 1,
+     #[MapQueryParameter()]
+     string $q = null
+ ): Response
+ {
+     $movies = $q 
+        ? $movieRepository->findBySearchTerm($cinema, $q) 
+        : $movieRepository->findAll();
+     
+     $mergedMovies = array_map(function(Movie $movie) use($movieDataMerger) {
+         return $movieDataMerger->mergeWithApiData($movie);
+     }, $movies);
+
+     $adapter = new ArrayAdapter($mergedMovies);
+     $pagerfanta = new Pagerfanta($adapter);
+
+     $pagerfanta->setMaxPerPage(10);
+     $pagerfanta->setCurrentPage($page);
+
+     $screeningFormats = $screeningFormatRepository->findBy([
+         "cinema" => $cinema
+     ]);
+
+     $screeningFormatIdsForMovie = [];
+     foreach ($movies as $movie) {
+         $screeningFormatIdsForMovie[$movie->getId()] = $movieScreeningFormatRepository
+                                                         ->findScreeningFormatIdsForMovieAtCinema($movie, $cinema);
+     }
+
+     return $this->render('movie/available_movies.html.twig', [
+         "pager" => $pagerfanta,
+         "screeningFormats" => $screeningFormats,
+         "screeningFormatIdsForMovie" => $screeningFormatIdsForMovie,
+     ]);
+ }
+
+ #[Route('/{slug}/add-movie-formats/{id}', name: 'app_movie_add_movie_formats', methods: ["POST"])]
+ public function addMovieFormats(
+     Request $request,
+     MovieScreeningFormatService $movieScreeningFormatService,
+     #[MapEntity(mapping:["slug" => "slug"])]
+     Cinema $cinema,
+     #[MapEntity(mapping:["id" => "id"])]
+     Movie $movie,
+     #[MapQueryParameter] int $page = 1,
+     #[MapQueryParameter] ?string $q = null,
+     ): Response
+ {
+     $submittedToken = $request->get("token");
+     if (!$this->isCsrfTokenValid("add-movie-formats-token", $submittedToken)) {
+         $this->addFlash("error", "Invalid CSRF token");
+         return $this->redirectToRoute("app_movie");
+     }
+
+    $screeningFormatIds = array_map("intval", $request->get("screeningFormats", []));
+
+    $movieScreeningFormatService->update($cinema, $movie, $screeningFormatIds);    
+    $movieScreeningFormatService->create($cinema, $movie, $screeningFormatIds); 
+
+    $this->addFlash("success", "Screening formats has been applied!");
+     
+     return $this->redirectToRoute("app_movie_available_movies", [
+         "page" => $page,
+         "q" => $q,
+         "slug" => $cinema->getSlug(),
+         "_fragment" => $request->get("formId")
+     ]);
+
+ }
    
 
     #[Route('/{slug}/edit', name: 'app_cinema_movies_edit')]

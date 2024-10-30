@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Available movies{% endblock %}
+
+{% block body %}
+    {{ include("partials/_search_input.html.twig", {
+        action_route: "",
+        query_value: app.request.get("q"),
+        name: "q",
+    }) }}
+
+    <div class="grid-container">
+      {% for movie in pager %}
+          <form action="{{path("app_movie_add_movie_formats", {
+              slug:  app.current_route_parameters.slug, 
+              id: movie.id,
+              q: app.request.get("q"),
+              page: app.request.get("page")  
+          
+          })}}" 
+          method="post" 
+          class="card"
+          id="{{ "form" ~ loop.index }}"
+          style="width: 18rem;">
+                  <input type="hidden" name="token" value="{{ csrf_token('add-movie-formats-token') }}">
+                  <input type="hidden" name="formId" value="{{ "form" ~ loop.index }}">
+
+
+                  <img src="{{ movie.posterPath }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
+                  <div class="card-body">
+                      <h5 class="card-title">{{ movie.title }}</h5>
+                      <p class="card-text text-truncate">{{ movie.overview }}</p>
+                      <fieldset>
+                          <legend class="msf-legend">Screening formats available in your cinema:</legend>
+                          {% for screeningFormat in screeningFormats %}
+                              <label>
+                                  <input 
+                                      name="screeningFormats[]" 
+                                      type="checkbox" 
+                                      value="{{ screeningFormat.id }}"
+                                      {{ screeningFormat.id in (screeningFormatIdsForMovie[movie.id] | default([])) ? "checked" : null  }}
+                                  >
+                                  {{ screeningFormat.displayScreeningFormat }} 
+                              </label>
+                          {% endfor %}
+                      </fieldset>
+                  </div>
+
+                  <button name="apply-formats" value="1" class="btn btn-info">Apply screening formats</button>
+
+
+
+                  
+          </form>
+      {% endfor %}
+
+      
+  </div>
+  {{ pagerfanta(pager, "twitter_bootstrap5") }}
+
+
+{% endblock %}

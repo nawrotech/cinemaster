@@ -21,13 +21,15 @@ class MovieRepository extends ServiceEntityRepository
     /**
     * @return Movie[]|\Doctrine\ORM\QueryBuilder 
     */
-    public function findBySearchTerm(?string $searchTerm = null, $returnQueryBuilder = false): array|QueryBuilder
+    public function findBySearchTerm(Cinema $cinema, ?string $searchTerm = null, $returnQueryBuilder = false): array|QueryBuilder
     {
         $queryBuilder = $this->createQueryBuilder('m');
           
         if ($searchTerm) {
             $queryBuilder = $queryBuilder->andWhere('m.title LIKE :searchTerm')
-                                        ->setParameter('searchTerm', "%$searchTerm%");
+                                        ->andWhere("m.cinema = :cinema")
+                                        ->setParameter('searchTerm', "%$searchTerm%")
+                                        ->setParameter("cinema", $cinema);
         }
 
         if ($returnQueryBuilder) {
