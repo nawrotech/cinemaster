@@ -49,11 +49,9 @@ class ShowtimeType extends AbstractType
                 },
                 "label" => "Select Movie",
                 "choice_label" => function (MovieScreeningFormat $movieScreeningFormat): string {
-                    return "
-                        Title: {$movieScreeningFormat->getMovie()->getTitle()} 
-                        Duration: {$movieScreeningFormat->getMovie()->getDurationInMinutes()} minutes
-                        Format: {$movieScreeningFormat->getDisplayMovieScreeningFormat()}      
-                    ";
+                    return 
+                        $movieScreeningFormat->getDisplayMovieScreeningFormat()
+                    ;
                 },
             ])
             ->add('price', NumberType::class, [

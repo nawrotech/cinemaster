@@ -59,8 +59,9 @@ class MovieScreeningFormat
     }
     
     public function getDisplayMovieScreeningFormat() {
-        return "Movie: {$this->movie->getTitle()}
-                ScreeningFormat: {$this->screeningFormat->getVisualFormat()->getName()} 
+        return "Movie: {$this->movie->getTitle()},
+                Duration: {$this->movie->getDurationInMinutes()} minutes,
+                Screening format: {$this->screeningFormat->getVisualFormat()->getName()}, 
                                     {$this->screeningFormat->getLanguagePresentation()}";
     }
 
