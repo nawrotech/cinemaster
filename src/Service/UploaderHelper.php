@@ -2,10 +2,14 @@
 
 namespace App\Service;
 
-use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToDeleteFile;
+use League\Flysystem\UnableToReadFile;
+use League\Flysystem\UnableToRetrieveMetadata;
+use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Asset\Packages;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\String\Slugger\SluggerInterface;
@@ -16,13 +20,11 @@ class UploaderHelper {
     const MOVIE_REFERENCE = "movie_reference";
 
     public function __construct(
-        #[Autowire(service: "oneup_flysystem.uploads_filesystem_filesystem")]
-        private Filesystem $filesystem,
-        #[Autowire(param: "uploads_base_url")]
-        private string $uploadedAssetsBaseUrl,
         private SluggerInterface $slugger,
         private Packages $packages,
         private LoggerInterface $logger,
+        private FilesystemOperator $remoteStorage,
+        private CacheManager $cacheManager
     )
     {
     }    
@@ -33,7 +35,7 @@ class UploaderHelper {
 
         if ($existingPosterFilename) {
             try {
-               $this->filesystem->delete(self::MOVIE_IMAGE . "/" . $existingPosterFilename);
+               $this->remoteStorage->delete(self::MOVIE_IMAGE . "/" . $existingPosterFilename);
             } catch(\Exception $e) {
                     $this->logger->alert("Old uploaded file was missing when trying to delete");
             }
@@ -41,44 +43,56 @@ class UploaderHelper {
         }
         return $newSafeFilename;
        
-
     }
 
     public function uploadMovieReference(File $file): string {
         return $this->uploadFile($file, self::MOVIE_REFERENCE, false);
     }
 
-    public function getPublicPath(string $path): string {
-        // determines if slash is needed before the path
-        $fullPath = $this->uploadedAssetsBaseUrl . "/" . ltrim($path, "/");
-
-        // if (strpos($fullPath, "://") !== false) {
-        //     return $fullPath;
-        // }
-
-        return $this->packages->getUrl($fullPath);
-    }
-
     /** 
      * @return resource
      */
     public function readStream(string $path) {
+        try {
+            $response = $this->remoteStorage->readStream($path);
+        } catch (FilesystemException | UnableToReadFile $exception) {
+            throw new \Exception($exception->getMessage());
+        }
 
-        return $this->filesystem->readStream($path);
+        return $response;
     }
 
     public function deleteFile(string $path) {
 
-        $result = $this->filesystem->delete($path);
-
-        if ($result === false) {
-            throw new \Exception("Error deleting $path");
+        try {
+            $this->remoteStorage->delete($path);
+        } catch (FilesystemException | UnableToDeleteFile $exception) {
         }
-
 
     }
 
-    private function uploadFile(File $file, string $directory, bool $isPublic) {
+    public function getFileMimeType(string $path): string {
+        try {
+            $mimeType = $this->remoteStorage->mimeType($path);
+        } catch (FilesystemException | UnableToRetrieveMetadata $exception) {
+        }
+
+        return $mimeType;
+    }
+
+    public function uploadProfileImage(UploadedFile $file, ?string $existingFilePath): string {
+
+        $profileImageFilename =  $this->uploadFile($file, self::MOVIE_IMAGE);
+
+        if ($existingFilePath) {
+            $this->cacheManager->remove($existingFilePath, "squared_thumbnail_small");
+            $this->deleteFile($existingFilePath);
+        }
+        
+        return $profileImageFilename;
+   }
+
+    private function uploadFile(File $file, string $directory, bool $isPublic = true) {
 
         if ($file instanceof UploadedFile) {
             $originalFilename = $file->getClientOriginalName();
@@ -89,12 +103,8 @@ class UploaderHelper {
         $newFilename = $this->slugger->slug(pathinfo($originalFilename, PATHINFO_FILENAME));
         $newSafeFilename = $newFilename.'-'.uniqid().'.'.$file->guessExtension();
 
-        // $filesystem = $isPublic ? $this->publicUploadFilesystem : $this->privateUploadFilesystem;
-        // writeStream decides about the veisibility now
-        $filesystem = $this->filesystem;
-
         $stream = fopen($file->getPathname(), "r");
-        $filesystem->writeStream(
+        $this->remoteStorage->writeStream(
             "$directory/$newSafeFilename",
             $stream,
             [

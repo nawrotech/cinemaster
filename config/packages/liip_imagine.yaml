@@ -4,22 +4,19 @@ liip_imagine:
     driver: "gd"
 
     loaders:
-        default:
+        flysystem_loader:
             flysystem:
-                filesystem_service: oneup_flysystem.uploads_filesystem_filesystem
-    data_loader: default
+                filesystem_service: remote.storage
+    data_loader: flysystem_loader
 
     resolvers:
-        filesystem_resolver:
+        flysystem_resolver:
             flysystem:
-                filesystem_service: oneup_flysystem.uploads_filesystem_filesystem
+                filesystem_service: remote.storage
                 root_url:           "%uploads_base_url%"
                 cache_prefix:       media/cache
-        # default: flysystem_loader
-    cache: filesystem_resolver
 
-
-        
+    cache: flysystem_resolver
 
     filter_sets:
         squared_thumbnail_small:

@@ -25,13 +25,6 @@ return [
     '@hotwired/turbo' => [
         'version' => '7.3.0',
     ],
-    'bootstrap/dist/css/bootstrap.min.css' => [
-        'version' => '5.3.3',
-        'type' => 'css',
-    ],
-    'bootstrap/dist/js/bootstrap.bundle.min.js' => [
-        'version' => '5.3.3',
-    ],
     'dropzone' => [
         'version' => '6.0.0-beta.2',
     ],
@@ -40,5 +33,15 @@ return [
     ],
     'sortablejs' => [
         'version' => '1.15.3',
+    ],
+    'bootstrap' => [
+        'version' => '5.3.3',
+    ],
+    '@popperjs/core' => [
+        'version' => '2.11.8',
+    ],
+    'bootstrap/dist/css/bootstrap.min.css' => [
+        'version' => '5.3.3',
+        'type' => 'css',
     ],
 ];

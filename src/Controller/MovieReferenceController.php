@@ -86,7 +86,7 @@ class MovieReferenceController extends AbstractController
     public function downloadMovieReference(
             MovieReference $movieReference, 
             S3Client $s3Client, 
-            #[Autowire(env: "AWS_S3_ACCESS_BUCKET")]
+            #[Autowire(env: "AWS_S3_BUCKET")]
             string $s3BucketName): Response  {
         // $movie = $movieReference->getMovie();
         // here logic if reference holds info about the creator

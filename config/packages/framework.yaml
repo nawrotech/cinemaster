@@ -9,6 +9,11 @@ framework:
     session: 
         enabled: true
         # handler_id: Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
+    
+    assets:
+        packages: 
+            uploads_url:
+                base_url: "%uploads_base_url%"
 
     # esi: true
     fragments: 

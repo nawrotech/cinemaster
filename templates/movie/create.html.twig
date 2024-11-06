@@ -15,8 +15,8 @@
 
         {% if form.vars.data.posterFilename %}
             <p>{{ form.vars.data.posterFilename|default }}</p>
-            <a href="{{ uploaded_asset(form.vars.data.posterPath) }}">
-                <img src="{{ uploaded_asset(form.vars.data.posterPath) }}" alt="padaka">
+            <a href="{{ asset(form.vars.data.posterPath) }}">
+                <img src="{{ asset(form.vars.data.posterPath) }}" alt="padaka">
             </a>
         {% endif %}
         
