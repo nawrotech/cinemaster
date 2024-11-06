@@ -10,6 +10,7 @@ use App\Factory\MovieFactory;
 use App\Factory\MovieFormatFactory;
 use App\Factory\MovieMovieTypeFactory;
 use App\Factory\MovieTypeFactory;
+use App\Factory\ScreeningFormatFactory;
 use App\Factory\ScreeningRoomFactory;
 use App\Factory\ScreeningRoomSeatFactory;
 use App\Factory\SeatFactory;
@@ -24,7 +25,6 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         SeatFactory::createGrid();
-
         UserFactory::createOne();
 
         CinemaFactory::createMany(3, [
@@ -38,7 +38,7 @@ class AppFixtures extends Fixture
         });
 
 
-        MovieFactory::createMany(32);
+        // MovieFactory::createMany(32);e
 
 
         // CinemaFactory::createMany(2);

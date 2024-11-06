@@ -10,9 +10,12 @@ framework:
         enabled: true
         # handler_id: Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
 
-    #esi: true
-    #fragments: true
+    # esi: true
+    fragments: 
+        path: /_fragment 
+        enabled: true
 
+    
 when@test:
     framework:
         test: true

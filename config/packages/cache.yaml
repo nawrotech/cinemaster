@@ -6,7 +6,9 @@ framework:
         # The "app" cache stores to the filesystem by default.
         # The data in this cache should persist between deploys.
         # Other options include:
-
+        pools:
+            cache.flysystem.psr6:
+                adapter: cache.app
         # Redis
         #app: cache.adapter.redis
         #default_redis_provider: redis://localhost

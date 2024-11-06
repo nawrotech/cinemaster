@@ -9,6 +9,7 @@
         name: "q",
     }) }}
 
+
     <div class="grid-container">
       {% for movie in pager %}
           <form action="{{path("app_movie_add_movie_formats", {
@@ -22,10 +23,20 @@
           class="card"
           id="{{ "form" ~ loop.index }}"
           style="width: 18rem;">
-                  <input type="hidden" name="token" value="{{ csrf_token('add-movie-formats-token') }}">
-                  <input type="hidden" name="formId" value="{{ "form" ~ loop.index }}">
 
-                  <img src="{{ movie.posterPath }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
+            
+
+                    <input type="hidden" name="token" value="{{ csrf_token('add-movie-formats-token') }}">
+                    <input type="hidden" name="formId" value="{{ "form" ~ loop.index }}">
+                    {# <img src="{{ uploaded_asset(movie.posterPath) }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}"> #}
+                    {# <img src="{{ asset(movie.posterPath, "public_uploads_adapter") }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}"> #}
+
+
+                    <img src="{{ uploaded_asset(movie.posterPath) }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
+
+
+                    <img src="{{ uploaded_asset(movie.posterPath)|imagine_filter("squared_thumbnail_small") }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
+
                   <div class="card-body">
                       <h5 class="card-title">{{ movie.title }}</h5>
                       <p class="card-text text-truncate">{{ movie.overview }}</p>

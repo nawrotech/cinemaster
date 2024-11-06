@@ -4,10 +4,12 @@ namespace App\Entity;
 
 use App\Contracts\MovieInterface;
 use App\Repository\MovieRepository;
+use App\Service\UploaderHelper;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\OrderBy;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[UniqueEntity(
@@ -44,16 +46,23 @@ class Movie implements MovieInterface
     private ?\DateTimeImmutable $releaseDate = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $posterPath = null;
+    private ?string $posterFilename = null;
 
     #[ORM\ManyToOne(inversedBy: 'movies')]
     private ?Cinema $cinema = null;
 
+    /**
+     * @var Collection<int, MovieReference>
+     */
+    #[OrderBy(["position" => "ASC"])]
+    #[ORM\OneToMany(targetEntity: MovieReference::class, mappedBy: 'movie')]
+    private Collection $movieReferences;
+
     public function __construct()
     {
         $this->movieScreeningFormats = new ArrayCollection();
+        $this->movieReferences = new ArrayCollection();
     }
-
 
     public function getId(): ?int
     {
@@ -132,7 +141,7 @@ class Movie implements MovieInterface
         return $this->overview;
     }
 
-    public function setOverview(string $overview): static
+    public function setOverview(?string $overview): static
     {
         $this->overview = $overview;
 
@@ -151,14 +160,14 @@ class Movie implements MovieInterface
         return $this;
     }
 
-    public function getPosterPath(): ?string
+    public function getPosterFilename(): ?string
     {
-        return $this->posterPath;
+        return $this->posterFilename;
     }
 
-    public function setPosterPath(?string $posterPath): static
+    public function setPosterFilename(?string $posterFilename): static
     {
-        $this->posterPath = $posterPath;
+        $this->posterFilename = $posterFilename;
 
         return $this;
     }
@@ -175,11 +184,20 @@ class Movie implements MovieInterface
         return $this;
     }
 
-  
+    public function getPosterPath(): string {
+        return UploaderHelper::MOVIE_IMAGE . "/{$this->posterFilename}";
+    }
 
+    public function getIsLocalPoster() {
+        return true;
+    }
 
-
-   
-
+    /**
+     * @return Collection<int, MovieReference>
+     */
+    public function getMovieReferences(): Collection
+    {
+        return $this->movieReferences;
+    }
 
 }

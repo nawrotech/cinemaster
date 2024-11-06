@@ -40,3 +40,13 @@
     grid-template-columns: repeat(4, min-content);
     gap: 2rem;
 }
+
+/* sortable */
+.sortable-ghost {
+    background-color: lightblue;
+}
+
+.drag-handle {
+    cursor: grab;
+}
+

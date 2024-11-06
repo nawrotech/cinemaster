@@ -1,7 +1,45 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello MovieController!{% endblock %}
+{% block title %}Movie creation happens here!{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+    <link href=" https://cdn.jsdelivr.net/npm/dropzone@6.0.0-beta.2/dist/dropzone.min.css " rel="stylesheet">
+{% endblock %}
 
 {% block body %}
-    {{ form(form) }}
+ 
+
+    {{ form_start(form) }}
+        {{ form(form) }}
+
+        {% if form.vars.data.posterFilename %}
+            <p>{{ form.vars.data.posterFilename|default }}</p>
+            <a href="{{ uploaded_asset(form.vars.data.posterPath) }}">
+                <img src="{{ uploaded_asset(form.vars.data.posterPath) }}" alt="padaka">
+            </a>
+        {% endif %}
+        
+    {{ form_end(form) }}
+
+    
+
+    {# adding references only on edit; TEMP SOLUTION #}
+
+    <div {{ stimulus_controller("ajax-reference-list", {
+        url:  path("movie_references_list", { id: form.vars.data.id}) 
+    }) }}>
+        <ul {{ stimulus_target("ajax-reference-list", "referenceList") }}>
+        </ul>
+        <form 
+            {{ stimulus_target("ajax-reference-list", "form") }}
+            action="{{ path("app_movie_add_reference", {
+                id: form.vars.data.id
+        }) }}" method="post" enctype="multipart/form-data" class="dropzone js-reference-dropzone">
+        </form>
+    </div>
+  
+
+
+
 {% endblock %}

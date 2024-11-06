@@ -14,6 +14,7 @@ use App\Repository\ScreeningFormatRepository;
 use App\Service\MovieDataMerger;
 use App\Service\MovieScreeningFormatService;
 use App\Service\TmdbApiService;
+use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
@@ -27,20 +28,19 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route("/cinemas/{slug}")]
 class MovieController extends AbstractController
 {
-    #[Route('/movies/select-movies', name: 'app_movie_select_movies')]
+    #[Route('/movies/select-movies' , name: 'app_movie_select_movies')]
     public function selectMovies(
         MovieRepository $movieRepository,
         TmdbAdapterFactory $tmdbAdapterFactory,
         ScreeningFormatRepository $screeningFormatRepository,
         MovieScreeningFormatRepository $movieScreeningFormatRepository,
         Cinema $cinema,
-        #[MapQueryParameter()]
-        ? string $q,
-        #[MapQueryParameter()]
-        ?int $page = 1,
+        #[MapQueryParameter()] string $q = "",
+        #[MapQueryParameter()] int $page = 1,
         ): Response
     {
-        $endpoint = $q ? "search/movie" : "movie/popular";
+ 
+        $endpoint = $q ? "search/movie" : "movie/now_playing";
         $params = $q ? ["query" => $q] : [];
 
         $adapter = $tmdbAdapterFactory->create($endpoint, $params);
@@ -78,10 +78,8 @@ class MovieController extends AbstractController
         MovieRepository $movieRepository,
         Cinema $cinema,
         int $tmdbId,
-        #[MapQueryParameter] 
-        int $page = 1,
-        #[MapQueryParameter] 
-        string $q = null,
+        #[MapQueryParameter] int $page = 1,
+        #[MapQueryParameter] string $q = "",
         ): Response
     {
         $submittedToken = $request->get("token");
@@ -91,6 +89,7 @@ class MovieController extends AbstractController
                 "slug" => $cinema->getSlug()
             ]);
         }
+
 
         if ($request->get("add-movie")) {
             $movieTmdbDto = $tmdbApiService->cacheMovie($tmdbId);
@@ -117,6 +116,7 @@ class MovieController extends AbstractController
             $this->addFlash("warning", "Movie has been removed");
         }
         
+
         return $this->redirectToRoute("app_movie_select_movies", [
             "slug" => $cinema->getSlug(),
             "page" => $page,
@@ -157,27 +157,36 @@ class MovieController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         TmdbApiService $tmdbApiService,
-        #[MapEntity(mapping: ["slug" => "slug"])]
-        Cinema $cinema,
-        #[MapEntity(mapping: ["id" => "id"])]
-        ?Movie $movie = null
+        UploaderHelper $uploaderHelper,
+        #[MapEntity(mapping: ["slug" => "slug"])] Cinema $cinema,
+        #[MapEntity(mapping: ["id" => "id"])] ?Movie $movie = null
     ): Response {
 
         if (!$movie) {
             $movie = new Movie();
             $movie->setCinema($cinema);
         } else {
-            $cachedMovie = $tmdbApiService->cacheMovie($movie->getTmdbId());
+            if ($movie->getTmdbId()) {
+                $cachedMovie = $tmdbApiService->cacheMovie($movie->getTmdbId());
+            }
         }
 
         $form = $this->createForm(MovieFormType::class, $movie, [
             "defaults" => $cachedMovie ?? null
         ]);
-
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
+            $posterFile = $form->get("poster")->getData();
+
+            if ($posterFile) {
+                $posterFilename = $uploaderHelper->uploadMoviePoster($posterFile, $movie->getPosterFilename());
+
+
+                $movie->setPosterFilename($posterFilename);
+            }
+            
             $em->persist($movie);
             $em->flush();
 
@@ -198,10 +207,8 @@ class MovieController extends AbstractController
      ScreeningFormatRepository $screeningFormatRepository,
      MovieScreeningFormatRepository $movieScreeningFormatRepository,
      Cinema $cinema,
-     #[MapQueryParameter()]
-     int $page = 1,
-     #[MapQueryParameter()]
-     string $q = null
+     #[MapQueryParameter()] int $page = 1,
+     #[MapQueryParameter()] string $q = ""
  ): Response
  {
      $movies = $q 
@@ -228,10 +235,13 @@ class MovieController extends AbstractController
                                                          ->findScreeningFormatIdsForMovieAtCinema($movie, $cinema);
      }
 
+     $singleMovie = $movieRepository->find(94);
+
      return $this->render('movie/available_movies.html.twig', [
          "pager" => $pagerfanta,
          "screeningFormats" => $screeningFormats,
          "screeningFormatIdsForMovie" => $screeningFormatIdsForMovie,
+         "singleMovie" => $singleMovie
      ]);
  }
 
@@ -239,14 +249,11 @@ class MovieController extends AbstractController
  public function addMovieFormats(
      Request $request,
      MovieScreeningFormatService $movieScreeningFormatService,
-     #[MapEntity(mapping:["slug" => "slug"])]
-     Cinema $cinema,
+     #[MapEntity(mapping:["slug" => "slug"])] Cinema $cinema,
      #[MapEntity(mapping:["id" => "id"])]
      Movie $movie,
-     #[MapQueryParameter] 
-     int $page = 1,
-     #[MapQueryParameter] 
-     string $q = null,
+     #[MapQueryParameter] int $page = 1,
+     #[MapQueryParameter] string $q = "",
      ): Response
  {
      $submittedToken = $request->get("token");
@@ -272,11 +279,11 @@ class MovieController extends AbstractController
  }
    
 
-    // #[Route('/edit', name: 'app_cinema_movies_edit')]
-    // public function edit(): Response
-    // {
-    //     return $this->render('movie/index.html.twig', [
-    //         'controller_name' => 'MovieController',
-    //     ]);
-    // }
+    #[Route('/edit', name: 'app_cinema_movies_edit')]
+    public function edit(): Response
+    {
+        return $this->render('movie/index.html.twig', [
+            'controller_name' => 'MovieController',
+        ]);
+    }
 }

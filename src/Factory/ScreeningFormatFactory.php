@@ -2,25 +2,26 @@
 
 namespace App\Factory;
 
-use App\Entity\Movie;
-use App\Service\UploaderHelper;
+use App\Entity\ScreeningFormat;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<Movie>
+ * @extends PersistentProxyObjectFactory<ScreeningFormat>
  */
-final class MovieFactory extends PersistentProxyObjectFactory
+final class ScreeningFormatFactory extends PersistentProxyObjectFactory
 {
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
      *
      * @todo inject services if required
      */
-    public function __construct(private UploaderHelper $uploaderHelper) {}
+    public function __construct()
+    {
+    }
 
     public static function class(): string
     {
-        return Movie::class;
+        return ScreeningFormat::class;
     }
 
     /**
@@ -31,10 +32,9 @@ final class MovieFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'title' => self::faker()->unique->word(),
-            'description' => self::faker()->text(),
-            'durationInMinutes' => self::faker()->numberBetween(90, 180),
-            // "posterPath" => self::faker()
+            'cinema' => CinemaFactory::random(),
+            'languagePresentation' => self::faker()->unique()->word(),
+            'visualFormat' => VisualFormatFactory::random(),
         ];
     }
 
@@ -44,7 +44,7 @@ final class MovieFactory extends PersistentProxyObjectFactory
     protected function initialize(): static
     {
         return $this
-            // ->afterInstantiate(function(Movie $movie): void {})
+            // ->afterInstantiate(function(ScreeningFormat $screeningFormat): void {})
         ;
     }
 }

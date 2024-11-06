@@ -31,6 +31,14 @@ return [
     ],
     'bootstrap/dist/js/bootstrap.bundle.min.js' => [
         'version' => '5.3.3',
-        'type' => 'js'
+    ],
+    'dropzone' => [
+        'version' => '6.0.0-beta.2',
+    ],
+    'just-extend' => [
+        'version' => '5.1.1',
+    ],
+    'sortablejs' => [
+        'version' => '1.15.3',
     ],
 ];
