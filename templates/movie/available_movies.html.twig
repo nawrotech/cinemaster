@@ -24,15 +24,11 @@
           id="{{ "form" ~ loop.index }}"
           style="width: 18rem;">
 
-            
+        
+                <input type="hidden" name="token" value="{{ csrf_token('add-movie-formats-token') }}">
+                <input type="hidden" name="formId" value="{{ "form" ~ loop.index }}">
 
-                    <input type="hidden" name="token" value="{{ csrf_token('add-movie-formats-token') }}">
-                    <input type="hidden" name="formId" value="{{ "form" ~ loop.index }}">
-
-
-                    <img src="{{ asset(movie.posterPath, "uploads_url") }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
-
-
+                <img src="{{ asset(movie.posterPath, "uploads_url") }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
 
                   <div class="card-body">
                       <h5 class="card-title">{{ movie.title }}</h5>

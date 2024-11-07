@@ -25,10 +25,9 @@ class MovieDataMerger {
             "id" => $movie->getId(),
             "title" => $movie->getTitle() ?? $apiData->getTitle(),
             "overview" => $movie->getOverview() ?? $apiData->getOverview(),
-            "posterPath" => $movie->getPosterFilename() ?? $apiData->getPosterPath(),
+            "posterPath" => $movie->getPosterPath() ?? $apiData->getPosterPath(),
             "releaseDate" => $movie->getReleaseDate() ?? $apiData->getReleaseDate(),
             "durationInMinutes" => $movie->getDurationInMinutes() ?? $apiData->getDurationInMinutes(),
-            "isLocalPoster" => $movie->getPosterFilename() !== null
         ];
     }
 

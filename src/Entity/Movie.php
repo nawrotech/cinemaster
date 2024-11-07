@@ -184,13 +184,13 @@ class Movie implements MovieInterface
         return $this;
     }
 
-    public function getPosterPath(): string {
+    public function getPosterPath(): ?string {
+        if (!$this->posterFilename) {
+            return null;
+        }
         return UploaderHelper::MOVIE_IMAGE . "/{$this->posterFilename}";
     }
 
-    public function getIsLocalPoster() {
-        return true;
-    }
 
     /**
      * @return Collection<int, MovieReference>
