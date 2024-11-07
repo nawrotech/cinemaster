@@ -3,33 +3,7 @@
 {% block body %}
 
 
-    <form>
-        <select name="screeningRoomName" id="">
-            <option value="">All rooms</option>
-            {% for roomName in availableRoomNames %}
-                <option value="{{ roomName }}">{{ roomName }}</option>
-            {% endfor %}
-        </select>
-
-        <label>
-            Start time:
-            <input
-            id="showtimeStartTime"
-            type="date"
-            name="showtimeStartTime"
-            />
-        </label>
-
-        <label>
-            End time:
-            <input id="showtimeEndTime" type="date" name="showtimeEndTime" />
-        </label>
-          
-    
-        <input type="text" name="movieTitle">
-        <button>Apply filters</button>
-    </form>
-
+    {{ include("partials/showtime/_showtime_filtering_form.html.twig") }}
 
     <div class="container d-grid gap-2">
         {% for showtime in showtimes %}
