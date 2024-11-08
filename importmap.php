@@ -44,4 +44,7 @@ return [
         'version' => '5.3.3',
         'type' => 'css',
     ],
+    'stimulus-autocomplete' => [
+        'version' => '3.1.0',
+    ],
 ];
