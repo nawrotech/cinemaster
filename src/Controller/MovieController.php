@@ -6,6 +6,7 @@ use App\Adapter\TmdbAdapter;
 use App\Entity\Cinema;
 use App\Entity\Movie;
 use App\Entity\MovieScreeningFormat;
+use App\Entity\ScreeningFormat;
 use App\Factory\TmdbAdapterFactory;
 use App\Form\MovieFormType;
 use App\Form\ScreeningFormatCollectionType;
@@ -268,19 +269,56 @@ class MovieController extends AbstractController
 
     }
 
-    #[Route("/movie-screening-formats/{id?}", name: "app_movie_delete_movie_screening_format", requirements: ["id" => "[^/]*"], methods: ["DELETE"])]    public function deleteMovieScreeningFormat(
+    #[Route("/movie-screening-formats/{id?}", name: "app_movie_delete_movie_screening_format", requirements: ["id" => "[^/]*"], methods: ["DELETE"])]    
+    public function deleteMovieScreeningFormat(
         EntityManagerInterface $em,
         #[MapEntity(mapping:["id" => "id"])] ?MovieScreeningFormat $movieScreeningFormat = null,
         
     ) {
-
         $em->remove($movieScreeningFormat);
         $em->flush();
 
-
-
         return $this->json(null, 204);
     }
+
+    #[Route("/movie-screening-formats/{id?}", name: "app_movie_add_movie_screening_format", requirements: ["id" => "[^/]*"], methods: ["POST"])]    
+    public function addMovieScreeningFormat(
+        EntityManagerInterface $em,
+        Request $request,
+        MovieRepository $movieRepository,
+        #[MapEntity(mapping:["id" => "id"])] ?ScreeningFormat $screeningFormat = null,
+        
+    ) {
+        // check if exist, if yes skip then
+
+        $content = $request->getContent();
+        $data = json_decode($content, true); 
+    
+        $movieId = $data['movieId'] ?? null;
+
+        $movie = $movieRepository->find($movieId);
+        $movieScreeningFormat = new MovieScreeningFormat();
+
+        $movieScreeningFormat->setCinema($movie->getCinema());
+        $movieScreeningFormat->setMovie($movie);
+
+        $movieScreeningFormat->setScreeningFormat($screeningFormat);
+
+        $em->persist($movieScreeningFormat);
+        $em->flush();
+
+
+        // $movieScreeningFormat->set
+
+        // $em->remove($screeningFormat);
+        // $em->flush();
+
+        // object with newly created thing, idk how to honestly
+        // instead of relation maybe return ids, idk...
+
+        return $this->json(null, 201);
+    }
+
 
 
  #[Route('/movies/add-movie-formats/{id}', name: 'app_movie_add_movie_formats', methods: ["POST"])]

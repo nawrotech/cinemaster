@@ -41,15 +41,14 @@
                             <div class="available-movies-screening-formats-input-fields">
                                 
 
-
-
                                     <div data-controller="autocomplete"
                                         data-autocomplete-url-value="{{ path("app_cinema_cinema_screening_formats", {slug:  app.current_route_parameters.slug, movie: movie.id }) }}"
                                         data-autocomplete-movie-screening-formats-url-value="{{ path("app_movie_movie_screening_formats", {slug: app.current_route_parameters.slug, id: movie.id}) }}"
                                         data-autocomplete-delete-movie-screening-format-url-value="{{ path("app_movie_delete_movie_screening_format", {slug: app.current_route_parameters.slug}) }}"
                                         
-                                        
+
                                         data-autocomplete-query-param-value="screeningFormat"
+                                        data-autocomplete-movie-id-value="{{ movie.id }}"
                                         role="combobox">
 
                                     <ul data-autocomplete-target="movieScreeningFormats"></ul>

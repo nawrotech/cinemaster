@@ -12,6 +12,7 @@ class CustomAutocomplete extends Autocomplete {
         movieScreeningFormatsUrl: String,
         addMovieScreeningFormatUrl: String,
         deleteMovieScreeningFormatUrl: String,
+        movieId: Number
         
     }
     
@@ -25,6 +26,8 @@ class CustomAutocomplete extends Autocomplete {
         // console.log(this.deleteMovieScreeningFormat
 
         this.fetchMovieScreeningFormats();
+
+        console.log(this.movieIdValue);
 
       }
 
@@ -56,24 +59,40 @@ class CustomAutocomplete extends Autocomplete {
 
 
       handleChangeEvent(event) {
-        if (!this.storedValues.some(detail => detail.value ===  event.detail.value)) {
-            this.storedValues.push(event.detail);
-        }
+        const screeningFormatId = event.detail.value;
 
-        const htmlElements = this.storedValues.map((el) => {
-            return `<li>
-                        <input type="hidden" value=${el.value} name="screeningFormats[]" />
-                        ${el.textValue} 
-                    </li>`
-        });
+        fetch(`${this.deleteMovieScreeningFormatUrlValue}/${screeningFormatId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                movieId: this.movieIdValue
+            })
+        }).then(() => this.fetchMovieScreeningFormats());
+
+
+        this.inputTarget.select()
+
+
+        // if (!this.storedValues.some(detail => detail.value ===  event.detail.value)) {
+        //     this.storedValues.push(event.detail);
+        // }
+
+
+        // const htmlElements = this.storedValues.map((el) => {
+        //     return `<li>
+        //                 <input type="hidden" value=${el.value} name="screeningFormats[]" />
+        //                 ${el.textValue} 
+        //             </li>`
+        // });
 
         // fetch("movie/")
 
 
-        const htmlFragment = htmlElements.join("");
+        // const htmlFragment = htmlElements.join("");
 
-        this.inputTarget.select()
-        this.selectedScreeningFormatsTarget.innerHTML = htmlFragment;
+        // this.selectedScreeningFormatsTarget.innerHTML = htmlFragment;
 
       }
     
