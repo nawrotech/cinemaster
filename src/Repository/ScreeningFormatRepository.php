@@ -18,23 +18,32 @@ class ScreeningFormatRepository extends ServiceEntityRepository
     }
 
     
-       public function findByIds(array $screeningFormatIds): array
-       {
-           return $this->createQueryBuilder('sf')
-                ->andWhere("sf.if IN :screeningFormatIds")
-                ->setParameter("screeningFormatIds", $screeningFormatIds)
-                ->getQuery()
-                ->getResult()
-           ;
-       }
+    public function findByIds(array $screeningFormatIds): array
+    {
+        return $this->createQueryBuilder('sf')
+            ->andWhere("sf.if IN :screeningFormatIds")
+            ->setParameter("screeningFormatIds", $screeningFormatIds)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 
-    //    public function findOneBySomeField($cinema): ?MovieType
-    //    {
-    //        return $this->createQueryBuilder('sf')
-    //            ->andWhere('sf.exampleField = :val')
-    //            ->setParameter('val', $cinema)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function findScreeningFormatsBySearchedTermForCinema(
+        Cinema $cinema, 
+        string $screeningFormat): array
+    {
+        return $this->createQueryBuilder('sf')
+                        ->innerJoin("sf.visualFormat", "vf")
+                        ->andWhere("sf.languagePresentation LIKE :screeningFormat
+                        OR
+                        vf.name LIKE :screeningFormat")
+                        ->andWhere("sf.cinema = :cinema")
+                        ->setParameter("cinema", $cinema)
+                        ->setParameter("screeningFormat", "%$screeningFormat%")
+                        ->getQuery()
+                        ->getResult()
+        ;
+    }
+
+  
 }
