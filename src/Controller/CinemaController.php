@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Cinema;
+use App\Entity\MovieScreeningFormat;
+use App\Entity\ScreeningFormat;
 use App\Form\CinemaType;
 use App\Repository\CinemaRepository;
 use App\Repository\MovieRepository;
@@ -106,7 +108,36 @@ class CinemaController extends AbstractController
         ]);
     }
 
-  
+    
+    #[Route('/{slug}/cinema-screening-formats', name: 'app_cinema_cinema_screening_formats')]
+    public function cinemaScreeningFormats(
+        ScreeningFormatRepository $screeningFormatRepository,
+        Cinema $cinema,
+        #[MapQueryParameter()] string $screeningFormat = ""
+    ): Response {
+
+        $screeningFormats = $screeningFormatRepository
+                                    ->findScreeningFormatsBySearchedTermForCinema($cinema,
+                                     $screeningFormat);
+
+        if (empty($screeningFormats)) {
+            return new Response("<div class=\"list-group-item\" >No results :(</div>");
+        }
+
+        $displayScreeningFormats = array_map(function (ScreeningFormat $screeningFormat) {
+            return 
+            "<li class=\"list-group-item\" role=\"option\" data-autocomplete-value=\"{$screeningFormat->getId()}\">
+                {$screeningFormat->getDisplayScreeningFormat()}
+            </li>";
+        }, $screeningFormats);
+
+
+        $htmlFragment = (implode("", $displayScreeningFormats));
+        
+        return new Response($htmlFragment);
+
+    }
+
 
 
 
