@@ -37,16 +37,14 @@ class MovieScreeningFormatRepository extends ServiceEntityRepository
     /**
     * @return int[] Returns an array of ScreeningFormat ids for movie at cinema
     */
-   public function findScreeningFormatIdsForMovieAtCinema(Movie $movie, Cinema $cinema) {
+   public function findScreeningFormatsForMovie(Movie $movie) {
           return $this->createQueryBuilder('msf')
                     ->innerJoin("msf.screeningFormat", "sf")
-                    ->select("sf.id")
-                    ->andWhere("msf.cinema = :cinema")
+                    ->addSelect("sf")
                     ->andWhere("msf.movie = :movie")
                     ->setParameter("movie", $movie)
-                    ->setParameter("cinema", $cinema)
                     ->getQuery()
-                    ->getSingleColumnResult()
+                    ->getResult()
         ;
    }
 

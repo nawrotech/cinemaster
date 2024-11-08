@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Adapter\TmdbAdapter;
 use App\Entity\Cinema;
 use App\Entity\Movie;
+use App\Entity\MovieScreeningFormat;
 use App\Factory\TmdbAdapterFactory;
 use App\Form\MovieFormType;
 use App\Form\ScreeningFormatCollectionType;
@@ -58,7 +59,7 @@ class MovieController extends AbstractController
         $screeningFormatIdsForMovie = [];
         foreach ($movieRepository->findAll() as $movie) {
             $screeningFormatIdsForMovie[$movie->getTmdbId()] = $movieScreeningFormatRepository
-                                                            ->findScreeningFormatIdsForMovieAtCinema($movie, $cinema);
+                                                            ->findScreeningFormatsForMovie($movie);
         }
         $storedTmdbIds = $movieRepository->findTmdbIdsForCinema($cinema);
         
@@ -182,8 +183,6 @@ class MovieController extends AbstractController
 
             if ($posterFile) {
                 $posterFilename = $uploaderHelper->uploadMoviePoster($posterFile, $movie->getPosterFilename());
-
-
                 $movie->setPosterFilename($posterFilename);
             }
             
@@ -200,6 +199,7 @@ class MovieController extends AbstractController
     }
 
 
+
  #[Route('/movies/available-movies', name: 'app_movie_available_movies')]
  public function availableMovies(
      MovieRepository $movieRepository,
@@ -213,7 +213,7 @@ class MovieController extends AbstractController
  {
      $movies = $q 
         ? $movieRepository->findBySearchTerm($cinema, $q) 
-        : $movieRepository->findAll();
+        : $movieRepository->findBy(["cinema" => $cinema]);
      
      $mergedMovies = array_map(function(Movie $movie) use($movieDataMerger) {
          return $movieDataMerger->mergeWithApiData($movie);
@@ -232,8 +232,9 @@ class MovieController extends AbstractController
      $screeningFormatIdsForMovie = [];
      foreach ($movies as $movie) {
          $screeningFormatIdsForMovie[$movie->getId()] = $movieScreeningFormatRepository
-                                                         ->findScreeningFormatIdsForMovieAtCinema($movie, $cinema);
+                                                         ->findScreeningFormatsForMovie($movie);
      }
+
 
      $singleMovie = $movieRepository->find(94);
 
@@ -241,17 +242,53 @@ class MovieController extends AbstractController
          "pager" => $pagerfanta,
          "screeningFormats" => $screeningFormats,
          "screeningFormatIdsForMovie" => $screeningFormatIdsForMovie,
-         "singleMovie" => $singleMovie
+         "singleMovie" => $singleMovie,
      ]);
  }
+
+    #[Route("/movies/{id}/movie-screening-formats", name: "app_movie_movie_screening_formats")]
+    public function movieScreeningFormats(
+        #[MapEntity(mapping:["id" => "id"])] Movie $movie,
+        MovieScreeningFormatRepository $movieScreeningFormatRepository
+    ) {
+
+        $screeningFormats = $movieScreeningFormatRepository
+                            ->findScreeningFormatsForMovie($movie);
+
+        $apiResponseScreeningFormats = array_map(function (MovieScreeningFormat $msf) {
+            return [
+                "id" => $msf->getId(),
+                "movieScreeningFormatName" => $msf->getScreeningFormat()->getDisplayScreeningFormat(),
+            ];
+        }, $screeningFormats);
+
+    
+        return $this->json($apiResponseScreeningFormats);
+
+
+    }
+
+    #[Route("/movie-screening-formats/{id?}", name: "app_movie_delete_movie_screening_format", requirements: ["id" => "[^/]*"], methods: ["DELETE"])]    public function deleteMovieScreeningFormat(
+        EntityManagerInterface $em,
+        #[MapEntity(mapping:["id" => "id"])] ?MovieScreeningFormat $movieScreeningFormat = null,
+        
+    ) {
+
+        $em->remove($movieScreeningFormat);
+        $em->flush();
+
+
+
+        return $this->json(null, 204);
+    }
+
 
  #[Route('/movies/add-movie-formats/{id}', name: 'app_movie_add_movie_formats', methods: ["POST"])]
  public function addMovieFormats(
      Request $request,
      MovieScreeningFormatService $movieScreeningFormatService,
      #[MapEntity(mapping:["slug" => "slug"])] Cinema $cinema,
-     #[MapEntity(mapping:["id" => "id"])]
-     Movie $movie,
+     #[MapEntity(mapping:["id" => "id"])] Movie $movie,
      #[MapQueryParameter] int $page = 1,
      #[MapQueryParameter] string $q = "",
      ): Response
@@ -264,7 +301,7 @@ class MovieController extends AbstractController
 
     $screeningFormatIds = array_map("intval", $request->get("screeningFormats", []));
 
-    $movieScreeningFormatService->update($cinema, $movie, $screeningFormatIds);    
+    // $movieScreeningFormatService->update($cinema, $movie, $screeningFormatIds);    
     $movieScreeningFormatService->create($cinema, $movie, $screeningFormatIds); 
 
     $this->addFlash("success", "Screening formats has been applied!");

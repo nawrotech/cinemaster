@@ -10,7 +10,10 @@
     {% endif %}
     
 
+
     {% for cinema in cinemas %}
+
+
         <a class="btn btn-primary" href="{{ path("app_movie_create", {slug: cinema.slug}) }}">
             Create movie
         </a>

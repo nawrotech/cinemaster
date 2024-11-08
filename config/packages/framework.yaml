@@ -15,7 +15,7 @@ framework:
             uploads_url:
                 base_url: "%uploads_base_url%"
 
-    # esi: true
+    esi: true
     fragments: 
         path: /_fragment 
         enabled: true

@@ -24,38 +24,57 @@
           id="{{ "form" ~ loop.index }}"
           style="width: 18rem;">
 
-        
+          
+
                 <input type="hidden" name="token" value="{{ csrf_token('add-movie-formats-token') }}">
                 <input type="hidden" name="formId" value="{{ "form" ~ loop.index }}">
 
-                <img src="{{ asset(movie.posterPath, "uploads_url") }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
+                <div class="image-container">
+                    <img src="{{ asset(movie.posterPath, "uploads_url") }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
+                </div>
 
                   <div class="card-body">
                       <h5 class="card-title">{{ movie.title }}</h5>
                       <p class="card-text text-truncate">{{ movie.overview }}</p>
-                      <fieldset>
+                      <fieldset class="available-movies-screening-formats">
                           <legend class="msf-legend">Screening formats available in your cinema:</legend>
-                          {% for screeningFormat in screeningFormats %}
-                              <label>
-                                  <input 
-                                      name="screeningFormats[]" 
-                                      type="checkbox" 
-                                      value="{{ screeningFormat.id }}"
-                                      {{ screeningFormat.id in (screeningFormatIdsForMovie[movie.id] | default([])) ? "checked" : null  }}
-                                  >
-                                  {{ screeningFormat.displayScreeningFormat }} 
-                              </label>
-                          {% endfor %}
+                            <div class="available-movies-screening-formats-input-fields">
+                                
+
+
+
+                                    <div data-controller="autocomplete"
+                                        data-autocomplete-url-value="{{ path("app_cinema_cinema_screening_formats", {slug:  app.current_route_parameters.slug, movie: movie.id }) }}"
+                                        data-autocomplete-movie-screening-formats-url-value="{{ path("app_movie_movie_screening_formats", {slug: app.current_route_parameters.slug, id: movie.id}) }}"
+                                        data-autocomplete-delete-movie-screening-format-url-value="{{ path("app_movie_delete_movie_screening_format", {slug: app.current_route_parameters.slug}) }}"
+                                        
+                                        
+                                        data-autocomplete-query-param-value="screeningFormat"
+                                        role="combobox">
+
+                                    <ul data-autocomplete-target="movieScreeningFormats"></ul>
+                                   
+                                    
+                                    <input type="text" data-autocomplete-target="input"/>
+
+                                    <input type="hidden" name="chosen-screening-format" data-autocomplete-target="hidden"/>
+                                    <ul class="list-group" data-autocomplete-target="results"></ul>
+                                
+                                    <ul data-autocomplete-target="selectedScreeningFormats"></ul>
+                                </div>
+                            </div>
+                     
                       </fieldset>
-                  </div>
+                  
 
                   <div class="row">
-                    <button  name="apply-formats" value="1" class="btn btn-info">Apply screening formats</button>
+                    <button  name="apply-formats" class="btn btn-info">Apply screening formats</button>
                     <a href="{{ path("app_movie_create", {
                         id: movie.id,
                         slug:  app.current_route_parameters.slug, 
                     }) }}" class="btn btn-secondary">Edit</a>
                   </div>
+                </div>
       
 
                   
