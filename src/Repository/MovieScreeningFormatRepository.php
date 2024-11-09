@@ -35,7 +35,7 @@ class MovieScreeningFormatRepository extends ServiceEntityRepository
    }
 
     /**
-    * @return int[] Returns an array of ScreeningFormat ids for movie at cinema
+    * @return MovieScreeningFormat[] Returns an array of MovieScreeningFormats for movie
     */
    public function findScreeningFormatsForMovie(Movie $movie) {
           return $this->createQueryBuilder('msf')
