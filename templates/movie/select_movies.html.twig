@@ -19,10 +19,10 @@
                 page: app.request.get("page")  
             
             })}}" 
-            method="post" 
-            class="card"
-            id="{{ "form" ~ loop.index }}"
-            style="width: 18rem;">
+                method="post" 
+                class="card"
+                id="{{ "form" ~ loop.index }}"
+                style="width: 18rem;">
                     <input type="hidden" name="token" value="{{ csrf_token('add-movie') }}">
                     <input type="hidden" name="formId" value="{{ "form" ~ loop.index }}">
                     
@@ -33,11 +33,12 @@
                         <p class="card-text text-truncate">{{ movie.overview }}</p>
                     </div>
                     
-                    {% if movie.id in storedTmdbIds %}
-                        <button name="remove-movie" value="1" class="btn btn-danger">Remove movie</button>
-                    {% else %}
+
+                    {% if movie.id not in storedTmdbIds %}
                         <button name="add-movie" value="1" class="btn btn-success">Add movie</button>
                     {% endif %}
+
+
             </form>
         {% endfor %}
 

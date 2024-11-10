@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Cinema;
+use App\Entity\Movie;
 use App\Entity\MovieScreeningFormat;
 use App\Entity\ScreeningRoom;
 use App\Entity\Showtime;
@@ -182,6 +183,17 @@ class ShowtimeRepository extends ServiceEntityRepository
             ;
     }
 
-   
+   public function isScheduledShowtimeForMovie(Movie $movie): bool {
+        return (bool) $this->createQueryBuilder("s")
+                    ->select("1")
+                    ->innerJoin("s.movieScreeningFormat", "msf")
+                    ->where("msf.movie = :movie")
+                    ->setParameter(":movie", $movie)
+                    ->setMaxResults(1)
+                    ->getQuery()
+                    ->getOneOrNullResult()
+        ;
+
+   }
 
 }

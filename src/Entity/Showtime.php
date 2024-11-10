@@ -30,11 +30,11 @@ class Showtime
     #[ORM\Column]
     private ?int $advertisementTimeInMinutes = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(inversedBy: "showtimes")]
     #[ORM\JoinColumn(nullable: false)]
     private ?MovieScreeningFormat $movieScreeningFormat = null;
 
-
+    
     #[ORM\ManyToOne(inversedBy: 'showtimes')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Cinema $cinema = null;

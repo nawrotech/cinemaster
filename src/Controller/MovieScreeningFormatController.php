@@ -6,13 +6,11 @@ use App\Entity\Cinema;
 use App\Entity\Movie;
 use App\Entity\MovieScreeningFormat;
 use App\Entity\ScreeningFormat;
-use App\Repository\MovieRepository;
 use App\Repository\MovieScreeningFormatRepository;
 use App\Repository\ScreeningFormatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
@@ -62,6 +60,8 @@ class MovieScreeningFormatController extends AbstractController
             return [
                 "id" => $msf->getId(),
                 "movieScreeningFormatName" => $msf->getScreeningFormat()->getDisplayScreeningFormat(),
+                "isScheduledShowtime" => $msf->getShowtimes()->count()
+
             ];
         }, $screeningFormats);
 

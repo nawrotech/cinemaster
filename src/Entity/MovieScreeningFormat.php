@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\MovieScreeningFormatRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 
@@ -28,6 +30,28 @@ class MovieScreeningFormat
     #[ORM\ManyToOne(inversedBy: 'movieScreeningFormats')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Cinema $cinema = null;
+
+    /**
+     * @var Collection<int, Showtime>
+     */
+    #[ORM\OneToMany(targetEntity: Showtime::class, mappedBy: "movieScreeningFormat")]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Collection $showtimes = null;
+
+    public function __construct()
+    {
+        $this->showtimes = new ArrayCollection();
+
+    }
+
+    /**
+     * @return Collection<int, ScreeningRoom>
+     */
+    public function getShowtimes(): Collection
+    {
+        return $this->showtimes;
+    }
+
 
     public function getId(): ?int
     {

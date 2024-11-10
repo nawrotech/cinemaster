@@ -23,11 +23,16 @@ export default class CustomAutocomplete extends Autocomplete {
             fetch(this.screeningFormatsForMovieUrlValue)
                 .then(res => res.json())
                 .then(data => {
+                    
+
                     const movieScreeningFormatsList = data.map((el) => {
                         return  `<li>
                                     <input type="hidden" value=${el.id} name="screeningFormats[]" />
                                     ${el.movieScreeningFormatName} 
-                                    <button class="btn btn-danger btn-sm" type="button" value="${el.id}" data-action="movie-screening-format-ajaxes#deleteMovieScreeningFormat" >Delete</button>
+                                    ${!el.isScheduledShowtime ?  
+                                        `<button class="btn btn-danger btn-sm" type="button" value="${el.id}" 
+                                            data-action="movie-screening-format-ajaxes#deleteMovieScreeningFormat">
+                                        Delete</button>` : ""}
                                 </li>`
                     });
                     const screeningFormatsForMovieListElements = movieScreeningFormatsList.join("");

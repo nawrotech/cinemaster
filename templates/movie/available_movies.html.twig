@@ -24,7 +24,9 @@
           id="{{ "form" ~ loop.index }}"
           style="width: 18rem;">
 
-          
+              
+
+                
 
                 <input type="hidden" name="token" value="{{ csrf_token('add-movie-formats-token') }}">
                 <input type="hidden" name="formId" value="{{ "form" ~ loop.index }}">
@@ -41,10 +43,10 @@
                       <fieldset class="available-movies-screening-formats">
                           <legend class="msf-legend">Screening formats available in your cinema:</legend>
                             <div class="available-movies-screening-formats-input-fields">
-                                
+                                        
                                     <div data-controller="movie-screening-format-ajaxes"
                                         data-movie-screening-format-ajaxes-url-value="{{ path("app_movie_screening_format_cinema_screening_formats", {slug:  app.current_route_parameters.slug }) }}"
-                                       
+                                    
                                         data-movie-screening-format-ajaxes-screening-formats-for-movie-url-value="{{ path("app_movie_screening_format_for_movie", {id: movie.id}) }}"
                                         
                                         data-movie-screening-format-ajaxes-movie-screening-format-delete-url-value="{{ path("app_movie_screening_format_delete") }}"
@@ -65,13 +67,18 @@
                                     
                                         <ul data-movie-screening-format-ajaxes-target="screeningFormatsForMovie"></ul>
                                     </div>
+                                
+
+                                    {% if isScheduledShowtimeForMovie[movie.id] == false %}
+                                        <div class="row">
+                                            <a href="{{ path("app_movie_create", {
+                                                id: movie.id,
+                                                slug:  app.current_route_parameters.slug, 
+                                            }) }}" class="btn btn-primary">Edit</a>
+                                        </div>
+                                    {% endif %}
                                     
-                                    <div class="row">
-                                        <a href="{{ path("app_movie_create", {
-                                            id: movie.id,
-                                            slug:  app.current_route_parameters.slug, 
-                                        }) }}" class="btn btn-primary">Edit</a>
-                                    </div>
+
 
 
                                     </div>

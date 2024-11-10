@@ -5,14 +5,13 @@ namespace App\Controller;
 use App\Adapter\TmdbAdapter;
 use App\Entity\Cinema;
 use App\Entity\Movie;
-use App\Entity\MovieScreeningFormat;
-use App\Entity\ScreeningFormat;
 use App\Factory\TmdbAdapterFactory;
 use App\Form\MovieFormType;
 use App\Form\ScreeningFormatCollectionType;
 use App\Repository\MovieRepository;
 use App\Repository\MovieScreeningFormatRepository;
 use App\Repository\ScreeningFormatRepository;
+use App\Repository\ShowtimeRepository;
 use App\Service\MovieDataMerger;
 use App\Service\MovieScreeningFormatService;
 use App\Service\TmdbApiService;
@@ -46,7 +45,6 @@ class MovieController extends AbstractController
         $params = $q ? ["query" => $q] : [];
 
         $adapter = $tmdbAdapterFactory->create($endpoint, $params);
-
         $pagerfanta = new Pagerfanta($adapter);
 
         $currentPage = max(1, $page);
@@ -64,7 +62,7 @@ class MovieController extends AbstractController
         }
         $storedTmdbIds = $movieRepository->findTmdbIdsForCinema($cinema);
         
-        return $this->render('movie/index.html.twig', [
+        return $this->render('movie/select_movies.html.twig', [
             "storedTmdbIds" => $storedTmdbIds,
             "pager" => $pagerfanta,
             "screeningFormats" => $screeningFormats,
@@ -208,6 +206,7 @@ class MovieController extends AbstractController
      ScreeningFormatRepository $screeningFormatRepository,
      MovieScreeningFormatRepository $movieScreeningFormatRepository,
      Cinema $cinema,
+     ShowtimeRepository $showtimeRepository,
      #[MapQueryParameter()] int $page = 1,
      #[MapQueryParameter()] string $q = ""
  ): Response
@@ -230,20 +229,15 @@ class MovieController extends AbstractController
          "cinema" => $cinema
      ]);
 
-     $screeningFormatIdsForMovie = [];
+     $isScheduledShowtimeForMovie = [];
      foreach ($movies as $movie) {
-         $screeningFormatIdsForMovie[$movie->getId()] = $movieScreeningFormatRepository
-                                                         ->findScreeningFormatsForMovie($movie);
+        $isScheduledShowtimeForMovie[$movie->getId()] =  $showtimeRepository->isScheduledShowtimeForMovie($movie);
      }
-
-
-     $singleMovie = $movieRepository->find(94);
 
      return $this->render('movie/available_movies.html.twig', [
          "pager" => $pagerfanta,
          "screeningFormats" => $screeningFormats,
-         "screeningFormatIdsForMovie" => $screeningFormatIdsForMovie,
-         "singleMovie" => $singleMovie,
+         "isScheduledShowtimeForMovie" => $isScheduledShowtimeForMovie
      ]);
  }
 
@@ -266,7 +260,6 @@ class MovieController extends AbstractController
 
     $screeningFormatIds = array_map("intval", $request->get("screeningFormats", []));
 
-    // $movieScreeningFormatService->update($cinema, $movie, $screeningFormatIds);    
     $movieScreeningFormatService->create($cinema, $movie, $screeningFormatIds); 
 
     $this->addFlash("success", "Screening formats has been applied!");
