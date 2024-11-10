@@ -223,7 +223,7 @@ class MovieController extends AbstractController
      $adapter = new ArrayAdapter($mergedMovies);
      $pagerfanta = new Pagerfanta($adapter);
 
-     $pagerfanta->setMaxPerPage(10);
+     $pagerfanta->setMaxPerPage(12);
      $pagerfanta->setCurrentPage($page);
 
      $screeningFormats = $screeningFormatRepository->findBy([

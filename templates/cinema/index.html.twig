@@ -26,8 +26,8 @@
 
 
             {% if is_granted("ROLE_ADMIN") %}
-                <a href="{{path("app_cinema_create", {slug: cinema.slug})}}" class="btn btn-primary">
-                    Edit
+                <a href="{{path("app_cinema_details", {slug: cinema.slug})}}" class="btn btn-primary">
+                    Show details
                 </a>
                 <a class="btn btn-secondary" href="{{path("app_screening_room_create", {slug: cinema.slug})}}">
                     Create screening room
@@ -36,9 +36,14 @@
             
                 <a class="btn btn-outline-danger" href="{{path("app_showtime", {slug: cinema.slug})}}">Show scheduled showtimes</a>
                 
-                <a class="btn btn-info" href="{{path("app_screening_room_create_types", {slug: cinema.slug})}}">Create screening room type</a>
-               
-                <a class="btn btn-warning" href="{{path("app_movie_create_screening_formats", {slug: cinema.slug})}}">Create screening formats</a>
+                {% if cinema.screeningRoomSetups is empty %}
+                    <a class="btn btn-info" href="{{path("app_screening_room_create_types", {slug: cinema.slug})}}">Create screening room type</a>
+                {% endif %}
+                
+                {% if cinema.screeningRoomSetups is empty %}    
+                    <a class="btn btn-warning" href="{{path("app_movie_create_screening_formats", {slug: cinema.slug})}}">Create screening formats</a>
+                {% endif %}
+                
                 
                 {# <a class="btn btn-outline-warning" href="{{path("app_movie", {slug: cinema.slug})}}">Add movies to the cinema</a> #}
                 

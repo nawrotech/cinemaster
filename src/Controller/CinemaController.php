@@ -3,8 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Cinema;
-use App\Entity\MovieScreeningFormat;
-use App\Entity\ScreeningFormat;
 use App\Form\CinemaType;
 use App\Repository\CinemaRepository;
 use App\Repository\MovieRepository;
@@ -36,20 +34,15 @@ class CinemaController extends AbstractController
         ]);
     }
 
-
- #[Route('/create/{slug?}', name: 'app_cinema_create')]
+    #[Route('/create', name: 'app_cinema_create')]
     public function create(
         Request $request,
         EntityManagerInterface $em,
-        ?string $slug = null,
-        ?Cinema $cinema = null
     ): Response {   
 
-        if (!$cinema) {
-            $cinema =  new Cinema();
-            $cinema->setOwner($this->getUser());
-        }
-
+        $cinema =  new Cinema();
+        $cinema->setOwner($this->getUser());
+        
         $form = $this->createForm(CinemaType::class, $cinema);
         $form->handleRequest($request);
 
@@ -58,11 +51,7 @@ class CinemaController extends AbstractController
             $em->persist($cinema);
             $em->flush();
 
-            if (!$slug) {
-                $this->addFlash("success", "Cinema created!");
-            } else {
-                $this->addFlash("success", "Cinema updated!");
-            }
+            $this->addFlash("success", "Cinema created!");
             
             return $this->redirectToRoute("app_cinema");
         }
@@ -71,6 +60,18 @@ class CinemaController extends AbstractController
             "form" => $form
         ]);
     }
+
+
+
+    #[Route('/{slug}', name: 'app_cinema_details')]
+    public function cinemaDetails(Cinema $cinema) {
+
+        return $this->render("cinema/cinema_details.html.twig", [
+            "cinema" => $cinema
+        ]);
+    }
+
+
 
 
     #[Route('/{slug?}/add-movies/', name: 'app_cinema_add_movies')]
@@ -109,7 +110,6 @@ class CinemaController extends AbstractController
     }
 
     
-
 
 
   

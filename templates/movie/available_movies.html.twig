@@ -36,11 +36,12 @@
                   <div class="card-body">
                       <h5 class="card-title">{{ movie.title }}</h5>
                       <p class="card-text text-truncate">{{ movie.overview }}</p>
+
+
                       <fieldset class="available-movies-screening-formats">
                           <legend class="msf-legend">Screening formats available in your cinema:</legend>
                             <div class="available-movies-screening-formats-input-fields">
                                 
-
                                     <div data-controller="movie-screening-format-ajaxes"
                                         data-movie-screening-format-ajaxes-url-value="{{ path("app_movie_screening_format_cinema_screening_formats", {slug:  app.current_route_parameters.slug }) }}"
                                        
@@ -54,29 +55,33 @@
                                         data-movie-screening-format-ajaxes-query-param-value="screeningFormat"
                                         role="combobox">
 
-                                    <ul data-movie-screening-format-ajaxes-target="movieScreeningFormats"></ul>
-                                   
+                                        <ul data-movie-screening-format-ajaxes-target="movieScreeningFormats"></ul>
                                     
-                                    <input type="text" data-movie-screening-format-ajaxes-target="input"/>
+                                        
+                                        <input type="text" data-movie-screening-format-ajaxes-target="input"/>
 
-                                    <input type="hidden" name="chosen-screening-format" data-movie-screening-format-ajaxes-target="hidden"/>
-                                    <ul class="list-group" data-movie-screening-format-ajaxes-target="results"></ul>
-                                
-                                    <ul data-movie-screening-format-ajaxes-target="screeningFormatsForMovie"></ul>
-                                </div>
+                                        <input type="hidden" name="chosen-screening-format" data-movie-screening-format-ajaxes-target="hidden"/>
+                                        <ul class="list-group" data-movie-screening-format-ajaxes-target="results"></ul>
+                                    
+                                        <ul data-movie-screening-format-ajaxes-target="screeningFormatsForMovie"></ul>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <a href="{{ path("app_movie_create", {
+                                            id: movie.id,
+                                            slug:  app.current_route_parameters.slug, 
+                                        }) }}" class="btn btn-primary">Edit</a>
+                                    </div>
+
+
+                                    </div>
                             </div>
                      
                       </fieldset>
                   
 
-                  <div class="row">
-                    <button  name="apply-formats" class="btn btn-info">Apply screening formats</button>
-                    <a href="{{ path("app_movie_create", {
-                        id: movie.id,
-                        slug:  app.current_route_parameters.slug, 
-                    }) }}" class="btn btn-secondary">Edit</a>
-                  </div>
-                </div>
+
+               
       
 
                   

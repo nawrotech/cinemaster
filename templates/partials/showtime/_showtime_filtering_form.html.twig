@@ -1,7 +1,7 @@
 
 <form>
     <select name="screeningRoomName">
-        <option>All rooms</option>
+        <option value="">All rooms</option>
         {% for roomName in availableRoomNames %}
             <option 
                 {{ roomName == app.request.get("screeningRoomName") ? "selected" : null }}
