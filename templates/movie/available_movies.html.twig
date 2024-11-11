@@ -2,75 +2,52 @@
 
 {% block title %}Available movies{% endblock %}
 
+{% block stylesheets %}
+{{ parent() }}
+    <link href=" https://cdn.jsdelivr.net/npm/dropzone@6.0.0-beta.2/dist/dropzone.min.css " rel="stylesheet">
+{% endblock %}
+
 {% block body %}
+  
+
     {{ include("partials/_search_input.html.twig", {
         action_route: "",
         query_value: app.request.get("q"),
         name: "q",
     }) }}
-
-
+  
     <div class="grid-container">
+     
       {% for movie in pager %}
 
         <div class="card" style="width: 18rem;">
             <div class="image-container">
                 <img src="{{ asset(movie.posterPath, "uploads_url") }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
             </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ movie.title }}</h5>
+                    <p class="card-text text-truncate">{{ movie.overview }}</p>
 
-                  <div class="card-body">
-                      <h5 class="card-title">{{ movie.title }}</h5>
-                      <p class="card-text text-truncate">{{ movie.overview }}</p>
-
-
-                      <fieldset class="available-movies-screening-formats">
-                          <legend class="msf-legend">Screening formats available in your cinema:</legend>
-                                        
-                                   {{ include("partials/movie/_add_movie_screening_formats.html.twig") }}
-
-                                    <form action="{{path("app_movie_delete", {
-                                        slug:  app.current_route_parameters.slug, 
-                                        id: movie.id,
-                                        q: app.request.get("q"),
-                                        page: app.request.get("page")  
+                    <fieldset class="available-movies-screening-formats">
+                        <legend class="msf-legend">Screening formats available in your cinema:</legend>
                                     
-                                        })}}" 
-                                        method="delete" 
-                                        id="{{ "form" ~ loop.index }}"
-                                        >
-                                        <input type="hidden" name="token" value="{{ csrf_token('add-movie-formats-token') }}">
-                                        <input type="hidden" name="formId" value="{{ "form" ~ loop.index }}">
+                            {{ include("partials/movie/_add_movie_screening_formats.html.twig") }}
 
-                                        {% if isScheduledShowtimeForMovie[movie.id] == false %}
-                                            <div class="row">
-                                                <a href="{{ path("app_movie_create", {
-                                                    id: movie.id,
-                                                    slug:  app.current_route_parameters.slug, 
-                                                }) }}" class="btn btn-primary col-6">Edit</a>
-                                                <button class="btn btn-danger col-6">Delete Movie</button>
+                            {{ include("partials/movie/_movie_update_form.html.twig") }}
 
-                                            </div>
-                                        {% endif %}
-                                    
-                                    </form>
-
-
-                            </div>
-                     
-                      </fieldset>
-                  
-                    </div>
-
-
-               
-      
-
-                  
+                            {{ include("partials/movie/_modal_ajax_reference_list.html.twig") }}
+                    </fieldset>
+                </div>
+                    
+                   
+                
+        </div>
           
       {% endfor %}
+    </div>
 
       
-  </div>
+
   {{ pagerfanta(pager, "twitter_bootstrap5") }}
 
 

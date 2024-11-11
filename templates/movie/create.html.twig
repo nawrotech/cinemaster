@@ -25,20 +25,7 @@
     {{ form_end(form) }}
 
     
-    {% if form.vars.data.id %}
-        <div {{ stimulus_controller("ajax-reference-list", {
-            url:  path("movie_references_list", { id: form.vars.data.id}) 
-        }) }}>
-            <ul {{ stimulus_target("ajax-reference-list", "referenceList") }}>
-            </ul>
-            <form 
-                {{ stimulus_target("ajax-reference-list", "form") }}
-                action="{{ path("app_movie_add_reference", {
-                    id: form.vars.data.id
-            }) }}" method="post" enctype="multipart/form-data" class="dropzone js-reference-dropzone">
-            </form>
-        </div>
-    {% endif %}
+
 
 
 

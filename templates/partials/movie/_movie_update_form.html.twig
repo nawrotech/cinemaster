@@ -1,0 +1,25 @@
+<form action="{{path("app_movie_delete", {
+    slug:  app.current_route_parameters.slug, 
+    id: movie.id,
+    q: app.request.get("q"),
+    page: app.request.get("page")  
+
+    })}}" 
+    method="delete" 
+    id="{{ "form" ~ loop.index }}"
+    >
+    <input type="hidden" name="token" value="{{ csrf_token('add-movie-formats-token') }}">
+    <input type="hidden" name="formId" value="{{ "form" ~ loop.index }}">
+
+    {% if isScheduledShowtimeForMovie[movie.id] == false %}
+        <div class="row">
+            <a href="{{ path("app_movie_create", {
+                id: movie.id,
+                slug:  app.current_route_parameters.slug, 
+            }) }}" class="btn btn-primary col-6">Edit</a>
+            <button class="btn btn-danger col-6">Delete Movie</button>
+
+        </div>
+    {% endif %}
+  
+</form>

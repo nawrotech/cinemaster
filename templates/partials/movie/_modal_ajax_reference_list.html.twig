@@ -1,0 +1,31 @@
+<div class="row">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-{{ movie.id }}">                                                Add photos
+    </button>
+</div>
+
+<div class="modal fade" id="modal-{{ movie.id }}" tabindex="-1" aria-labelledby="modalLabel-{{ movie.id }}" aria-hidden="true">                                            <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div {{ stimulus_controller("ajax-reference-list", {
+                    url:  path("movie_references_list", { id: movie.id}) 
+                }) }}>
+                    <ul {{ stimulus_target("ajax-reference-list", "referenceList") }}>
+                    </ul>
+                    <form 
+                        {{ stimulus_target("ajax-reference-list", "form") }}
+                        action="{{ path("app_movie_add_reference", {
+                            id: movie.id
+                    }) }}" method="post" enctype="multipart/form-data" class="dropzone js-reference-dropzone">
+                    </form>
+                </div> 
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+    </div>      

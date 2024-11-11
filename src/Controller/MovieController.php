@@ -12,7 +12,6 @@ use App\Repository\MovieRepository;
 use App\Repository\ScreeningFormatRepository;
 use App\Repository\ShowtimeRepository;
 use App\Service\MovieDataMerger;
-use App\Service\MovieScreeningFormatService;
 use App\Service\TmdbApiService;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
@@ -255,14 +254,12 @@ class MovieController extends AbstractController
          return $this->redirectToRoute("app_movie");
      }
 
-    // if ($request->get("remove-movie")) {
-        $tmdbApiService->deleteMovie($movie->getTmdbId());
+    $tmdbApiService->deleteMovie($movie->getTmdbId());
 
-        $em->remove($movie);
-        $em->flush();
+    $em->remove($movie);
+    $em->flush();
 
-        $this->addFlash("warning", "Movie has been removed");
-    // }
+    $this->addFlash("warning", "Movie has been removed");
 
      
      return $this->redirectToRoute("app_movie_available_movies", [
