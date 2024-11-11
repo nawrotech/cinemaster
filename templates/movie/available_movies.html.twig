@@ -12,28 +12,11 @@
 
     <div class="grid-container">
       {% for movie in pager %}
-          <form action="{{path("app_movie_add_movie_formats", {
-              slug:  app.current_route_parameters.slug, 
-              id: movie.id,
-              q: app.request.get("q"),
-              page: app.request.get("page")  
-          
-          })}}" 
-          method="post" 
-          class="card"
-          id="{{ "form" ~ loop.index }}"
-          style="width: 18rem;">
 
-              
-
-                
-
-                <input type="hidden" name="token" value="{{ csrf_token('add-movie-formats-token') }}">
-                <input type="hidden" name="formId" value="{{ "form" ~ loop.index }}">
-
-                <div class="image-container">
-                    <img src="{{ asset(movie.posterPath, "uploads_url") }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
-                </div>
+        <div class="card" style="width: 18rem;">
+            <div class="image-container">
+                <img src="{{ asset(movie.posterPath, "uploads_url") }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
+            </div>
 
                   <div class="card-body">
                       <h5 class="card-title">{{ movie.title }}</h5>
@@ -42,57 +25,48 @@
 
                       <fieldset class="available-movies-screening-formats">
                           <legend class="msf-legend">Screening formats available in your cinema:</legend>
-                            <div class="available-movies-screening-formats-input-fields">
                                         
-                                    <div data-controller="movie-screening-format-ajaxes"
-                                        data-movie-screening-format-ajaxes-url-value="{{ path("app_movie_screening_format_cinema_screening_formats", {slug:  app.current_route_parameters.slug }) }}"
+                                   {{ include("partials/movie/_add_movie_screening_formats.html.twig") }}
+
+                                    <form action="{{path("app_movie_delete", {
+                                        slug:  app.current_route_parameters.slug, 
+                                        id: movie.id,
+                                        q: app.request.get("q"),
+                                        page: app.request.get("page")  
                                     
-                                        data-movie-screening-format-ajaxes-screening-formats-for-movie-url-value="{{ path("app_movie_screening_format_for_movie", {id: movie.id}) }}"
-                                        
-                                        data-movie-screening-format-ajaxes-movie-screening-format-delete-url-value="{{ path("app_movie_screening_format_delete") }}"
-                                        
-                                        data-movie-screening-format-ajaxes-movie-screening-format-create-url-value="{{ path("app_movie_screening_format_create", {movieId: movie.id}) }}"
-                                        
+                                        })}}" 
+                                        method="delete" 
+                                        id="{{ "form" ~ loop.index }}"
+                                        >
+                                        <input type="hidden" name="token" value="{{ csrf_token('add-movie-formats-token') }}">
+                                        <input type="hidden" name="formId" value="{{ "form" ~ loop.index }}">
 
-                                        data-movie-screening-format-ajaxes-query-param-value="screeningFormat"
-                                        role="combobox">
+                                        {% if isScheduledShowtimeForMovie[movie.id] == false %}
+                                            <div class="row">
+                                                <a href="{{ path("app_movie_create", {
+                                                    id: movie.id,
+                                                    slug:  app.current_route_parameters.slug, 
+                                                }) }}" class="btn btn-primary col-6">Edit</a>
+                                                <button class="btn btn-danger col-6">Delete Movie</button>
 
-                                        <ul data-movie-screening-format-ajaxes-target="movieScreeningFormats"></ul>
+                                            </div>
+                                        {% endif %}
                                     
-                                        
-                                        <input type="text" data-movie-screening-format-ajaxes-target="input"/>
-
-                                        <input type="hidden" name="chosen-screening-format" data-movie-screening-format-ajaxes-target="hidden"/>
-                                        <ul class="list-group" data-movie-screening-format-ajaxes-target="results"></ul>
-                                    
-                                        <ul data-movie-screening-format-ajaxes-target="screeningFormatsForMovie"></ul>
-                                    </div>
-                                
-
-                                    {% if isScheduledShowtimeForMovie[movie.id] == false %}
-                                        <div class="row">
-                                            <a href="{{ path("app_movie_create", {
-                                                id: movie.id,
-                                                slug:  app.current_route_parameters.slug, 
-                                            }) }}" class="btn btn-primary">Edit</a>
-                                        </div>
-                                    {% endif %}
-                                    
+                                    </form>
 
 
-
-                                    </div>
                             </div>
                      
                       </fieldset>
                   
+                    </div>
 
 
                
       
 
                   
-          </form>
+          
       {% endfor %}
 
       

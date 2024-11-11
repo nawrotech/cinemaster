@@ -10,11 +10,13 @@
         name: "q"
     }) }}
 
+    {% set cinemaSlug = app.current_route_parameters.slug %}
+
     <div class="grid-container">
-        {% for movie in pager %}
+        {% for tmdbMovie in pager %}
             <form action="{{path("app_movie_add", {
-                slug:  app.current_route_parameters.slug, 
-                tmdbId: movie.id,
+                slug:  cinemaSlug, 
+                tmdbId: tmdbMovie.id,
                 q: app.request.get("q"),
                 page: app.request.get("page")  
             
@@ -23,19 +25,24 @@
                 class="card"
                 id="{{ "form" ~ loop.index }}"
                 style="width: 18rem;">
-                    <input type="hidden" name="token" value="{{ csrf_token('add-movie') }}">
+                    <input type="hidden" name="token" value="{{ csrf_token('add-tmdbMovie') }}">
                     <input type="hidden" name="formId" value="{{ "form" ~ loop.index }}">
                     
-                    <img src="{{ "https://image.tmdb.org/t/p/w300" ~ movie.poster_path }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
+                    <img src="{{ "https://image.tmdb.org/t/p/w300" ~ tmdbMovie.poster_path }}" class="card-img-top" alt="{{ tmdbMovie.title ~ "poster-image" }}">
                    
                     <div class="card-body">
-                        <h5 class="card-title">{{ movie.title }}</h5>
-                        <p class="card-text text-truncate">{{ movie.overview }}</p>
+                        <h5 class="card-title">{{ tmdbMovie.title }}</h5>
+                        <p class="card-text text-truncate">{{ tmdbMovie.overview }}</p>
                     </div>
                     
 
-                    {% if movie.id not in storedTmdbIds %}
-                        <button name="add-movie" value="1" class="btn btn-success">Add movie</button>
+                    {% if tmdbMovie.id not in storedTmdbIds %}
+                        <button name="add-tmdbMovie" value="1" class="btn btn-success">Add tmdbMovie</button>
+                        {% else %}
+                        <a class="btn btn-warning" href="{{ path("app_movie_available_movies", {
+                            slug: cinemaSlug,
+                            q: tmdbMovie.title
+                        }) }}">View</a>
                     {% endif %}
 
 

@@ -9,7 +9,6 @@ use App\Factory\TmdbAdapterFactory;
 use App\Form\MovieFormType;
 use App\Form\ScreeningFormatCollectionType;
 use App\Repository\MovieRepository;
-use App\Repository\MovieScreeningFormatRepository;
 use App\Repository\ScreeningFormatRepository;
 use App\Repository\ShowtimeRepository;
 use App\Service\MovieDataMerger;
@@ -34,13 +33,12 @@ class MovieController extends AbstractController
         MovieRepository $movieRepository,
         TmdbAdapterFactory $tmdbAdapterFactory,
         ScreeningFormatRepository $screeningFormatRepository,
-        MovieScreeningFormatRepository $movieScreeningFormatRepository,
         Cinema $cinema,
         #[MapQueryParameter()] string $q = "",
         #[MapQueryParameter()] int $page = 1,
         ): Response
     {
- 
+        
         $endpoint = $q ? "search/movie" : "movie/now_playing";
         $params = $q ? ["query" => $q] : [];
 
@@ -54,19 +52,12 @@ class MovieController extends AbstractController
         $screeningFormats = $screeningFormatRepository->findBy([
             "cinema" => $cinema
         ]);
-
-        $screeningFormatIdsForMovie = [];
-        foreach ($movieRepository->findAll() as $movie) {
-            $screeningFormatIdsForMovie[$movie->getTmdbId()] = $movieScreeningFormatRepository
-                                                            ->findScreeningFormatsForMovie($movie);
-        }
         $storedTmdbIds = $movieRepository->findTmdbIdsForCinema($cinema);
         
         return $this->render('movie/select_movies.html.twig', [
             "storedTmdbIds" => $storedTmdbIds,
             "pager" => $pagerfanta,
             "screeningFormats" => $screeningFormats,
-            "screeningFormatIdsForMovie" => $screeningFormatIdsForMovie            
         ]);
     }
 
@@ -75,7 +66,6 @@ class MovieController extends AbstractController
         TmdbApiService $tmdbApiService,
         Request $request,
         EntityManagerInterface $em,
-        MovieRepository $movieRepository,
         Cinema $cinema,
         int $tmdbId,
         #[MapQueryParameter] int $page = 1,
@@ -83,15 +73,15 @@ class MovieController extends AbstractController
         ): Response
     {
         $submittedToken = $request->get("token");
-        if (!$this->isCsrfTokenValid("add-movie", $submittedToken)) {
-            $this->addFlash("error", "Invalid CSRF token");
+        if (!$this->isCsrfTokenValid("add-tmdbMovie", $submittedToken)) {
+            $this->addFlash("danger", "Invalid CSRF token");
             return $this->redirectToRoute("app_movie_select_movies", [
                 "slug" => $cinema->getSlug()
             ]);
         }
 
 
-        if ($request->get("add-movie")) {
+        if ($request->get("add-tmdbMovie")) {
             $movieTmdbDto = $tmdbApiService->cacheMovie($tmdbId);
             
             $movie = new Movie();
@@ -106,17 +96,7 @@ class MovieController extends AbstractController
 
         }
 
-        if ($request->get("remove-movie")) {
-            $tmdbApiService->deleteMovie($tmdbId);
-
-            $movie = $movieRepository->findOneBy(["tmdbId" => $tmdbId]);
-            $em->remove($movie);
-            $em->flush();
-
-            $this->addFlash("warning", "Movie has been removed");
-        }
         
-
         return $this->redirectToRoute("app_movie_select_movies", [
             "slug" => $cinema->getSlug(),
             "page" => $page,
@@ -179,11 +159,28 @@ class MovieController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
 
             $posterFile = $form->get("poster")->getData();
-
             if ($posterFile) {
-                $posterFilename = $uploaderHelper->uploadMoviePoster($posterFile, $movie->getPosterFilename());
+                $posterFilename = $uploaderHelper->uploadMoviePoster($posterFile, $movie?->getPosterFilename());
                 $movie->setPosterFilename($posterFilename);
             }
+
+
+            $submittedForm = $request->get($form->getName());
+           
+            if ($submittedForm["deletePoster"] ?? null) {
+
+                $em->wrapInTransaction(function($em) use($uploaderHelper, $movie) {
+                    $uploaderHelper->deleteFile($movie->getPosterPath());
+                    $movie->setPosterFilename(null);
+
+                    $em->flush();
+                });
+     
+
+                $this->addFlash('warning', 'Poster successfully deleted!');
+                return $this->redirectToRoute('app_movie_available_movies', ["slug" => $cinema->getSlug()]);      
+            }
+            
             
             $em->persist($movie);
             $em->flush();
@@ -204,7 +201,6 @@ class MovieController extends AbstractController
      MovieRepository $movieRepository,
      MovieDataMerger $movieDataMerger,
      ScreeningFormatRepository $screeningFormatRepository,
-     MovieScreeningFormatRepository $movieScreeningFormatRepository,
      Cinema $cinema,
      ShowtimeRepository $showtimeRepository,
      #[MapQueryParameter()] int $page = 1,
@@ -242,10 +238,11 @@ class MovieController extends AbstractController
  }
 
 
- #[Route('/movies/add-movie-formats/{id}', name: 'app_movie_add_movie_formats', methods: ["POST"])]
+ #[Route('/movies/{id}', name: 'app_movie_delete', methods: ["DELETE"])]
  public function addMovieFormats(
      Request $request,
-     MovieScreeningFormatService $movieScreeningFormatService,
+     EntityManagerInterface $em,
+     TmdbApiService $tmdbApiService,
      #[MapEntity(mapping:["slug" => "slug"])] Cinema $cinema,
      #[MapEntity(mapping:["id" => "id"])] Movie $movie,
      #[MapQueryParameter] int $page = 1,
@@ -258,11 +255,15 @@ class MovieController extends AbstractController
          return $this->redirectToRoute("app_movie");
      }
 
-    $screeningFormatIds = array_map("intval", $request->get("screeningFormats", []));
+    // if ($request->get("remove-movie")) {
+        $tmdbApiService->deleteMovie($movie->getTmdbId());
 
-    $movieScreeningFormatService->create($cinema, $movie, $screeningFormatIds); 
+        $em->remove($movie);
+        $em->flush();
 
-    $this->addFlash("success", "Screening formats has been applied!");
+        $this->addFlash("warning", "Movie has been removed");
+    // }
+
      
      return $this->redirectToRoute("app_movie_available_movies", [
          "page" => $page,

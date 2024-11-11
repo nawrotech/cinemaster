@@ -1,0 +1,23 @@
+<div data-controller="movie-screening-format-ajaxes"
+    data-movie-screening-format-ajaxes-url-value="{{ path("app_movie_screening_format_cinema_screening_formats", {slug:  app.current_route_parameters.slug }) }}"
+
+    data-movie-screening-format-ajaxes-screening-formats-for-movie-url-value="{{ path("app_movie_screening_format_for_movie", {id: movie.id}) }}"
+
+    data-movie-screening-format-ajaxes-movie-screening-format-delete-url-value="{{ path("app_movie_screening_format_delete") }}"
+
+    data-movie-screening-format-ajaxes-movie-screening-format-create-url-value="{{ path("app_movie_screening_format_create", {movieId: movie.id}) }}"
+
+
+    data-movie-screening-format-ajaxes-query-param-value="screeningFormat"
+    role="combobox">
+
+    <ul data-movie-screening-format-ajaxes-target="movieScreeningFormats"></ul>
+
+
+    <input type="text" data-movie-screening-format-ajaxes-target="input"/>
+
+    <input type="hidden" name="chosen-screening-format" data-movie-screening-format-ajaxes-target="hidden"/>
+    <ul class="list-group" data-movie-screening-format-ajaxes-target="results"></ul>
+
+    <ul data-movie-screening-format-ajaxes-target="screeningFormatsForMovie"></ul>
+</div>

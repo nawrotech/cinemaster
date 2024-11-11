@@ -13,32 +13,32 @@
     {{ form_start(form) }}
         {{ form(form) }}
 
+        {# {{ dump(form.vars.data.posterFilename) }} #}
+
         {% if form.vars.data.posterFilename %}
-            <p>{{ form.vars.data.posterFilename|default }}</p>
-            <a href="{{ asset(form.vars.data.posterPath) }}">
-                <img src="{{ asset(form.vars.data.posterPath) }}" alt="padaka">
-            </a>
+            <figure style="width: 100px">
+                <img src="{{ asset(form.vars.data.posterPath, "uploads_url") }}" class="card-img-top" alt="{{ form.vars.data.title ~ "post-image" }}">
+                <figcaption>Current image</figcaption>
+            </figure>
         {% endif %}
         
     {{ form_end(form) }}
 
     
-
-    {# adding references only on edit; TEMP SOLUTION #}
-
-    <div {{ stimulus_controller("ajax-reference-list", {
-        url:  path("movie_references_list", { id: form.vars.data.id}) 
-    }) }}>
-        <ul {{ stimulus_target("ajax-reference-list", "referenceList") }}>
-        </ul>
-        <form 
-            {{ stimulus_target("ajax-reference-list", "form") }}
-            action="{{ path("app_movie_add_reference", {
-                id: form.vars.data.id
-        }) }}" method="post" enctype="multipart/form-data" class="dropzone js-reference-dropzone">
-        </form>
-    </div>
-  
+    {% if form.vars.data.id %}
+        <div {{ stimulus_controller("ajax-reference-list", {
+            url:  path("movie_references_list", { id: form.vars.data.id}) 
+        }) }}>
+            <ul {{ stimulus_target("ajax-reference-list", "referenceList") }}>
+            </ul>
+            <form 
+                {{ stimulus_target("ajax-reference-list", "form") }}
+                action="{{ path("app_movie_add_reference", {
+                    id: form.vars.data.id
+            }) }}" method="post" enctype="multipart/form-data" class="dropzone js-reference-dropzone">
+            </form>
+        </div>
+    {% endif %}
 
 
 
