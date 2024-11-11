@@ -8,7 +8,6 @@ use App\Factory\PagerfantaFactory;
 use App\Form\MovieFormType;
 use App\Form\ScreeningFormatCollectionType;
 use App\Repository\MovieRepository;
-use App\Repository\ScreeningFormatRepository;
 use App\Repository\ShowtimeRepository;
 use App\Service\TmdbApiService;
 use App\Service\UploaderHelper;
@@ -62,22 +61,17 @@ class MovieController extends AbstractController
             ]);
         }
 
+        $movieTmdbDto = $tmdbApiService->cacheMovie($tmdbId);
+        
+        $movie = new Movie();
+        $movie->setTmdbId($tmdbId);
+        $movie->setTitle($movieTmdbDto->getTitle());
+        $movie->setDurationInMinutes($movieTmdbDto->getDurationInMinutes());
+        $movie->setCinema($cinema);
+        $em->persist($movie);
+        $em->flush();
 
-        if ($request->get("add-tmdbMovie")) {
-            $movieTmdbDto = $tmdbApiService->cacheMovie($tmdbId);
-            
-            $movie = new Movie();
-            $movie->setTmdbId($tmdbId);
-            $movie->setTitle($movieTmdbDto->getTitle());
-            $movie->setDurationInMinutes($movieTmdbDto->getDurationInMinutes());
-            $movie->setCinema($cinema);
-            $em->persist($movie);
-            $em->flush();
-
-            $this->addFlash("success", "Movie has been added");
-
-        }
-
+        $this->addFlash("success", "Movie has been added");
         
         return $this->redirectToRoute("app_movie_select_movies", [
             "slug" => $cinema->getSlug(),
@@ -218,7 +212,7 @@ class MovieController extends AbstractController
      ): Response
  {
      $submittedToken = $request->get("token");
-     if (!$this->isCsrfTokenValid("add-movie-formats-token", $submittedToken)) {
+     if (!$this->isCsrfTokenValid("delete-movie-token", $submittedToken)) {
          $this->addFlash("error", "Invalid CSRF token");
          return $this->redirectToRoute("app_movie");
      }
