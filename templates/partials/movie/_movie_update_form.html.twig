@@ -11,7 +11,7 @@
     <input type="hidden" name="token" value="{{ csrf_token('add-movie-formats-token') }}">
     <input type="hidden" name="formId" value="{{ "form" ~ loop.index }}">
 
-    {% if isScheduledShowtimeForMovie[movie.id] == false %}
+   
         <div class="row">
             <a href="{{ path("app_movie_create", {
                 id: movie.id,
@@ -20,6 +20,5 @@
             <button class="btn btn-danger col-6">Delete Movie</button>
 
         </div>
-    {% endif %}
   
 </form>

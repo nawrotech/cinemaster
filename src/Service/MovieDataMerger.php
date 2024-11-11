@@ -28,7 +28,8 @@ class MovieDataMerger {
             "posterPath" => $movie->getPosterPath() ?? $apiData->getPosterPath(),
             "releaseDate" => $movie->getReleaseDate() ?? $apiData->getReleaseDate(),
             "durationInMinutes" => $movie->getDurationInMinutes() ?? $apiData->getDurationInMinutes(),
-        ];
+            "movieReferences" => $movie->getMovieReferences()
+         ];
     }
 
 

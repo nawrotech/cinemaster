@@ -2,21 +2,17 @@
 
 namespace App\Controller;
 
-use App\Adapter\TmdbAdapter;
 use App\Entity\Cinema;
 use App\Entity\Movie;
-use App\Factory\TmdbAdapterFactory;
+use App\Factory\PagerfantaFactory;
 use App\Form\MovieFormType;
 use App\Form\ScreeningFormatCollectionType;
 use App\Repository\MovieRepository;
 use App\Repository\ScreeningFormatRepository;
 use App\Repository\ShowtimeRepository;
-use App\Service\MovieDataMerger;
 use App\Service\TmdbApiService;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
-use Pagerfanta\Adapter\ArrayAdapter;
-use Pagerfanta\Pagerfanta;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,33 +26,20 @@ class MovieController extends AbstractController
     #[Route('/movies/select-movies' , name: 'app_movie_select_movies')]
     public function selectMovies(
         MovieRepository $movieRepository,
-        TmdbAdapterFactory $tmdbAdapterFactory,
-        ScreeningFormatRepository $screeningFormatRepository,
+        PagerfantaFactory $pagerfantaFactory,
         Cinema $cinema,
         #[MapQueryParameter()] string $q = "",
         #[MapQueryParameter()] int $page = 1,
         ): Response
     {
         
-        $endpoint = $q ? "search/movie" : "movie/now_playing";
-        $params = $q ? ["query" => $q] : [];
+        $pagerfanta = $pagerfantaFactory->createTmdbPagerfanta($q, $page);
 
-        $adapter = $tmdbAdapterFactory->create($endpoint, $params);
-        $pagerfanta = new Pagerfanta($adapter);
-
-        $currentPage = max(1, $page);
-        $pagerfanta->setCurrentPage($currentPage);
-        $pagerfanta->setMaxPerPage(TmdbAdapter::MAX_PER_PAGE);
-
-        $screeningFormats = $screeningFormatRepository->findBy([
-            "cinema" => $cinema
-        ]);
         $storedTmdbIds = $movieRepository->findTmdbIdsForCinema($cinema);
         
         return $this->render('movie/select_movies.html.twig', [
             "storedTmdbIds" => $storedTmdbIds,
             "pager" => $pagerfanta,
-            "screeningFormats" => $screeningFormats,
         ]);
     }
 
@@ -198,8 +181,7 @@ class MovieController extends AbstractController
  #[Route('/movies/available-movies', name: 'app_movie_available_movies')]
  public function availableMovies(
      MovieRepository $movieRepository,
-     MovieDataMerger $movieDataMerger,
-     ScreeningFormatRepository $screeningFormatRepository,
+     PagerfantaFactory $pagerfantaFactory,
      Cinema $cinema,
      ShowtimeRepository $showtimeRepository,
      #[MapQueryParameter()] int $page = 1,
@@ -210,19 +192,7 @@ class MovieController extends AbstractController
         ? $movieRepository->findBySearchTerm($cinema, $q) 
         : $movieRepository->findBy(["cinema" => $cinema]);
      
-     $mergedMovies = array_map(function(Movie $movie) use($movieDataMerger) {
-         return $movieDataMerger->mergeWithApiData($movie);
-     }, $movies);
-
-     $adapter = new ArrayAdapter($mergedMovies);
-     $pagerfanta = new Pagerfanta($adapter);
-
-     $pagerfanta->setMaxPerPage(12);
-     $pagerfanta->setCurrentPage($page);
-
-     $screeningFormats = $screeningFormatRepository->findBy([
-         "cinema" => $cinema
-     ]);
+    $pagerfanta = $pagerfantaFactory->createAvailableMoviesPagerfanta($movies, $page);
 
      $isScheduledShowtimeForMovie = [];
      foreach ($movies as $movie) {
@@ -231,7 +201,6 @@ class MovieController extends AbstractController
 
      return $this->render('movie/available_movies.html.twig', [
          "pager" => $pagerfanta,
-         "screeningFormats" => $screeningFormats,
          "isScheduledShowtimeForMovie" => $isScheduledShowtimeForMovie
      ]);
  }
@@ -261,7 +230,6 @@ class MovieController extends AbstractController
 
     $this->addFlash("warning", "Movie has been removed");
 
-     
      return $this->redirectToRoute("app_movie_available_movies", [
          "page" => $page,
          "q" => $q,

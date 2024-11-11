@@ -27,16 +27,15 @@
                 <div class="card-body">
                     <h5 class="card-title">{{ movie.title }}</h5>
                     <p class="card-text text-truncate">{{ movie.overview }}</p>
-
-                    <fieldset class="available-movies-screening-formats">
-                        <legend class="msf-legend">Screening formats available in your cinema:</legend>
-                                    
-                            {{ include("partials/movie/_add_movie_screening_formats.html.twig") }}
-
+            
+                        {{ include("partials/movie/_add_movie_screening_formats.html.twig") }}
+                   
+                        {% if (isScheduledShowtimeForMovie[movie.id] == false and movie.movieReferences is empty) %}
                             {{ include("partials/movie/_movie_update_form.html.twig") }}
+                        {% endif %}
 
-                            {{ include("partials/movie/_modal_ajax_reference_list.html.twig") }}
-                    </fieldset>
+                        {{ include("partials/movie/_modal_ajax_reference_list.html.twig") }}
+                
                 </div>
                     
                    
