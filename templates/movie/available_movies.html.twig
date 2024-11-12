@@ -7,6 +7,11 @@
     <link href=" https://cdn.jsdelivr.net/npm/dropzone@6.0.0-beta.2/dist/dropzone.min.css " rel="stylesheet">
 {% endblock %}
 
+{% block importmap %}
+    {{ importmap(['modal-close-page-refresh', "app"]) }}
+{% endblock %}
+
+
 {% block body %}
   
 
@@ -45,9 +50,9 @@
       {% endfor %}
     </div>
 
-      
 
-  {{ pagerfanta(pager, "twitter_bootstrap5") }}
+
+{{ pagerfanta(pager, "twitter_bootstrap5") }}
 
 
 {% endblock %}

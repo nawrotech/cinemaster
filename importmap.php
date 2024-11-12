@@ -47,4 +47,8 @@ return [
     'stimulus-autocomplete' => [
         'version' => '3.1.0',
     ],
+    "modal-close-page-refresh" => [
+        "path" => "./assets/modal-close-page-refresh.js",
+        "entrypoint" => true
+    ]
 ];
