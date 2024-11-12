@@ -52,4 +52,31 @@ class MovieRepository extends ServiceEntityRepository
                     ->getSingleColumnResult();
     }
 
+    /**
+    * @return Movie[] 
+    */
+    public function findDistinctMovie(Cinema $cinema): array {
+        return $this->createQueryBuilder('m')
+                    ->innerJoin("m.movieScreeningFormats", "msf")
+
+                    ->andWhere("m.cinema = :cinema")
+                    ->setParameter("cinema", $cinema)
+                    ->getQuery()
+                    ->getSingleColumnResult();
+    }
+
+//     return $this->createQueryBuilder("s")
+//     ->innerJoin("s.movieScreeningFormat", "msf")
+//     ->innerJoin("msf.movie", "m")
+//     ->innerJoin("s.screeningRoom", "sr")
+//     ->select("m")
+//     ->distinct()
+//     ->andWhere("s.isPublished = :isPublished")
+//     ->andWhere("sr.cinema = :cinema")
+//     ->setParameter("cinema", $cinema)
+//     ->setParameter("isPublished", $isPublished)
+//     ->getQuery()
+//     ->getResult()
+// ;
+
 }

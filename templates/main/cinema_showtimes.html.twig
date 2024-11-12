@@ -1,8 +1,39 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}%Cinema slug% - showtimes{% endblock %}
-
+{% block title %}Cinema {{ cinema.slug }} - showtimes{% endblock %}
 
 {% block body %}
+
+    {% for movie in displayMovies %}
+        <div class="card" style="width: 18rem;">
+            <img src="{{ movie.posterPath }}" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">{{ movie.title }}</h5>
+                <p class="card-text text-truncate">{{ movie.overview }}</p>
+            </div>
+            <figure>
+                <figcaption>Today's shows</figcaption>
+                <ul class="list-group list-group-flush">
+                    {% for showtime  in movieShowtimesPlannedForToday[movie.id] %}
+                        <li class="list-group-item">
+                            <div class="details">
+                                <p>Hours: {{ showtime.startsAt|date("H:i") }} -  {{ showtime.endsAt|date("H:i") }} </p>
+                                <p>Format: {{ showtime.movieScreeningFormat.screeningFormat.displayScreeningFormat }}</p>
+
+                                <a class="btn btn-sm btn-primary" href="{{ path("app_reservation_reserve_showtime", {
+                                    showtime_slug: showtime.slug, 
+                                    slug: showtime.cinema.slug
+                                }) }}">Make reservation</a>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </figure>
+         
+            <div class="card-body">
+                <a href="#" class="card-link">Upcoming shows</a>
+            </div>
+        </div>
+    {% endfor %}
 
 {% endblock %}

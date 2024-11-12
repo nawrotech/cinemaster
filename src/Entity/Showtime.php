@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\ShowtimeRepository;
-use Cocur\Slugify\Slugify;
+use App\Traits\SlugTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -15,6 +15,8 @@ use Doctrine\ORM\Mapping\PreUpdate;
 #[ORM\Entity(repositoryClass: ShowtimeRepository::class)]
 class Showtime
 {
+    use SlugTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -84,18 +86,14 @@ class Showtime
     #[PrePersist]
     public function createSlug(): static
     {
-        $slugify = new Slugify();
-        $this->slug = $slugify->slugify($this->displaySlug());
-
+        $this->slug = $this->generateSlug($this->displaySlug());
         return $this;
     }
 
     #[PreUpdate]
     public function updateSlug(): static
     {
-        $slugify = new Slugify();
-        $this->slug = $slugify->slugify($this->displaySlug());
-
+        $this->slug = $this->generateSlug($this->displaySlug());
         return $this;
     }
 

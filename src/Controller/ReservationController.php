@@ -53,15 +53,15 @@ class ReservationController extends AbstractController
         }
       
 
-        return $this->redirectToRoute("app_reservation", [
+        return $this->redirectToRoute("app_reservation_reserve_showtime", [
             "slug" => $cinema->getSlug(),
             "showtime_slug" => $showtime->getSlug()
         ]);
 
     }
 
-    #[Route('/{showtime_slug}', name: 'app_reservation')]
-    public function index(
+    #[Route('/{showtime_slug}', name: 'app_reservation_reserve_showtime')]
+    public function reserveShowtime(
         SeatsService $seatService,
         ReservationSeatRepository $reservationSeatRepository,
         ReservationService $reservationService,

@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route("/cinemas/{slug}/showtimes")]
+#[Route("/showtimes/cinemas/{slug}")]
 class ShowtimeController extends AbstractController
 {
     #[Route("/", name: "app_showtime")]

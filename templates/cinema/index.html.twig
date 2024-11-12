@@ -40,7 +40,7 @@
                     <a class="btn btn-info" href="{{path("app_screening_room_create_types", {slug: cinema.slug})}}">Create screening room type</a>
                 {% endif %}
                 
-                {% if cinema.screeningRoomSetups is empty %}    
+                {% if cinema.screeningFormats is empty %}    
                     <a class="btn btn-warning" href="{{path("app_movie_create_screening_formats", {slug: cinema.slug})}}">Create screening formats</a>
                 {% endif %}
                 
@@ -52,7 +52,7 @@
             {% endif %}
             
 
-            <a class="btn btn-outline-info" href="{{ path("app_main", {slug: cinema.slug }) }}">Show published showtimes</a>
+            <a class="btn btn-outline-info" href="{{ path("app_main_cinema_showtimes", {slug: cinema.slug }) }}">Show published showtimes</a>
         </div>
         
     {% endfor %}
