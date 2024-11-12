@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cinemas{% endblock %}
+
+
+{% block body %}
+
+
+
+    <h1>Select cinema</h1>
+
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+          Select Cinema
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            {% for cinema in cinemas %}
+                <li>
+                    <a class="dropdown-item" href="{{ path("app_main_cinema_showtimes", {slug: cinema.slug}) }}">{{ cinema.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+      </div>
+
+{% endblock %}
