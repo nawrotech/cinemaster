@@ -9,7 +9,6 @@
         "ext-iconv": "*",
         "aws/aws-sdk-php-symfony": "^2.7",
         "babdev/pagerfanta-bundle": "^4.4",
-        "cocur/slugify": "*",
         "doctrine/dbal": "^4.1",
         "doctrine/doctrine-bundle": "^2.13",
         "doctrine/doctrine-migrations-bundle": "^3.3",

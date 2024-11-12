@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\CinemaRepository;
-use Cocur\Slugify\Slugify;
+use App\Traits\SlugTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -20,6 +20,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 #[ORM\Entity(repositoryClass: CinemaRepository::class)]
 class Cinema
 {
+    use SlugTrait;
     
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -125,17 +126,15 @@ class Cinema
     #[PrePersist]
     public function createSlug(): static
     {
-        $slugify = new Slugify();
-        $this->slug = $slugify->slugify($this->name);
+        $this->slug = $this->generateSlug($this->name);
         return $this;
     }
 
     #[PreUpdate]
     public function updateUpdatedAt(): static
     {
-        $slugify = new Slugify();
         $this->updatedAt = new \DateTimeImmutable();
-        $this->slug = $slugify->slugify($this->name);
+        $this->slug = $this->generateSlug($this->name);
         return $this;
     }
 
