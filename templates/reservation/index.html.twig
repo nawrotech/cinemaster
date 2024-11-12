@@ -16,7 +16,7 @@
             <div class="row">
                 <h1 class="col-1">{{ roomRow }}</h1>
                 <div class="col-1 d-flex gap-2">
-                    {% for seat in seatsInRow[roomRow]  %}             
+                    {% for seat in seatsInRow[roomRow]  %}        
                         {{ include("partials/_reservation_seat.html.twig") }}
                     {% endfor %}
                 </div>

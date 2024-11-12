@@ -45,7 +45,7 @@ class ShowtimeController extends AbstractController
         ]);
     }
 
-    #[Route("/create/{screening_room_slug}/{showtime_id?}", name: "app_showtime_create")]
+    #[Route("/{screening_room_slug}/create/showtimes/{showtime_id?}", name: "app_showtime_create")]
     public function create(
         #[MapEntity(mapping: ["slug" => "slug"])]
         Cinema $cinema,
@@ -97,17 +97,19 @@ class ShowtimeController extends AbstractController
             ["screeningRoom" => $showtime->getScreeningRoom()]);
 
         // transaction
-        foreach ($showtimeRoomSeats as $showtimeRoomSeat) {
-            $reservationSeat = new ReservationSeat();
-            $reservationSeat->setShowtime($showtime);
-            $reservationSeat->setSeat($showtimeRoomSeat);
-            $em->persist($reservationSeat);
-        }
+        $em->wrapInTransaction(function ($em) use($showtime, $showtimeRoomSeats) {
+            foreach ($showtimeRoomSeats as $showtimeRoomSeat) {
+                $reservationSeat = new ReservationSeat();
+                $reservationSeat->setShowtime($showtime);
+                $reservationSeat->setSeat($showtimeRoomSeat);
+                $reservationSeat->setStatus($showtimeRoomSeat->getStatus());
+                $em->persist($reservationSeat);
+            }
+            $showtime->setPublished(true);
+            $em->flush();
+        });
         
-        // dd($showtimeRoomSeats);
-        $showtime->setPublished(true);
-        $em->flush();
-
+          
         $this->addFlash("success", "Show has been successfully published");
  
         return $this->redirectToRoute("app_showtime", [
