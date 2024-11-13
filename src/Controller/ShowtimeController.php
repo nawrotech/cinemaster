@@ -16,6 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route("/showtimes/cinemas/{slug}")]
@@ -32,6 +33,7 @@ class ShowtimeController extends AbstractController
         #[MapQueryParameter()] ?string $movieTitle,
         ): Response
     {
+
 
         return $this->render('showtime/index.html.twig', [
             "showtimes" => $showtimeRepository->findFiltered(
@@ -54,6 +56,7 @@ class ShowtimeController extends AbstractController
         EntityManagerInterface $em,
         Request $request,
         ShowtimeRepository $showtimeRepository,
+        #[MapQueryParameter()] string $startsAt = "",
         #[MapEntity(mapping: ["showtime_id" => "id"])]
         ?ShowTime $showtime = null,
     ): Response {
@@ -64,6 +67,8 @@ class ShowtimeController extends AbstractController
             $showtime->setCinema($cinema);
         }
 
+        // dd($startsAt);
+
         $showtimes = $showtimeRepository->findBy(["cinema" => $cinema]);
 
         $form = $this->createForm(ShowtimeType::class, $showtime);
@@ -71,15 +76,17 @@ class ShowtimeController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             
+            // dd($showtime->getStartsAt()->format("Y:m:d"));
+
             $em->persist($showtime);
             $em->flush();
 
             $this->addFlash("success", "Showtime created successfully!");
-
     
             return $this->redirectToRoute("app_showtime_create", [
                 "slug" => $cinema->getSlug(),
-                "screening_room_slug" => $screeningRoom->getSlug()
+                "screening_room_slug" => $screeningRoom->getSlug(),
+                "startsAt" => $showtime->getStartsAt()->format("Y-m-d")
             ]);
 
         }

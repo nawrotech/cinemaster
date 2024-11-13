@@ -136,6 +136,7 @@ class ShowtimeRepository extends ServiceEntityRepository
             $startsAt->setTime(0, 0, 0);
         }
       
+
         return ($qb ?? $this->createQueryBuilder("s"))
                     ->andWhere("s.startsAt >= :startsAt")
                     ->setParameter("startsAt", $startsAt);
@@ -146,6 +147,7 @@ class ShowtimeRepository extends ServiceEntityRepository
             $endsAt = new \DateTime($endsAt);
             $endsAt->setTime(23, 59, 59);  
         }
+
 
         return ($qb ?? $this->createQueryBuilder("s"))
                         ->andWhere("s.endsAt <= :showtimeEndTime")

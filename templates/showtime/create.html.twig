@@ -2,23 +2,31 @@
 
 {% block body %}
 
+<div {{ stimulus_controller("ajax-showtime-list", {
+    startsAt: app.request.get("startsAt") ?? "now"|date("Y-m-d"),
+    showtimeListUrl: path("app_showtime", {slug: screeningRoom.cinema.slug})
+}) }}>
     <h2>Pick movie for the showtime in room {{ screeningRoom.name }}</h2>
     <div class="row">
         <div class="col-6">
-            {{form(form)}}
+            {{ form_start(form) }}
+
+                {{ form_errors(form) }}
+
+                {{ form_row(form.startsAt, {
+                    "attr": {
+                        "data-ajax-showtime-list-target": "datePicker",
+                        "data-action": "change->ajax-showtime-list#pickDate"
+                    }
+                }) }}
+
+
+            {{ form_end(form) }}
         </div>
         <div class="col-6">
-            {{ render(controller(
-                'App\\Controller\\ShowtimeController::index', {
-                    slug: screeningRoom.cinema.slug,
-                    screeningRoomName: app.request.query.get('screeningRoomName'),
-                    showtimeStartTime: app.request.query.get('showtimeStartTime'),
-                    showtimeEndTime: app.request.query.get('showtimeEndTime'),
-                    movieTitle: app.request.query.get('movieTitle')}
-            )) }}
+                <div {{ stimulus_target("ajax_showtime_list", "showtimeList") }}></div>
         </div>
-
      
     </div>
-  
+</div>
 {% endblock %}

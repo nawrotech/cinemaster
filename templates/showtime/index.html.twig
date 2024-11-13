@@ -2,8 +2,8 @@
 
 {# {% block body %} #}
 
-    
-    {{ include("partials/showtime/_showtime_filtering_form.html.twig") }}
+
+    {# {{ include("partials/showtime/_showtime_filtering_form.html.twig") }} #}
     <div class="container d-grid gap-2">
         {% for showtime in showtimes %}
             <div class="card">
@@ -20,7 +20,8 @@
                      {
                     slug: showtime.screeningRoom.cinema.slug,
                     screening_room_slug: showtime.screeningRoom.slug,
-                    showtime_id: showtime.id
+                    showtime_id: showtime.id,
+                    startsAt: showtime.startsAt|date("Y-m-d")
                      }) }}">Edit</a>
 
                

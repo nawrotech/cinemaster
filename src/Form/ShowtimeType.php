@@ -69,6 +69,8 @@ class ShowtimeType extends AbstractType
             ])
             ->add('startsAt', DateTimeType::class, [
                 "label" => "Set date",
+                // "format" => "Y-m-d H:i:s",
+                // "html5" => false
             ])
             ->add("submit", SubmitType::class)
             ->addEventListener(
