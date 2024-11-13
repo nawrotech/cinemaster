@@ -1,6 +1,24 @@
 {% extends "base.html.twig" %}
 
 {% block body %}
-    {{form(form)}}
 
+    <h2>Pick movie for the showtime in room {{ screeningRoom.name }}</h2>
+    <div class="row">
+        <div class="col-6">
+            {{form(form)}}
+        </div>
+        <div class="col-6">
+            {{ render(controller(
+                'App\\Controller\\ShowtimeController::index', {
+                    slug: screeningRoom.cinema.slug,
+                    screeningRoomName: app.request.query.get('screeningRoomName'),
+                    showtimeStartTime: app.request.query.get('showtimeStartTime'),
+                    showtimeEndTime: app.request.query.get('showtimeEndTime'),
+                    movieTitle: app.request.query.get('movieTitle')}
+            )) }}
+        </div>
+
+     
+    </div>
+  
 {% endblock %}

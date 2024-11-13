@@ -47,46 +47,16 @@ class MainController extends AbstractController
             $movieShowtimesPlannedForToday[$movieId] = $showtimeRepository
                     ->findScheduledShowtimesForMovieBetweenDates($movieId, $now, $endOfTheDay);
         }  
-
-
-        // dd($displayMovies, $movieShowtimesPlannedForToday);
-        // dd($displayMovies);
-
-        // $showtimes = $showtimeRepository->findFiltered($cinema, isPublished: true);
-        // // do i need additional check for cinema when that is one of many constraints
-        // $distinctMovies = $showtimeRepository->findDistinctMovies($cinema);
-    
-        // dd($distinctMovies);
         
 
         return $this->render("main/cinema_showtimes.html.twig", [
             "cinema" => $cinema,
             "displayMovies" => $displayMovies,
             "movieShowtimesPlannedForToday" => $movieShowtimesPlannedForToday
-            // "showtimes" => $showtimese
         ]);
     }
 
     
-
-    // #[Route('/cinemas/{slug}/main', name: 'app_main')]
-    // public function index(
-    //     ShowtimeRepository $showtimeRepository,
-    //     Cinema $cinema
-    //     ): Response
-    // {
-    //     $distinctMovies = $showtimeRepository->findDistinctMovies($cinema);
-    //     $movieTodaysShowtimes = [];
-    //     foreach($distinctMovies as $distinctMovie) {
-    //         $movieTodaysShowtimes[$distinctMovie["id"]] = $showtimeRepository->findForMovie($distinctMovie["id"]);
-    //     }   
-
-    //     return $this->render('main/index.html.twig', [
-    //         "distinctMovies" => $distinctMovies,
-    //         "movieTodaysShowtimes" => $movieTodaysShowtimes,
-    //         "cinema" => $cinema
-    //     ]);
-    // }
 
   
 }

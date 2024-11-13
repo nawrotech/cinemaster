@@ -53,6 +53,7 @@ class ShowtimeController extends AbstractController
         ScreeningRoom $screeningRoom,
         EntityManagerInterface $em,
         Request $request,
+        ShowtimeRepository $showtimeRepository,
         #[MapEntity(mapping: ["showtime_id" => "id"])]
         ?ShowTime $showtime = null,
     ): Response {
@@ -62,6 +63,8 @@ class ShowtimeController extends AbstractController
             $showtime->setScreeningRoom($screeningRoom);
             $showtime->setCinema($cinema);
         }
+
+        $showtimes = $showtimeRepository->findBy(["cinema" => $cinema]);
 
         $form = $this->createForm(ShowtimeType::class, $showtime);
         $form->handleRequest($request);
@@ -73,13 +76,18 @@ class ShowtimeController extends AbstractController
 
             $this->addFlash("success", "Showtime created successfully!");
 
-            return $this->redirectToRoute("app_showtime", [
-                "slug" => $cinema->getSlug()
+    
+            return $this->redirectToRoute("app_showtime_create", [
+                "slug" => $cinema->getSlug(),
+                "screening_room_slug" => $screeningRoom->getSlug()
             ]);
+
         }
 
         return $this->render('showtime/create.html.twig', [
-            "form" => $form
+            "form" => $form,
+            "showtimes" => $showtimes,
+            "screeningRoom" => $screeningRoom
         ]);
     }
 
