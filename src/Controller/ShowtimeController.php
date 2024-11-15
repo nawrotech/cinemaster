@@ -16,7 +16,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
-use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route("/showtimes/cinemas/{slug}")]
@@ -131,4 +130,44 @@ class ShowtimeController extends AbstractController
             "slug" => $cinema->getSlug()
         ]);
     }
+
+    #[Route("/screening-rooms/{id}/{date}", name: "app_showtime_scheduled_showtimes")] // {date}
+    public function scheduledShowtimesOnDateForScreeningRoom(
+        #[MapEntity(mapping: ["slug" => "slug"])] Cinema $cinema,
+        #[MapEntity(mapping: ["id" => "id"])] ScreeningRoom $screeningRoom,
+        ShowtimeRepository $showtimeRepository,
+        string $date
+    ) {
+
+        $showtimes = $showtimeRepository->findFiltered(
+            cinema: $cinema, 
+            screeningRoomName: $screeningRoom->getName(),
+            showtimeStartTime: $date,
+            showtimeEndTime: $date,
+        );
+
+        $showtimes = array_map(function(Showtime $showtime) {
+            return [
+                "id" => $showtime->getId(),
+                "movieTitle" => $showtime->getMovieScreeningFormat()->getMovie()->getTitle(),
+                "screeningFormat" => $showtime->getMovieScreeningFormat()->getScreeningFormat()->getDisplayScreeningFormat(),
+                "startsAt" => $showtime->getStartsAt()->format("Y-m-d H:i:s"),
+                "endsAt" => $showtime->getEndsAt()->format("Y-m-d H:i:s"),
+                "advertisementTimeInMinutes" => $showtime->getAdvertisementTimeInMinutes(),
+                "maintenanceTimeInMinutes" => $showtime->getScreeningRoom()->getMaintenanceTimeInMinutes(),
+                "movieDurationInMinutes" => $showtime->getMovieScreeningFormat()->getMovie()->getDurationInMinutes(),
+                "showtimeDurationInMinutes" => $showtime->getDuration()
+            ];
+        }, $showtimes);
+
+
+        return $this->json($showtimes);
+    }
+
+    // #[Route("/showtimes-axis/cinemas/{slug}")]
+    // public function scheduledShowtimesAxis() {
+
+    // }
+
+
 }
