@@ -30,9 +30,8 @@ class WorkingHoursType extends AbstractType
                     "Saturday" => 5,
                     "Sunday" => 6,
                 ],
-            ])
-            ->add("submit", SubmitType::class)
-     
+                "disabled" => true
+            ])     
         ;
     }
 

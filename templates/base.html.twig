@@ -13,6 +13,10 @@
 
     </head>
     <body> 
+
+        {% block navigation %}
+            {{ include("partials/_navigation.html.twig") }}
+        {% endblock %}
         <div class="container-md"> 
             {% for label, messages in app.flashes(['success', 'warning', "danger"]) %}
                 {% for message in messages %}
@@ -22,18 +26,19 @@
                 {% endfor %}
             {% endfor %}
 
-            {% block navigation %}
-                 {{ include("partials/_navigation.html.twig") }}
-            {% endblock %}
+           
            
             {% block body %}{% endblock %}
 
-
-            {% block footer %}
-                <footer>
-                    <p>Socials</p>
-                </footer>
-            {% endblock %}
         </div>
+
+        {% block footer %}
+            <footer>
+                <div class="container-md">
+
+                    <p>Socials</p>
+                </div>
+            </footer>
+        {% endblock %}
     </body>
 </html>

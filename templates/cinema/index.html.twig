@@ -10,16 +10,15 @@
     {% endif %}
     
 
-
     {% for cinema in cinemas %}
-
-
         <a class="btn btn-primary" href="{{ path("app_movie_create", {slug: cinema.slug}) }}">
             Create movie
         </a>
         <a class="btn btn-info" href="{{ path("app_movie_select_movies", {slug: cinema.slug}) }}">
             Add movies
         </a>
+
+        <a href="{{ path("app_cinema_working_hours", {slug: cinema.slug}) }}">Add working hours</a>
         <div class="card">
             <h2>{{ cinema.name }}</h2>
             <p>Screening rooms: {{ cinema.screeningRooms|length }}</p>
