@@ -70,3 +70,15 @@
  .seat-position {
     font-size: 0.75rem;
  }
+
+
+ /* week-axis */
+ .week-axis {
+    border: 1px solid black;
+    font-size: 1.25rem;
+
+    .week-day {
+        height: 60px;
+        border-bottom: 1px solid black;
+    }
+ }
