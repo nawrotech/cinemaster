@@ -10,8 +10,6 @@ export default class extends Controller {
     }
 
     connect() {
-        
-
         this.fetchShowtimeList(this.startsAtValue, this.startsAtValue);
 
         console.log(this.datePickerTarget);
@@ -30,7 +28,6 @@ export default class extends Controller {
 
 
     pickDate(event) {
-        // TEMP solution
         const dateTime =  event.currentTarget.value.split("T");
         const date = dateTime.at(0);
 

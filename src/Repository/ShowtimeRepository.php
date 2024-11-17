@@ -45,6 +45,9 @@ class ShowtimeRepository extends ServiceEntityRepository
         return $qb;
     }
 
+    /**
+     * @return Showtime[] returns showtimes overlapping in the same room
+     */
     public function findOverlappingForRoom(
         Cinema $cinema,
         ScreeningRoom $screeningRoom,
@@ -59,6 +62,9 @@ class ShowtimeRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * @return Showtime[] returns showtimes where samve movie was scheduled in different room
+     */
     public function findOverlappingForMovie(
         Cinema $cinema,
         MovieScreeningFormat $movieScreeningFormat,
@@ -74,21 +80,24 @@ class ShowtimeRepository extends ServiceEntityRepository
 
     }
 
+    /**
+     * @return Showtime[] returns filtered showtimes
+     */
     public function findFiltered(
         Cinema $cinema,
-        ?string $screeningRoomName = null,
+        ?ScreeningRoom $screeningRoom = null,
         ?string $showtimeStartTime = null, 
         ?string $showtimeEndTime = null, 
         ?string $movieTitle = null,
-        ?bool $isPublished = false) {
+        ?bool $isPublished = false): array {
 
         $qb = $this->createQueryBuilder('s')
                 ->addOrderBy("s.startsAt", "ASC")
                 ->andWhere("s.cinema = :cinema")
                 ->setParameter("cinema", $cinema);
 
-        if ($screeningRoomName) {
-            $qb = $this->findByScreeningRoomName($screeningRoomName, $qb);
+        if ($screeningRoom) {
+            $qb = $this->findByScreeningRoomName($screeningRoom, $qb);
         }
 
         if ($showtimeStartTime) {
@@ -155,12 +164,11 @@ class ShowtimeRepository extends ServiceEntityRepository
 
     }
 
-    public function findByScreeningRoomName(string $screeningRoomName, ?QueryBuilder $qb = null) {
+    public function findByScreeningRoomName(ScreeningRoom $screeningRoom, ?QueryBuilder $qb = null) {
         
         return ($qb ?? $this->createQueryBuilder("s"))
-                        ->innerJoin("s.screeningRoom", "sr")
-                        ->andWhere("sr.name = :screeningRoomName")
-                        ->setParameter("screeningRoomName", $screeningRoomName);
+                        ->andWhere("s.screeningRoom = :screeningRoom")
+                        ->setParameter("screeningRoom", $screeningRoom);
         
     }
     // coducment it 

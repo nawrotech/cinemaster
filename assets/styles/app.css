@@ -73,12 +73,29 @@
 
 
  /* week-axis */
- .week-axis {
+
+
+ .day-axis {
+    --size-multiplier: 1;
     border: 1px solid black;
     font-size: 1.25rem;
 
+
     .week-day {
-        height: 60px;
+        height: calc(60px * var(--size-multiplier));
         border-bottom: 1px solid black;
+        position: relative;
     }
+
+    .showtime {
+        position: absolute;
+        left: 80px;
+        height: calc(var(--size-multiplier) * var(--showtimeDuration));
+        top: calc(var(--size-multiplier) * var(--minutesPastHour));
+        color: black;
+        border: 1px solid black;
+        background-color: white;
+        z-index: 1;
+     }
  }
+
