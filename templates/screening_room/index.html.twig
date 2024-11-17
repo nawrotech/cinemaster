@@ -29,6 +29,14 @@
                 }
                 )}}">Create showtime
             </a>
+            <a href="{{
+                path("app_showtime_showtime_axis", {
+                    slug: room.cinema.slug,
+                    screening_room_slug: room.slug,
+                })
+            }}" class="btn btn-primary btn-sm" >
+                Check showtimes
+            </a>
             </div>
         </div>
     {% endfor %}

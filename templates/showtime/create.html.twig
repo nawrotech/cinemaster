@@ -29,25 +29,7 @@
             {{ form_end(form) }}
         </div>
         <div class="col-6">
-            <div {{ stimulus_target("showtime-axis", "dayAxis") }} class="day-axis">
-                <div data-hour="8" class="week-day">8:00</div>
-                <div data-hour="9" class="week-day">9:00</div>
-                <div data-hour="10" class="week-day">10:00</div>
-                <div data-hour="11" class="week-day">11:00</div>
-                <div data-hour="12" class="week-day">12:00</div>
-                <div data-hour="13" class="week-day">13:00</div>
-                <div data-hour="14" class="week-day">14:00</div>
-                <div data-hour="15" class="week-day">15:00</div>
-                <div data-hour="16" class="week-day">16:00</div>
-                <div data-hour="17"  class="week-day">17:00</div>
-                <div data-hour="18" class="week-day">18:00</div>
-                <div data-hour="19" class="week-day">19:00</div>
-                <div data-hour="20" class="week-day">20:00</div>
-                <div data-hour="21"  class="week-day">21:00</div>
-                <div data-hour="22" class="week-day">22:00</div>
-                <div data-hour="23" class="week-day">23:00</div>
-                <div data-hour="24" class="week-day">24:00</div>
-            </div>
+            {{ include("partials/showtime/_showtime_axis.html.twig") }}
         </div>
      
     </div>
