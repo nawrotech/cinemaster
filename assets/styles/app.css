@@ -79,9 +79,9 @@
     --size-multiplier: 1;
     border: 1px solid black;
     font-size: 1.25rem;
+    position: relative;
 
-
-    .week-day {
+    .axis-hour {
         height: calc(60px * var(--size-multiplier));
         border-bottom: 1px solid black;
         position: relative;
@@ -96,6 +96,71 @@
         border: 1px solid black;
         background-color: white;
         z-index: 1;
+     }     
+
+     .screening-room-showtime-column {
+        position: absolute;
+        top: -20px;
+        bottom: 0;
+        left: calc(var(--offset) * 80px);
+        border: 2px solid black;
      }
  }
 
+
+ .cinema-day-axis {
+    --size-multiplier: 1;
+    border: 1px solid black;
+    font-size: 1.25rem;
+    position: relative;
+    margin-top: 2rem;
+
+    .axis-hour {
+        height: calc(60px * var(--size-multiplier));
+        border-bottom: 1px solid black;
+        position: relative;
+    }
+
+
+    .screening-room-showtime-column {
+        position: absolute;
+        top: -35px;
+        left: var(--leftSpacing);
+        border: 1px solid black;
+     }
+
+
+    .cinema-showtime-wrapper {
+        position: absolute;
+        height: calc(var(--size-multiplier) * var(--showtimeDuration));
+        top: calc(var(--size-multiplier) * var(--minutesPastHour));
+        width: 20px;
+        left: var(--leftSpacing);
+
+        color: black;
+        border: 1px solid black;
+        background-color: orangered;
+        z-index: 1;
+        isolation: isolate;
+
+        &:hover {
+            .cinema-showtime-details {
+                display: block;
+                z-index: 100;
+
+            }
+        }
+     }
+
+     .cinema-showtime-details {
+        position: absolute;
+        background-color: white;
+        border: 2px solid black;
+        width: max-content;
+        display: none;
+
+     }
+
+
+     
+ }

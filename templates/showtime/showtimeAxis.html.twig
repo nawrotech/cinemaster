@@ -4,6 +4,25 @@
 
 {% block body %}
 
-    {{ include("partials/showtime/_showtime_axis.html.twig") }}
-    
+
+    <div {{ stimulus_controller("cinema-showtime-axis", {
+        showtimesUrl: path("app_showtime_scheduled_showtimes_in_cinema", {
+            slug: app.current_route_parameters.slug,
+        }),
+    }) }}>
+        <input 
+            {{ stimulus_action("cinema-showtime-axis", "pickDate" , "input") }} 
+            {{ stimulus_target("cinema-showtime-axis", "dateInput") }} 
+            type="date"
+            value="{{"now"|date("Y-m-d")}}"
+        >
+
+        <div {{ stimulus_target("cinema-showtime-axis", "currentDate") }}></div>
+        {{ include("partials/showtime/_showtime_axis.html.twig", {
+            controllerName: "cinema-showtime-axis",
+            targetName: "dayAxis",
+            className: "cinema-day-axis"
+        }) }}
+    </div>
+ 
 {% endblock %}

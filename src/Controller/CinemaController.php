@@ -97,6 +97,10 @@ class CinemaController extends AbstractController
     #[Route('/{slug}', name: 'app_cinema_details')]
     public function cinemaDetails(Cinema $cinema) {
 
+        
+
+        // dd($cinema);
+
         return $this->render("cinema/cinema_details.html.twig", [
             "cinema" => $cinema
         ]);

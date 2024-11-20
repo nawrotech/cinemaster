@@ -5,7 +5,41 @@
 {% block body %}
 
         
+<div class="container-sm">
+    <h2>Cinema {{ cinema.name }}</h2>
+    <figure>
+        <figcaption>Rooms:</figcaption>
+        <ul>
+            {% for screeningRoom in cinema.screeningRooms %}
+                <li class="mb-2">
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                          {{ screeningRoom.name }}
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                          <li><a class="dropdown-item" href="{{path("app_screening_room_edit",
+                            {screening_room_slug: screeningRoom.slug,
+                                slug: cinema.slug}
+                            )}}">Edit seats</a></li>
+                          <li><a class="dropdown-item" 
+                                href="{{path("app_showtime_create",
+                                {
+                                    screening_room_slug: screeningRoom.slug,
+                                    slug: cinema.slug
+                                }
+                            )}}">Schedule Showtime</a></li>
+                        </ul>
+                      </div>
+                </li>
+            {% endfor %}
+        </ul>
+        <a class="link d-block" href="{{path("app_screening_room_create", {slug: cinema.slug})}}">
+            Create screening room
+        </a>
+        <a class="btn btn-success" href="{{ path("app_showtime_showtime_axis", {slug: cinema.slug }) }}">Show Scheduled showtimes</a>
+    </figure>
+ 
 
-
+</div>
 
 {% endblock %}
