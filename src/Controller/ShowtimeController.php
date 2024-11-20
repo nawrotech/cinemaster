@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Dto\ShowtimeDto;
 use App\Entity\Cinema;
 use App\Entity\ReservationSeat;
 use App\Entity\ScreeningRoom;
@@ -49,15 +50,13 @@ class ShowtimeController extends AbstractController
 
     #[Route("/cinemas/{slug}/screening-rooms/{screening_room_slug}/showtimes/create/{showtime_id?}", name: "app_showtime_create")]
     public function create(
-        #[MapEntity(mapping: ["slug" => "slug"])]
-        Cinema $cinema,
-        #[MapEntity(mapping: ["screening_room_slug" => "slug"])]
-        ScreeningRoom $screeningRoom,
+        #[MapEntity(mapping: ["slug" => "slug"])] Cinema $cinema,
+        #[MapEntity(mapping: ["screening_room_slug" => "slug"])] ScreeningRoom $screeningRoom,
         EntityManagerInterface $em,
         Request $request,
         ShowtimeRepository $showtimeRepository,
-        #[MapEntity(mapping: ["showtime_id" => "id"])]
-        ?ShowTime $showtime = null,
+        #[MapQueryParameter()] ?string $showtimeStarting = null,
+        #[MapEntity(mapping: ["showtime_id" => "id"])] ?ShowTime $showtime = null,
     ): Response {
 
         if (!$showtime) {
@@ -66,7 +65,7 @@ class ShowtimeController extends AbstractController
             $showtime->setCinema($cinema);
         }
 
-        $startsAt = $showtime?->getStartsAt()?->format("Y-m-d") ?? (new \DateTime())->format("Y-m-d");
+        $startsAt = $showtime?->getStartsAt()?->format("Y-m-d") ?? (new \DateTime($showtimeStarting))->format("Y-m-d");
         $showtimes = $showtimeRepository->findBy(["cinema" => $cinema]);
 
         $form = $this->createForm(ShowtimeType::class, $showtime);
@@ -82,7 +81,7 @@ class ShowtimeController extends AbstractController
             return $this->redirectToRoute("app_showtime_create", [
                 "slug" => $cinema->getSlug(),
                 "screening_room_slug" => $screeningRoom->getSlug(),
-                "showtime_id" => $showtime->getId()
+                "showtimeStarting" => $showtime->getStartsAt()->format("Y-m-d")
             ]);
 
         }
@@ -129,12 +128,40 @@ class ShowtimeController extends AbstractController
         ]);
     }
 
-    #[Route("/cinemas/{slug}/screening-rooms/{screening_room_slug}/showtimes/{date?}", name: "app_showtime_scheduled_showtimes")] 
+    #[Route("/cinemas/{slug}/showtimes/{date?}", name: "app_showtime_scheduled_showtimes_in_cinema")] 
+    public function scheduledShowtimesOnDateInCinema(
+        #[MapEntity(mapping: ["slug" => "slug"])] Cinema $cinema,
+        ShowtimeRepository $showtimeRepository,
+        ScreeningRoomRepository $screeningRoomRepository,
+        string $date,
+    ) {
+        $screeningRooms = $screeningRoomRepository->findBy(["cinema" => $cinema]);
+        $cinemaShowtimes = [];
+        foreach ($screeningRooms as $screeningRoom) {
+            $cinemaShowtimes[$screeningRoom->getSlug()] = $showtimeRepository->findFiltered(        
+                cinema: $cinema, 
+                screeningRoom: $screeningRoom,
+                showtimeStartTime: $date,
+                showtimeEndTime: $date);
+        }
+
+        foreach ($cinemaShowtimes as &$roomShowtimes) {
+            foreach ($roomShowtimes as &$roomShowtime) {
+                $roomShowtime = ShowtimeDto::fromEntity($roomShowtime);
+            }
+        }
+
+        return $this->json($cinemaShowtimes);
+
+
+    }
+
+    #[Route("/cinemas/{slug}/screening-rooms/{screening_room_slug?}/showtimes/{date?}", name: "app_showtime_scheduled_showtimes")] 
     public function scheduledShowtimesOnDateForScreeningRoom(
         #[MapEntity(mapping: ["slug" => "slug"])] Cinema $cinema,
-        #[MapEntity(mapping: ["screening_room_slug" => "slug"])] ScreeningRoom $screeningRoom,
         ShowtimeRepository $showtimeRepository,
-        string $date
+        string $date,
+        #[MapEntity(mapping: ["screening_room_slug" => "slug"])] ?ScreeningRoom $screeningRoom = null,
     ) {
 
         $showtimes = $showtimeRepository->findFiltered(
@@ -144,32 +171,25 @@ class ShowtimeController extends AbstractController
             showtimeEndTime: $date,
         );
 
+
         $showtimes = array_map(function(Showtime $showtime) {
-            return [
-                "id" => $showtime->getId(),
-                "movieTitle" => $showtime->getMovieScreeningFormat()->getMovie()->getTitle(),
-                "screeningFormat" => $showtime->getMovieScreeningFormat()->getScreeningFormat()->getDisplayScreeningFormat(),
-                "startsAt" => $showtime->getStartsAt()->format(DateTime::ATOM),
-                "endsAt" => $showtime->getEndsAt()->format(DateTime::ATOM),
-                "advertisementTimeInMinutes" => $showtime->getAdvertisementTimeInMinutes(),
-                "maintenanceTimeInMinutes" => $showtime->getScreeningRoom()->getMaintenanceTimeInMinutes(),
-                "movieDurationInMinutes" => $showtime->getMovieScreeningFormat()->getMovie()->getDurationInMinutes(),
-                "durationInMinutes" => $showtime->getDuration()
-            ];
+            return ShowtimeDto::fromEntity($showtime);
         }, $showtimes);
 
 
         return $this->json($showtimes);
     }
 
-    #[Route("/{screening_room_slug}/showtime-axis", name: "app_showtime_showtime_axis")]
+    #[Route("/cinemas/{slug}/scheduled-showtime-axis", name: "app_showtime_showtime_axis")]
     public function showtimeAxis(
-        #[MapEntity(mapping: ["slug" => "slug"])] Cinema $cinema,
-        #[MapEntity(mapping: ["screening_room_slug" => "slug"])] ScreeningRoom $screeningRoom,
+        Cinema $cinema,
+        ScreeningRoomRepository $screeningRoomRepository
     ) {
-        // dd($screeningRoom, $cinema);
+        $screeningRooms = $screeningRoomRepository->findBy(["cinema" => $cinema]);
 
-        return $this->render("showtime/showtimeAxis.html.twig");
+        return $this->render("showtime/showtimeAxis.html.twig", [
+            "screeningRooms" => $screeningRooms
+        ]);
     }
 
 
