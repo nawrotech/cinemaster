@@ -1,0 +1,68 @@
+{% apply inky_to_html|inline_css(source('@styles/foundation-emails.css')) %}    
+    <container>
+        <row class="header">
+            <columns>
+                    <spacer size="16"></spacer>
+                    <h1 class="text-center">Action Starts Here—Bring Your Cinema to Life!</h1>
+            </columns>
+        </row>
+        
+        <row>
+            <columns>
+                <p class="text-center">Hi {{ email.to[0].addres ?? "Esteban Grande" }},
+                    Welcome to Cinemaster! We're excited to have you join our community of cinema owners and operators. With Cinemaster, you can transform your vision into reality by customizing and managing your cinema just the way you want.
+                </p>
+                <spacer size="16"></spacer>
+                <p class="text-center">
+                    Let’s get started:
+                    Click the button below to activate your account and begin creating your dream cinema setup.
+                </p>
+                <spacer size="16"></spacer>
+                <center>
+                    <button class="alert" href="{{ signedUrl|raw }}">Activate My Account</button>
+                    <p class="text-center">(This link will expire in {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.)</p>
+                </center>
+
+                <figure>
+                    <figcaption>
+                        <h3>Once you’re in, you can:</h3>
+                    </figcaption>
+                    <ul>
+                        <li>🎬 Design your cinema’s unique structure</li>
+                        <li>🏢 Add and customize screening rooms</li>
+                        <li>🎟️ Schedule movies and create unforgettable experiences for your audience</li>
+                    </ul>
+                </figure>
+                <p class="text-center">
+                    Take the first step toward managing your cinema like never before. Activate your account today and let the show begin!
+                    
+                    Looking forward to seeing your cinema come to life,
+                    The Cinemaster Team
+                    
+                    If you didn’t sign up for Cinemaster, please disregard this email.
+                </p>
+            </columns>
+        </row>
+        <callout class="alert">
+        <wrapper class="secondary">
+            <spacer size="16"></spacer>
+            <row>
+            <columns small="12" large="6">
+                <h5>Connect With Us:</h5>
+                <menu class="vertical">
+                    <item style="text-align: left;" href="#">X</item>
+                    <item style="text-align: left;" href="#">Facebook</item>
+                    <item style="text-align: left;" href="#">Instagram</item>
+                </menu>
+            </columns>
+            <columns small="12" large="6">
+                <h5>Contact Info:</h5>
+                <p>Phone: 408-341-0600</p>
+                <p>Email: <a href="mailto:cinemaster@support.com">cinemaster@support.com</a></p>
+            </columns>
+            </row>
+        </wrapper>
+        </callout>
+    </container>
+   
+{% endapply %}
