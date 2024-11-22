@@ -24,6 +24,16 @@ class MainController extends AbstractController
 
     }
 
+    #[Route('/inky-emails', name: 'app_main_inky_emails')]
+    public function inkyEmails(): Response {
+
+
+        return $this->render("reset_password/email.html.twig");
+
+    }
+
+    
+
     #[Route('/cinemas/{slug?}/showtimes', name: 'app_main_cinema_showtimes')]
     public function cinemaShowtimes(
         Cinema $cinema, 

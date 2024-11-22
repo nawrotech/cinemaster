@@ -1,0 +1,38 @@
+{% apply inky_to_html|inline_css(source('@styles/foundation-emails.css')) %}    
+<spacer size="16"></spacer>
+
+<container>
+
+  <row class="header">
+    <columns>
+
+      <spacer size="16"></spacer>
+      
+      <h4 class="text-center">Cinemaster</h4>
+    </columns>
+  </row>
+  <row>
+    <columns>
+
+      <spacer size="32"></spacer>
+
+      <center>
+        <img src="{{ email.image('@images/logo.png') }}">
+      </center>
+      
+      <spacer size="16"></spacer>
+
+      <p class="text-center">Hi {{ email.to[0].address ?? "Sample email" }}</p>
+      <p class="text-center">Forgot your password? It happens to the best of us—even stars lose their way in the spotlight! Click the link below to reset your password and return to the stage.</p>
+      <button class="large expand" href="{{ url('app_reset_password', {token: resetToken.token}) }}">Reset Password</button>
+      <p class="text-center">This link will expire in {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.</p>
+
+      <p class="text-center">Your cinema adventure is waiting!</p>
+      <p>Cheers, <br>The Cinemaster Team</p>
+    </columns>
+  </row>
+
+  <spacer size="16"></spacer>
+</container>
+
+{% endapply %}
