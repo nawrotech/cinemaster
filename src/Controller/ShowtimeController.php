@@ -94,7 +94,7 @@ class ShowtimeController extends AbstractController
         ]);
     }
 
-    #[Route("/publish/{showtime_id?}", name: "app_showtime_publish", methods: ["POST"])]
+    #[Route("cinemas/{slug}/showtimes/publish/{showtime_id?}", name: "app_showtime_publish", methods: ["POST"])]
     public function publish(
         #[MapEntity(mapping: ["slug" => "slug"])]
         Cinema $cinema,

@@ -14,7 +14,7 @@
             <figure>
                 <figcaption>Today's shows</figcaption>
                 <ul class="list-group list-group-flush">
-                    {% for showtime  in movieShowtimesPlannedForToday[movie.id] %}
+                    {% for showtime  in todayUpcomingShowtimes[movie.id] %}
                         <li class="list-group-item">
                             <div class="details">
                                 <p>Hours: {{ showtime.startsAt|date("H:i") }} -  {{ showtime.endsAt|date("H:i") }} </p>

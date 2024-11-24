@@ -33,12 +33,11 @@ class ReservationController extends AbstractController
         $reservationSeatId = $request->request->get("reservation_seat_id");
         $session = $request->getSession();
 
-        $seatStatus = $reservationSeatRepository->find($reservationSeatId)
-                                                    ->getStatus();
-
+        $selectedSeat  = $reservationSeatRepository->find($reservationSeatId);
+        $isNotAvailable =  $selectedSeat->getStatus() !== "available" || $selectedSeat->getStatusLockedExpiresAt() > new \DateTimeImmutable();
        
-        if ($seatStatus !== "available") {
-            return $this->redirectToRoute("app_reservation", [
+        if ($isNotAvailable) {
+            return $this->redirectToRoute("app_reservation_reserve_showtime", [
                 "slug" => $cinema->getSlug(),
                 "showtime_slug" => $showtime->getSlug()
             ]);
@@ -79,8 +78,6 @@ class ReservationController extends AbstractController
         );
 
         $session = $request->getSession();
-        // $session->remove("cart");
-
         $form = $this->createForm(ReservationType::class, options: [
             "cart" => $session->get("cart")
         ]);
@@ -126,16 +123,12 @@ class ReservationController extends AbstractController
 
         }
 
-        // IF payment process successful
-        // dd($session->get("cart"));
-
         $reservation = $reservationService->createReservation($session);
         $reservations = $reservationRepository->findBy(["showtime" => $showtime]);
-        // dd($reservations);
 
-        // send email wih details
+        // end email wih details
 
-        return $this->redirectToRoute("app_reservation", [
+        return $this->redirectToRoute("app_reservation_reserve_showtime", [
             "slug" => $cinema->getSlug(),
             "showtime_slug" => $showtime->getSlug()
         ]);

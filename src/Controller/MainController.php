@@ -50,19 +50,20 @@ class MainController extends AbstractController
             $displayMovies[$movie->getId()] = $movieDataMerger->mergeWithApiData($movie);
         }
 
+
         $now = new \DateTimeImmutable();
         $endOfTheDay = new \DateTimeImmutable("23:59:59");
-        $movieShowtimesPlannedForToday = [];
+        $todayUpcomingShowtimes = [];
         foreach ($movieIds as $movieId) {
-            $movieShowtimesPlannedForToday[$movieId] = $showtimeRepository
+            $todayUpcomingShowtimes[$movieId] = $showtimeRepository
                     ->findScheduledShowtimesForMovieBetweenDates($movieId, $now, $endOfTheDay);
         }  
-        
+
 
         return $this->render("main/cinema_showtimes.html.twig", [
             "cinema" => $cinema,
             "displayMovies" => $displayMovies,
-            "movieShowtimesPlannedForToday" => $movieShowtimesPlannedForToday
+            "todayUpcomingShowtimes" => $todayUpcomingShowtimes
         ]);
     }
 

@@ -31,8 +31,6 @@ class ReservationSeat
     #[ORM\JoinColumn(nullable: true)]
     private ?Reservation $reservation = null;
 
-    #[ORM\Column(length: 100, nullable: true)]
-    private ?string $email = null;
 
     public function getId(): ?int
     {
@@ -99,15 +97,4 @@ class ReservationSeat
         return $this;
     }
 
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(?string $email): static
-    {
-        $this->email = $email;
-
-        return $this;
-    }
 }

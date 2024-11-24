@@ -13,34 +13,29 @@ class ReservationService {
         private ReservationSeatRepository $reservationSeatRepository,
         private EntityManagerInterface $em)
     {
-        
     }
 
-    public function lockSeats(SessionInterface $session, string $email, ?int $expirationInMinutes = 5) {
-        $this->em->beginTransaction();
-       try {
+    public function lockSeats(SessionInterface $session, string $email, ?int $expirationInMinutes = 10) {
+        
+        $this->em->wrapInTransaction(function ($em)  use($session, $email, $expirationInMinutes){
             foreach($session->get("cart") as $seatId) {
                 $reservationSeat = $this->reservationSeatRepository->find($seatId);
-                $reservationSeat->setStatus("locked");
 
                 $expirationTime = (new \DateTimeImmutable())->modify("+{$expirationInMinutes} minutes");
                 $reservationSeat->setStatusLockedExpiresAt($expirationTime);
-                $reservationSeat->setEmail($email);
+                $session->set("email", $email);
 
             }
-            $this->em->flush();
-            $this->em->commit();
-
-        } catch(\Exception $e) {
-                $this->em->rollback();
-                throw $e;
-        }
-        
+            $em->flush();            
+        });
+    
     }
 
     public function createReservation(SessionInterface $session): Reservation {
-        $this->em->beginTransaction();
-        try {
+        
+        $reservation = new Reservation();
+
+        $this->em->wrapInTransaction(function ($em)  use($session, $reservation){
             foreach($session->get("cart") as $seatId) {
                 $reservationSeat = $this->reservationSeatRepository->find($seatId);
                 
@@ -48,28 +43,22 @@ class ReservationService {
                     throw new \Exception("Seat not found or already locked.");
                 }
 
-                $reservation = new Reservation();
-                $reservation->setEmail($reservationSeat->getEmail());
+                $reservation->setEmail($session->get("email"));
                 $reservation->setShowtime($reservationSeat->getShowtime());
                 $reservationSeat->setReservation($reservation);
     
                 $reservationSeat->setStatus("reserved");
-                $reservationSeat->setStatusLockedExpiresAt(null);
     
-                $this->em->persist($reservation);
+                $em->persist($reservation);
+                $em->flush();
+
             }
-
-            $this->em->flush();
-            $this->em->commit();
             $session->clear("cart");
-
-            return $reservation;
-
-        } catch (\Exception $e) {
-            $this->em->rollback();
-            throw $e;
-        }
- 
+            $session->clear("email");
+        });
+     
     
+        return $reservation;
+
     }
 }

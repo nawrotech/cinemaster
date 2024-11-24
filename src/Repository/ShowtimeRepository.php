@@ -214,9 +214,9 @@ class ShowtimeRepository extends ServiceEntityRepository
         \DateTimeImmutable $endDate, 
         bool $isPublished = true): array {
         return $this->createQueryBuilder("s")
-                    ->innerJoin("s.movieScreeningFormat", "mf")
-                    ->innerJoin("mf.movie", "m")
-                    ->addSelect("mf")
+                    ->innerJoin("s.movieScreeningFormat", "msf")
+                    ->innerJoin("msf.movie", "m")
+                    ->addSelect("msf")
                     ->andWhere("s.isPublished = :isPublished")
                     ->andWhere("m.id = :id")
                     ->andWhere("s.startsAt > :startDate")

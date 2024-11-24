@@ -3,14 +3,23 @@
     showtime_slug: showtime.slug
     })}}">
     <input name="reservation_seat_id" value="{{ seat.id }}" type="hidden">
+    {% set isLocked = seat.statusLockedExpiresAt|date("Y-m-d H:i:s") > "now"|date("Y-m-d H:i:s") %}
+    {% set isAvailable = seat.status == "available" and isLocked == false %}
+       
     <button                           
         name="{{ seat.id in app.session.get('cart', []) ? "cancel" : "reserve" }}"
         value="true"
         class="seat
         {{ seat.id in app.session.get('cart', []) ? "selected" : seat.status }}
         "
-        {{ seat.status != "available"  ? "disabled" : "" }} 
+        {{ isAvailable ? "" : "disabled" }} 
         >
         <span class="seat-position">{{seat.seat.seat.seatPosition}}</span>
     </button>
+
+    {{ dump(isLocked) }}
+
+    <pre>
+        {# {{ dump(seat.statusLockedExpiresAt) }} #}
+    </pre>
 </form>
