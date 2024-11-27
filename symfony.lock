@@ -65,6 +65,9 @@
             "migrations/.gitignore"
         ]
     },
+    "endroid/qr-code-bundle": {
+        "version": "6.0.0"
+    },
     "league/flysystem-bundle": {
         "version": "3.3",
         "recipe": {
