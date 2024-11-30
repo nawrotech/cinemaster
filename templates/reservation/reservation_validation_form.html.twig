@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Reservation number {{reservation.id }}{% endblock %}
+
+{% block navigation %}{% endblock %}
+
+{% block body %}
+    
+    <h1 >{{ reservation.isValidated ? "Already Validated" : "Not Validated" }}</h1>
+    <p>%TODO details about the reservation%</p>
+    <form action="{{ path("app_reservation_process_validation",
+     {slug: app.current_route_parameters.slug, id: app.current_route_parameters.id,
+      _expiration: app.request.get("_expiration"), _hash: app.request.get("_hash")}) }}" 
+      method="post">
+        {% if reservation.isValidated == false %}
+            <button class="btn btn-primary">Validate</button>
+        {% endif %}
+    </form>
+{% endblock %}
+
+{% block footer %}{% endblock %}

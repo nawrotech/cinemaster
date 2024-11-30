@@ -18,14 +18,15 @@ class QrCodeService {
 
     public function generateReservationQrCode(Reservation $reservation): string {
         $cinemaSlug = $reservation->getShowtime()->getCinema()->getSlug();
+        $showtimeEndsAt = $reservation->getShowtime()->getEndsAt();
         $reservationId = $reservation->getId();
 
-        $reservationValidationUrl = $this->urlGenerator->generate("app_reservation_validate", [
+        $reservationValidationUrl = $this->urlGenerator->generate("app_reservation_show_validation_form", [
             "slug" => $cinemaSlug,
             "id" => $reservationId
         ], UrlGeneratorInterface::ABSOLUTE_URL);
 
-        $signedUrl = $this->uriSigner->sign($reservationValidationUrl);
+        $signedUrl = $this->uriSigner->sign($reservationValidationUrl, $showtimeEndsAt);
 
         $qrCode = $this->qrBuilder->build(
             data: $signedUrl,

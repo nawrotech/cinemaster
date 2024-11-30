@@ -1,0 +1,168 @@
+{% apply inky_to_html|inline_css(source('@styles/foundation-emails.css')) %}    
+{% set cinema = reservation.showtime.cinema %}
+{% set screeningRoom = reservation.showtime.screeningRoom %}
+{% set showtime = reservation.showtime %}
+{% set movieScreeningFormat = reservation.showtime.movieScreeningFormat %}
+
+<spacer size="16"></spacer>
+
+<container>
+
+  <spacer size="16"></spacer>
+
+  <row>
+    <columns>
+      <h1 class="">Thank you for choosing {{ cinema.name }}!</h1>
+      <spacer size="16"></spacer>
+
+      <callout class="secondary">
+        <row>
+          <columns large="6">
+            <p>
+              <strong>Payment Method</strong><br/>
+              %Dummy method%
+            </p>
+            <p>
+              <strong>Email Address</strong><br/>
+              {{ email.to[0].address ?? "sample@user.com" }}
+            </p>
+            <p>
+              <strong>Reservation Id</strong><br/>
+              {{ reservation.id }}
+            </p>
+          </columns>
+          <columns large="6">
+            <p>
+              <strong>Cinema Address</strong><br/>
+                {{ cinema.name }}<br/>
+                {{ cinema.streetName }}&nbsp;{{ cinema.buildingNumber }}<br/>
+                {{ cinema.postalCode }}&nbsp;{{ cinema.district }}
+            </p>
+          </columns>
+        </row>
+      </callout>
+
+      <spacer size="16"></spacer>
+
+        <h2>Movie Details</h2>
+        <row>
+          <columns large="6">
+            <strong >Title:</strong>
+          </columns>
+          <columns large="6">
+            <p class="text-right">{{ movieScreeningFormat.movie.title }}</p>
+          </columns>
+        </row>
+        <row>
+          <columns large="6">
+            <strong >Screening format:</strong>
+          </columns>
+          <columns large="6">
+            <p class="text-right">{{ movieScreeningFormat.screeningFormat.displayScreeningFormat }}</p>
+          </columns>
+        </row>
+    
+        <hr/>
+        <spacer size="16"></spacer>
+
+        <h2>Showtime Information</h2>
+        <row>
+          <columns large="6">
+            <strong class="text-left ">Date:</strong>
+          </columns>
+          <columns large="6">
+              <p class="text-right">{{ showtime.startsAt|date("l, F d, Y") }}</p>
+          </columns>
+        </row>
+
+        <row>
+          <columns large="6">
+            <strong >Time:</strong>
+          </columns>
+          <columns large="6">
+            <p class="text-right">{{ showtime.startsAt|date("h:i A") }}</p>
+          </columns>
+        </row>
+
+        <hr/>
+        <spacer size="16"></spacer>
+
+        <h2>Reservation Details</h2>
+              <table>
+                <tr><th>Seat</th><th>#</th><th>Price</th></tr>
+                {% for reservationSeat in reservationSeats %}
+                  <tr><td>Row-Seat</td><td>{{ reservationSeat.seat.seat.seatPosition }}</td><td>${{ showtime.price }}</td></tr>
+                {% endfor %}
+                <tr>
+                  <td colspan="2"><b>Subtotal:</b></td>
+                  <td>${{ total }}</td>
+                </tr>
+              </table>
+
+              <spacer size="16"></spacer>
+
+              <row>
+                <columns large="6">
+                  <p class="text-left"><strong>Room:</strong></p>
+                </columns>
+
+                <columns large="6">
+                  <p class="text-center">{{ screeningRoom.name }}</p>
+                </columns>
+              </row>
+      
+
+
+
+        <hr/>
+        <spacer size="16"></spacer>
+
+        <h2>Ticket QR:</h2>
+        <img src="{{ reservationQrCode }}" alt="reservation-validation-qr-code-link"  />
+
+        
+
+        <hr/>
+        <spacer size="16"></spacer>
+      
+      
+      <spacer size="16"></spacer> 
+
+      <row class="footer text-center">
+        <columns large="4">
+          <p>
+            <strong>Contact Us:</strong><br/>
+            Call: (123) 456-7890<br/>
+            Email: support@example.com
+          </p>
+        </columns>
+        <columns large="4">
+          <p>
+            <strong>Follow Us:</strong><br/>
+            <a href="https://facebook.com">Facebook</a> | 
+            <a href="https://twitter.com">Twitter</a> | 
+            <a href="https://instagram.com">Instagram</a>
+          </p>
+        </columns>
+        <columns large="4">
+          <p>
+            <strong>Address:</strong><br/>
+            {{ cinema.streetName }}&nbsp;{{ cinema.buildingNumber }}<br/>
+            {{ cinema.postalCode }}&nbsp;{{ cinema.district }}
+          </p>
+        </columns>
+        <row>
+          <columns>
+            <p style="margin-top: 20px; font-size: 12px;">
+              &copy; 2024 {{ cinema.name }}. All rights reserved.
+            </p>
+          </columns>
+        </row>
+      </row>
+      
+    </row>
+
+  </columns>
+</container>
+   
+{% endapply %}

@@ -18,6 +18,7 @@ class Reservation
     #[ORM\Column(length: 50)]
     private ?string $email = null;
 
+    
     #[ORM\ManyToOne(inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Showtime $showtime = null;
@@ -30,6 +31,9 @@ class Reservation
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column]
+    private ?bool $isValidated = false;
 
     public function __construct()
     {
@@ -104,6 +108,18 @@ class Reservation
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function isValidated(): ?bool
+    {
+        return $this->isValidated;
+    }
+
+    public function setValidated(bool $isValidated): static
+    {
+        $this->isValidated = $isValidated;
 
         return $this;
     }
