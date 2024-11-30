@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Reservation;
+use App\Entity\Showtime;
 use App\Repository\ReservationSeatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -17,8 +18,7 @@ class ReservationService {
 
     public function lockSeats(SessionInterface $session, string $email, ?int $expirationInMinutes = 10) {
         
-        $this->em->wrapInTransaction(function ($em)  use($session, $email, $expirationInMinutes){
-            foreach($session->get("cart") as $seatId) {
+            foreach($session->get("cart", []) as $seatId) {
                 $reservationSeat = $this->reservationSeatRepository->find($seatId);
 
                 $expirationTime = (new \DateTimeImmutable())->modify("+{$expirationInMinutes} minutes");
@@ -26,38 +26,38 @@ class ReservationService {
                 $session->set("email", $email);
 
             }
-            $em->flush();            
-        });
+            $this->em->flush();            
     
     }
 
-    public function createReservation(SessionInterface $session): Reservation {
-        
-        $reservation = new Reservation();
+    public function createReservation(SessionInterface $session, Showtime $showtime): Reservation {
+        $email = $session->get("email");
+        $cart = $session->get("cart");
 
-        $this->em->wrapInTransaction(function ($em)  use($session, $reservation){
-            foreach($session->get("cart") as $seatId) {
+        $reservation = new Reservation();
+        $reservation->setEmail($email);
+        $reservation->setShowtime($showtime);
+
+        $this->em->persist($reservation);
+
+        $this->em->wrapInTransaction(function ($em)  use($reservation, $cart){
+            foreach($cart as $seatId) {
                 $reservationSeat = $this->reservationSeatRepository->find($seatId);
                 
                 if (!$reservationSeat) {
                     throw new \Exception("Seat not found or already locked.");
                 }
 
-                $reservation->setEmail($session->get("email"));
-                $reservation->setShowtime($reservationSeat->getShowtime());
                 $reservationSeat->setReservation($reservation);
-    
                 $reservationSeat->setStatus("reserved");
     
-                $em->persist($reservation);
-                $em->flush();
-
             }
-            $session->clear("cart");
-            $session->clear("email");
+            $em->flush();
+  
         });
-     
-    
+
+        $session->remove("cart");
+        $session->remove("email");
         return $reservation;
 
     }
