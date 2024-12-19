@@ -3,9 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Cinema;
-use App\Form\VisualFormatType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -41,7 +39,7 @@ class CinemaType extends AbstractType
                     "attr" => [
                         "placeholder" => "e.g. 6"
                     ],
-                    "label" => "How many rows has biggest screening room in your cinema?",
+                    "label" => "What is the total number of rows in the largest screening room at your cinema?",
                     "constraints" => [
                         new NotBlank(),
                         new GreaterThan(1),
@@ -56,7 +54,7 @@ class CinemaType extends AbstractType
                     "attr" => [
                         "placeholder" => "e.g. 6"
                     ],
-                    "label" => "How many seats has the longest row in your cinema?",
+                    "label" => "How many seats are there in the longest row of your cinema?",
                     "constraints" => [
                         new NotBlank(),
                         new GreaterThan(1),
@@ -70,23 +68,8 @@ class CinemaType extends AbstractType
             ->add("city")
             ->add("district")
             ->add("country")
-            ->add('visualFormats', CollectionType::class, [
-                "label" => false,
-                "entry_type" => VisualFormatType::class,
-                "entry_options" => ["label" => false],
-                "allow_add" => true,
-                "allow_delete" => true,
-                "by_reference" => false,
-                "prototype" => true,
-                "prototype_name" => "__visual_format_name__"
-                
-            ])
-            ->add('save', SubmitType::class, [
-                "attr" => [
-                    "class" => "btn-success",
-
-                ]
-            ]);
+  
+            ;
    
     }
 

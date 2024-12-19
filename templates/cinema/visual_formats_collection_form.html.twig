@@ -1,0 +1,14 @@
+{% extends "base.html.twig" %}
+
+
+{% block body %}
+
+{{ form_start(form) }}
+    {{ include("partials/_dynamic_collection_type.html.twig", {
+        collectionType: form.visualFormats,
+        addButtonText: "Add visual format"
+    }) }}
+{{ form_end(form) }}
+   
+
+{% endblock %}

@@ -3,9 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Cinema;
-use App\Entity\WorkingHours;
 use App\Form\CinemaType;
-use App\Form\WorkingHoursCollectionType;
+use App\Form\CinemaVisualFormatCollectionType;
 use App\Repository\CinemaRepository;
 use App\Repository\MovieRepository;
 use App\Repository\MovieScreeningFormatRepository;
@@ -53,9 +52,17 @@ class CinemaController extends AbstractController
             $em->persist($cinema);
             $em->flush();
 
-            $this->addFlash("success", "Cinema created!");
-            
+            if ($request->get("addVisualFormats")) {
+               
+                $this->addFlash("success", "Info about your cinema saved, continue by adding visual formats available in your cinema!");
+                return $this->redirectToRoute("app_cinema_visual_formats", [
+                    "slug" => $cinema->getSlug()
+                ]);
+            }
+
+            $this->addFlash("success", "Info about your cinema saved!");
             return $this->redirectToRoute("app_cinema");
+        
         }
 
         return $this->render('cinema/create.html.twig', [
@@ -63,13 +70,36 @@ class CinemaController extends AbstractController
         ]);
     }
 
+    #[Route('/{slug}/add-visual-formats', name: 'app_cinema_visual_formats')]
+    public function addVisualFormats(
+        Request $request,
+        Cinema $cinema,
+        EntityManagerInterface $em,
+    ): Response {   
+
+        if (!$cinema->getVisualFormats()->isEmpty()) {
+            return $this->redirectToRoute("app_cinema");
+        }
+        
+        $form = $this->createForm(CinemaVisualFormatCollectionType::class, $cinema);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($cinema);
+            $em->flush();
+
+            $this->addFlash("success", "Cinema created!");
+            return $this->redirectToRoute("app_cinema");
+        }
+
+        return $this->render('cinema/visual_formats_collection_form.html.twig', [
+            "form" => $form
+        ]);
+    }
+
 
     #[Route('/{slug}', name: 'app_cinema_details')]
     public function cinemaDetails(Cinema $cinema) {
-
-        
-
-        // dd($cinema);
 
         return $this->render("cinema/cinema_details.html.twig", [
             "cinema" => $cinema
@@ -89,7 +119,6 @@ class CinemaController extends AbstractController
         #[MapQueryParameter] ?int $page = null
     ): Response {
 
-      
         $adapter = new QueryAdapter($movieRepository->findBySearchTerm($cinema, $searchTerm, true));
         $pagerfanta = new Pagerfanta($adapter);
 
