@@ -24,10 +24,18 @@ class CinemaVisualFormatCollectionType extends AbstractType
                 "allow_delete" => true,
                 "by_reference" => false,
                 "prototype" => true,
-                "prototype_name" => "__visual_format_name__"
-                
             ])
-           ->add("Submit", SubmitType::class)
+            ->add("addScreeningRoomSetups", SubmitType::class, [
+                "attr" => [
+                     "value" => "1",
+                     "class" => "btn btn-primary"
+                     ]
+            ])
+            ->add("submit", SubmitType::class, [
+                "attr" => [
+                    "class" => "btn btn-secondary"
+                ]
+            ])
         ;
     }
 

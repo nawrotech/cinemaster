@@ -1,0 +1,27 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+       
+{{ form_start(form) }}
+    <div {{ stimulus_controller('form-collection') }}
+        data-form-collection-index-value="{{ form.screeningRoomSetups|length > 0 ? form.screeningRoomSetups|last.vars.name + 1 : 0 }}"
+        data-form-collection-prototype-value="{{ form_widget(form.screeningRoomSetups.vars.prototype)|e('html_attr') }}"
+        data-form-collection-wrapper-element-value="div"
+        data-form-collection-wrapper-class-name-value="main-wrapper"
+
+        >
+        <ul {{ stimulus_target('form-collection', 'collectionContainer') }}>
+            {% for screeningRoomSetup in form.screeningRoomSetups %}
+                <div class="main-wrapper">
+                    {{ form_row(screeningRoomSetup) }}
+                </div>
+            {% endfor %}
+        </ul>
+        <button class="btn btn-success" type="button" {{ stimulus_action('form-collection', 'addCollectionElement') }}>Add setup type</button>
+    </div>
+
+
+{{ form_end(form) }}
+
+
+{% endblock %}

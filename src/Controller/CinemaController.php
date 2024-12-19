@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Cinema;
+use App\Form\CinemaScreeningRoomSetupCollectionType;
 use App\Form\CinemaType;
 use App\Form\CinemaVisualFormatCollectionType;
 use App\Repository\CinemaRepository;
@@ -53,9 +54,8 @@ class CinemaController extends AbstractController
             $em->flush();
 
             if ($request->get("addVisualFormats")) {
-               
                 $this->addFlash("success", "Info about your cinema saved, continue by adding visual formats available in your cinema!");
-                return $this->redirectToRoute("app_cinema_visual_formats", [
+                return $this->redirectToRoute("app_cinema_add_visual_formats", [
                     "slug" => $cinema->getSlug()
                 ]);
             }
@@ -70,18 +70,53 @@ class CinemaController extends AbstractController
         ]);
     }
 
-    #[Route('/{slug}/add-visual-formats', name: 'app_cinema_visual_formats')]
+    #[Route('/{slug}/add-visual-formats', name: 'app_cinema_add_visual_formats')]
     public function addVisualFormats(
         Request $request,
         Cinema $cinema,
         EntityManagerInterface $em,
     ): Response {   
 
-        if (!$cinema->getVisualFormats()->isEmpty()) {
+
+        // if (!$cinema->getScreeningRoomSetups()->isEmpty()) {
+        //     return $this->redirectToRoute("app_cinema");
+        // }
+
+        $form = $this->createForm(CinemaVisualFormatCollectionType::class, $cinema);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+
+            $formData = $request->request->all($form->getName());
+
+            if (isset($formData["addScreeningRoomSetups"])) {
+                $this->addFlash("success", "Visual Formats has been added, continue by adding screening room setups available in your cinema!");
+                return $this->redirectToRoute("app_cinema_add_screening_room_setups", [
+                    "slug" => $cinema->getSlug()
+                ]);
+            }
+       
+            $this->addFlash("success", "Visual Formats has been added!");
             return $this->redirectToRoute("app_cinema");
         }
-        
-        $form = $this->createForm(CinemaVisualFormatCollectionType::class, $cinema);
+
+        return $this->render('cinema/visual_formats_collection_form.html.twig', [
+            "form" => $form
+        ]);
+    }
+
+    #[Route('/{slug}/add-screening-room-setups', name: 'app_cinema_add_screening_room_setups')]
+    public function addScreeningRoomSetups(
+        Request $request,
+        Cinema $cinema,
+        EntityManagerInterface $em,
+    ): Response {   
+
+        // if (!$cinema->getScreeningRoomSetups()->isEmpty()) {
+        //     return $this->redirectToRoute("app_cinema");
+        // }
+        $form = $this->createForm(CinemaScreeningRoomSetupCollectionType::class, $cinema);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -92,7 +127,7 @@ class CinemaController extends AbstractController
             return $this->redirectToRoute("app_cinema");
         }
 
-        return $this->render('cinema/visual_formats_collection_form.html.twig', [
+        return $this->render('cinema/screening_room_setups_collection_form.html.twig', [
             "form" => $form
         ]);
     }
