@@ -10,10 +10,9 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Translation\TranslatableMessage;
 
 class ScreeningFormatType extends AbstractType
 {
@@ -22,12 +21,9 @@ class ScreeningFormatType extends AbstractType
         $cinema = $options["query_constraint"];
 
         $builder
-            ->add('languagePresentation', ChoiceType::class, [
-                "choices" => LanguagePresentation::getValuesArray(),
-                "choice_label" => function($choice): TranslatableMessage|string {
-                    return $choice;
-                },
-
+            ->add('languagePresentation', EnumType::class, [
+                "class" => LanguagePresentation::class,
+                'choice_label' => fn (LanguagePresentation $languagePresentation): string => $languagePresentation->value,
             ])
             ->add('visualFormat', EntityType::class, [
                 'class' => VisualFormat::class,
