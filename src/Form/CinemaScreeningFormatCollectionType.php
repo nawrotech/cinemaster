@@ -10,7 +10,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 
-class ScreeningFormatCollectionType extends AbstractType
+class CinemaScreeningFormatCollectionType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -27,7 +27,6 @@ class ScreeningFormatCollectionType extends AbstractType
                 "allow_delete" => true,
                 "by_reference" => false,
                 "prototype" => true,
-                // "prototype_name" => "__name__"
            ])
            ->add("Submit", SubmitType::class)
         ;
