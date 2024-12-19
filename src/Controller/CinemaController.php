@@ -63,36 +63,6 @@ class CinemaController extends AbstractController
         ]);
     }
 
-    #[Route('/{slug?}/working-hours/', name: 'app_cinema_working_hours')]
-    public function workingHours(
-        Cinema $cinema,
-        Request $request,
-        EntityManagerInterface $em
-    ): Response {
-
-        if ($cinema->getWorkingHours()->isEmpty()) {
-            $weekDays = range(0, 6);
-            foreach ($weekDays as $day) {
-                $workingHours = new WorkingHours();
-                $workingHours->setDayOfTheWeek($day);
-                $cinema->addWorkingHour($workingHours);
-            }        
-        }
-    
-        $form = $this->createForm(WorkingHoursCollectionType::class, $cinema);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em->flush();
-
-            $this->addFlash("success", "Working hours added to your cinema!");
-            return $this->redirectToRoute("app_cinema");
-        }
-
-        return $this->render('cinema/working_hours.html.twig', [
-            "form" => $form
-        ]);
-    }
 
     #[Route('/{slug}', name: 'app_cinema_details')]
     public function cinemaDetails(Cinema $cinema) {

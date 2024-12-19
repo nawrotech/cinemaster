@@ -110,11 +110,6 @@ class Cinema
     #[ORM\OneToMany(targetEntity: Movie::class, mappedBy: 'cinema')]
     private Collection $movies;
 
-    /**
-     * @var Collection<int, WorkingHours>
-     */
-    #[ORM\OneToMany(targetEntity: WorkingHours::class, mappedBy: 'cinema', cascade: ["persist"])]
-    private Collection $workingHours;
 
     public function __construct()
     {
@@ -127,7 +122,6 @@ class Cinema
         $this->screeningFormats = new ArrayCollection();
         $this->movieScreeningFormats = new ArrayCollection();
         $this->movies = new ArrayCollection();
-        $this->workingHours = new ArrayCollection();
     }
 
     #[PrePersist]
@@ -523,35 +517,6 @@ class Cinema
         return $this;
     }
 
-    /**
-     * @return Collection<int, WorkingHours>
-     */
-    public function getWorkingHours(): Collection
-    {
-        return $this->workingHours;
-    }
-
-    public function addWorkingHour(WorkingHours $workingHour): static
-    {
-        if (!$this->workingHours->contains($workingHour)) {
-            $this->workingHours->add($workingHour);
-            $workingHour->setCinema($this);
-        }
-
-        return $this;
-    }
-
-    public function removeWorkingHour(WorkingHours $workingHour): static
-    {
-        if ($this->workingHours->removeElement($workingHour)) {
-            // set the owning side to null (unless already changed)
-            if ($workingHour->getCinema() === $this) {
-                $workingHour->setCinema(null);
-            }
-        }
-
-        return $this;
-    }
 
     
 }
