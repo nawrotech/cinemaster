@@ -5,7 +5,6 @@ namespace App\Form;
 use App\Entity\Cinema;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -24,17 +23,6 @@ class CinemaVisualFormatCollectionType extends AbstractType
                 "allow_delete" => true,
                 "by_reference" => false,
                 "prototype" => true,
-            ])
-            ->add("addScreeningRoomSetups", SubmitType::class, [
-                "attr" => [
-                     "value" => "1",
-                     "class" => "btn btn-primary"
-                     ]
-            ])
-            ->add("submit", SubmitType::class, [
-                "attr" => [
-                    "class" => "btn btn-secondary"
-                ]
             ])
         ;
     }

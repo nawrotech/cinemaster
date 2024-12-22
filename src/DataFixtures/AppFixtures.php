@@ -27,15 +27,15 @@ class AppFixtures extends Fixture
         SeatFactory::createGrid();
         UserFactory::createOne();
 
-        CinemaFactory::createMany(3, [
-            "owner" => UserFactory::random()
-        ]);
+        // CinemaFactory::createMany(1, [
+        //     "owner" => UserFactory::random()
+        // ]);
 
-        VisualFormatFactory::createMany(12, function() {
-            return [
-                "cinema" => CinemaFactory::random()
-            ];
-        });
+        // VisualFormatFactory::createMany(12, function() {
+        //     return [
+        //         "cinema" => CinemaFactory::random()
+        //     ];
+        // });
 
 
         // MovieFactory::createMany(32);e

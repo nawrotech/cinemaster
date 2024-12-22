@@ -6,7 +6,6 @@ use App\Entity\Cinema;
 use App\Entity\ScreeningRoom;
 use App\Entity\ScreeningRoomSeat;
 use App\Enum\ScreeningRoomSeatType;
-use App\Form\ScreeningRoomSetupCollectionType;
 use App\Form\ScreeningRoomType;
 use App\Form\SeatLineType;
 use App\Repository\ScreeningRoomRepository;
@@ -20,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route("/cinemas/{slug}/screening-rooms")]
+#[Route("/admin/cinemas/{slug}/screening-rooms")]
 class ScreeningRoomController extends AbstractController
 {
 
@@ -40,32 +39,6 @@ class ScreeningRoomController extends AbstractController
     }
 
 
-    #[Route('/types', name: 'app_screening_room_create_types')]
-    public function createTypes(
-        Request $request,
-        EntityManagerInterface $em,
-        Cinema $cinema,
-        ): Response {
-
-
-        $form = $this->createForm(ScreeningRoomSetupCollectionType::class, $cinema);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-
-            $this->addFlash("success", "Screening setups for rooms have been created!");
-            $em->flush();
-
-            return $this->redirectToRoute("app_cinema");
-        }
-
-        return $this->render("screening_room/create_type.html.twig", [
-            "form" => $form
-        ]);
-
-
-    }
-
 
     #[Route('/create', name: 'app_screening_room_create')]
     public function create(
@@ -74,6 +47,11 @@ class ScreeningRoomController extends AbstractController
         SeatRepository $seatRepository,
         Cinema $cinema,
     ): Response {
+
+
+        if ($cinema->getScreeningRoomSetups()->isEmpty()) {
+            return $this->redirectToRoute("app_cinema");
+        }
 
         if ($request->query->get("ajaxCall")) {
             return $this->json([
@@ -98,10 +76,8 @@ class ScreeningRoomController extends AbstractController
             $seatsPerRow = $form->get("seatsPerRow")->getData();
             $rowsAndSeats = array_combine(range(1, count($seatsPerRow)), $seatsPerRow);
             
-    
             $em->wrapInTransaction(function($em) use($rowsAndSeats, $seatRepository, $screeningRoom) {
                 foreach ($rowsAndSeats as $row => $lastSeatInRow) {
-                 
                     $seatsRange = $seatRepository->findSeatsInRange($row, $row, 1, $lastSeatInRow);
                     
                     foreach ($seatsRange as $seat) {

@@ -84,8 +84,7 @@ class CinemaController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
 
-            $formData = $request->request->all($form->getName());
-            if (isset($formData["addScreeningRoomSetups"])) {
+            if ($request->get("addScreeningRoomSetups")) {
                 $this->addFlash("success", "Visual Formats has been added!");
                 return $this->redirectToRoute("app_cinema_add_screening_room_setups", [
                     "slug" => $cinema->getSlug()
@@ -108,14 +107,17 @@ class CinemaController extends AbstractController
         EntityManagerInterface $em,
     ): Response {   
 
+        if ($cinema->getVisualFormats()->isEmpty()) {
+            return $this->redirectToRoute("app_cinema");
+        }
+
         $form = $this->createForm(CinemaScreeningRoomSetupCollectionType::class, $cinema);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
 
-            $formData = $request->request->all($form->getName());
-            if (isset($formData["addScreeningFormats"])) {
+            if ($request->get("addScreeningFormats")) {
                 $this->addFlash("success", "Screening room setups has been added!");
                 return $this->redirectToRoute("app_cinema_add_screening_formats", [
                     "slug" => $cinema->getSlug()
@@ -138,21 +140,16 @@ class CinemaController extends AbstractController
         EntityManagerInterface $em,
     ): Response {   
 
+
+        if ($cinema->getVisualFormats()->isEmpty()) {
+            return $this->redirectToRoute("app_cinema");
+        }
+
         $form = $this->createForm(CinemaScreeningFormatCollectionType::class, $cinema);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
-
-            $formData = $request->request->all($form->getName());
-
-            if (isset($formData["addScreeningFormats"])) {
-                $this->addFlash("success", "Screening room formats has been added!");
-                return $this->redirectToRoute("app_cinema_add_screening_room_formats", [
-                    "slug" => $cinema->getSlug()
-                ]);
-            }
-
             $this->addFlash("success", "Screening room setups has been added!");
             return $this->redirectToRoute("app_cinema");
         }

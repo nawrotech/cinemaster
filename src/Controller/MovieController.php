@@ -84,30 +84,6 @@ class MovieController extends AbstractController
 
  
 
-    #[Route("/movies/formats/create", name: "app_movie_create_screening_formats")]
-    public function createScreeningFormats(
-        EntityManagerInterface $em,
-        Cinema $cinema,
-        Request $request): Response
-    {
-        $form = $this->createForm(ScreeningFormatCollectionType::class, $cinema);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-
-            $em->flush();            
-
-            $this->addFlash("success", "Screening formats have been created!");
-            
-            return $this->redirectToRoute("app_cinema");
-        }
-
-        return $this->render('movie/screening_formats_form.html.twig', [
-            "form" => $form
-        ]);
-
-    }
-
     #[Route('/movies/create/{id?}', name: 'app_movie_create')]
     public function create(
         Request $request,

@@ -28,17 +28,7 @@ class CinemaScreeningRoomSetupCollectionType extends AbstractType
                 "by_reference" => false,
                 "prototype" => true,
            ])
-           ->add("addScreeningFormats", SubmitType::class, [
-            "attr" => [
-                 "value" => "1",
-                 "class" => "btn btn-primary"
-                 ]
-            ])
-            ->add("submit", SubmitType::class, [
-                "attr" => [
-                    "class" => "btn btn-secondary"
-                ]
-            ])
+          
         ;
     }
 
