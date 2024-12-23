@@ -33,9 +33,49 @@
                 </li>
             {% endfor %}
         </ul>
-        <a class="link d-block" href="{{path("app_screening_room_create", {slug: cinema.slug})}}">
-            Create screening room
-        </a>
+
+        {# core customization #}
+        <div class="row">
+            <div class="col-4">
+                <h3>Visual formats</h3>
+                <ul>
+                    {% for visualFormat in cinema.visualFormats %}
+                            <li>{{ visualFormat.name }}</li>
+                    {% endfor %}
+                </ul>
+                <a class="link" href="">Add more</a>
+
+            </div>
+            <div class="col-4">
+                <h3>Screening room setups</h3>
+                <ul>
+                    {% for screeningRoomSetup in cinema.screeningRoomSetups %}
+                            <li>{{ screeningRoomSetup.displaySetup }}</li>
+                    {% endfor %}
+                </ul>
+                <a class="link" href="">Add more</a>
+            </div>
+            <div class="col-4">
+                <h3>Screening formats</h3>
+                <ul>
+                    {% for screeningFormat in cinema.screeningFormats %}
+                            <li>{{ screeningFormat.displayFormat }}</li>
+                    {% endfor %}
+                </ul>
+                <a class="link" href="">Add more</a>
+            </div>
+        </div>
+   
+        {% if cinema.screeningRoomSetups is not empty %}     
+            <a class="link d-block" href="{{path("app_screening_room_create", {slug: cinema.slug})}}">
+                Create screening room
+            </a>
+        {% endif %}
+     
+        {% if cinema.screeningFormats is not empty %}     
+            <a class="link d-inline-block" href="">Add movies</a>
+        {% endif %}
+
         <a class="btn btn-success" href="{{ path("app_showtime_showtime_axis", {slug: cinema.slug }) }}">Show Scheduled showtimes</a>
     </figure>
  

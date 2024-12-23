@@ -72,9 +72,9 @@ class ScreeningFormat
         return $this;
     }
 
-    public function getDisplayScreeningFormat() {
+    public function getDisplayFormat() {
 
-        return "{$this->getVisualFormat()->getName()} {$this->getLanguagePresentation()}";
+        return "{$this->getVisualFormat()->getName()} {$this->getLanguagePresentation()->value}";
     }
 
 }

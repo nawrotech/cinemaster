@@ -28,7 +28,7 @@ class VisualFormat
     #[ORM\OneToMany(targetEntity: ScreeningRoomSetup::class, mappedBy: 'visualFormat', orphanRemoval: true)]
     private Collection $screeningRoomSetups;
 
-   /**
+    /**
      * @var Collection<int, ScreeningFormat>
      */
     #[ORM\OneToMany(targetEntity: ScreeningFormat::class, mappedBy: 'visualFormat', orphanRemoval: true)]
@@ -69,65 +69,5 @@ class VisualFormat
         return $this;
     }
 
-    /**
-     * @return Collection<int, ScreeningRoomSetup>
-     */
-    public function getScreeningRoomSetups(): Collection
-    {
-        return $this->screeningRoomSetups;
-    }
 
-    public function addScreeningRoomSetup(ScreeningRoomSetup $screeningRoomSetup): static
-    {
-        if (!$this->screeningRoomSetups->contains($screeningRoomSetup)) {
-            $this->screeningRoomSetups->add($screeningRoomSetup);
-            $screeningRoomSetup->setVisualFormat($this);
-        }
-
-        return $this;
-    }
-
-    public function removeScreeningRoomSetup(ScreeningRoomSetup $screeningRoomSetup): static
-    {
-        if ($this->screeningRoomSetups->removeElement($screeningRoomSetup)) {
-            // set the owning side to null (unless already changed)
-            if ($screeningRoomSetup->getVisualFormat() === $this) {
-                $screeningRoomSetup->setVisualFormat(null);
-            }
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * @return Collection<int, ScreeningFormat>
-     */
-    public function getScreeningFormats(): Collection
-    {
-        return $this->screeningFormats;
-    }
-
-    public function addScreeningFormat(ScreeningFormat $screeningFormat): static
-    {
-        if (!$this->screeningFormats->contains($screeningFormat)) {
-            $this->screeningFormats->add($screeningFormat);
-            $screeningFormat->setVisualFormat($this);
-        }
-
-        return $this;
-    }
-
-    public function removeScreeningFormat(ScreeningFormat $screeningFormat): static
-    {
-
-        if ($this->screeningFormats->removeElement($screeningFormat)) {
-            // set the owning side to null (unless already changed)
-            if ($screeningFormat->getVisualFormat() === $this) {
-                $screeningFormat->setVisualFormat(null);
-            }
-        }
-
-        return $this;
-    }
 }

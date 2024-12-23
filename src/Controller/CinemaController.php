@@ -110,6 +110,7 @@ class CinemaController extends AbstractController
         if ($cinema->getVisualFormats()->isEmpty()) {
             return $this->redirectToRoute("app_cinema");
         }
+
         $form = $this->createForm(CinemaScreeningRoomSetupCollectionType::class, $cinema);
         $form->handleRequest($request);
 
@@ -162,7 +163,6 @@ class CinemaController extends AbstractController
     }
 
 
-
     #[Route('/{slug}', name: 'app_cinema_details')]
     public function cinemaDetails(Cinema $cinema) {
 
@@ -189,7 +189,6 @@ class CinemaController extends AbstractController
 
         $pagerfanta->setMaxPerPage(10);
         $pagerfanta->setCurrentPage($page ?? 1);
-
 
         $screeningFormats = $screeningFormatRepository->findBy([
             "cinema" => $cinema

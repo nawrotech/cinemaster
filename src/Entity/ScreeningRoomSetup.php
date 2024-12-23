@@ -83,7 +83,7 @@ class ScreeningRoomSetup
 
 
     public function getDisplaySetup() {
-        return "Sound: {$this->soundFormat} Vision: {$this->visualFormat->getName()}";
+        return "Sound: {$this->soundFormat}, Vision: {$this->visualFormat->getName()}";
     }
 
     /**
