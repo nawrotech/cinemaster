@@ -1,18 +1,14 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello MovieController!{% endblock %}
-
-{# {% block stylesheets %}
-    {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('bundles/babdevpagerfanta/css/pagerfanta.css') }}">
-{% endblock %} #}
+{% block title %}Cinema's movies{% endblock %}
 
 {% block body %}
         {{ include("partials/_search_input.html.twig", {
             action_route: path("app_cinema_add_movies", {
                 slug: cinema.slug,
             }),
-            query_value: app.request.query.get('searchTerm') ?? null
+            query_value: app.request.query.get('searchTerm') ?? null,
+            name: "movie-query"
         }) }}
 
         {% for movie in pager %}

@@ -54,16 +54,16 @@ class CinemaController extends AbstractController
             $em->persist($cinema);
             $em->flush();
 
-            if ($request->get("addVisualFormats")) {
-                $this->addFlash("success", "Info about your cinema saved!");
-                return $this->redirectToRoute("app_cinema_add_visual_formats", [
-                    "slug" => $cinema->getSlug()
-                ]);
-            }
-
-            $this->addFlash("success", "Info about your cinema saved!");
-            return $this->redirectToRoute("app_cinema");
+            $this->addFlash("success", "Cinema created successfully!");
         
+            $routeName = $form->get("addVisualFormats")->isClicked() 
+                ? "app_cinema_add_visual_formats"
+                : "app_cinema_details";
+            
+            return $this->redirectToRoute($routeName, [
+                "slug" => $cinema->getSlug()
+            ]);
+    
         }
 
         return $this->render('cinema/create.html.twig', [
@@ -82,17 +82,17 @@ class CinemaController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em->flush();
 
-            if ($request->get("addScreeningRoomSetups")) {
-                $this->addFlash("success", "Visual Formats has been added!");
-                return $this->redirectToRoute("app_cinema_add_screening_room_setups", [
-                    "slug" => $cinema->getSlug()
-                ]);
-            }
-       
+            $em->flush();
             $this->addFlash("success", "Visual Formats has been added!");
-            return $this->redirectToRoute("app_cinema");
+
+            $routeName = $form->get("addScreeningRoomSetups")->isClicked() 
+                ? "app_cinema_add_screening_room_setups"
+                : "app_cinema_details";
+            
+            return $this->redirectToRoute($routeName, [
+                "slug" => $cinema->getSlug()
+            ]);
         }
 
         return $this->render('cinema/visual_formats_collection_form.html.twig', [
@@ -110,22 +110,21 @@ class CinemaController extends AbstractController
         if ($cinema->getVisualFormats()->isEmpty()) {
             return $this->redirectToRoute("app_cinema");
         }
-
         $form = $this->createForm(CinemaScreeningRoomSetupCollectionType::class, $cinema);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
-
-            if ($request->get("addScreeningFormats")) {
-                $this->addFlash("success", "Screening room setups has been added!");
-                return $this->redirectToRoute("app_cinema_add_screening_formats", [
-                    "slug" => $cinema->getSlug()
-                ]);
-            }
-
             $this->addFlash("success", "Screening room setups has been added!");
-            return $this->redirectToRoute("app_cinema");
+
+
+            $routeName = $form->get("addScreeningFormats")->isClicked()
+                ? "app_cinema_add_screening_formats"
+                : "app_cinema_details";
+
+            return $this->redirectToRoute($routeName, [
+                "slug" => $cinema->getSlug()
+            ]);
         }
 
         return $this->render('cinema/screening_room_setups_collection_form.html.twig', [
@@ -151,7 +150,10 @@ class CinemaController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
             $this->addFlash("success", "Screening room setups has been added!");
-            return $this->redirectToRoute("app_cinema");
+            
+            return $this->redirectToRoute("app_cinema_details", [
+                "slug" => $cinema->getSlug()
+            ]);
         }
 
         return $this->render('cinema/screening_formats_collection_form.html.twig', [

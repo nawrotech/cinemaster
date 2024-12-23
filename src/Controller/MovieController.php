@@ -6,7 +6,6 @@ use App\Entity\Cinema;
 use App\Entity\Movie;
 use App\Factory\PagerfantaFactory;
 use App\Form\MovieFormType;
-use App\Form\ScreeningFormatCollectionType;
 use App\Repository\MovieRepository;
 use App\Repository\ShowtimeRepository;
 use App\Service\TmdbApiService;
@@ -19,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route("/cinemas/{slug}")]
+#[Route("/admin/cinemas/{slug}")]
 class MovieController extends AbstractController
 {
     #[Route('/movies/select-movies' , name: 'app_movie_select_movies')]
@@ -55,7 +54,7 @@ class MovieController extends AbstractController
     {
         $submittedToken = $request->get("token");
         if (!$this->isCsrfTokenValid("add-tmdbMovie", $submittedToken)) {
-            $this->addFlash("danger", "Invalid CSRF token");
+            $this->addFlash("danger", "There was a problem, try again later!");
             return $this->redirectToRoute("app_movie_select_movies", [
                 "slug" => $cinema->getSlug()
             ]);

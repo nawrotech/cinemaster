@@ -37,7 +37,7 @@
                     
 
                     {% if tmdbMovie.id not in storedTmdbIds %}
-                        <button name="add-tmdbMovie" value="1" class="btn btn-success">Add tmdbMovie</button>
+                        <button name="add-tmdbMovie" value="1" class="btn btn-success">Add movie</button>
                         {% else %}
                         <a class="btn btn-warning" href="{{ path("app_movie_available_movies", {
                             slug: cinemaSlug,

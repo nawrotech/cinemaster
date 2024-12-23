@@ -68,7 +68,16 @@ class CinemaType extends AbstractType
             ->add("city")
             ->add("district")
             ->add("country")
-  
+            ->add("addVisualFormats", SubmitType::class, [
+                "attr" => [
+                    "class" => "btn btn-primary"
+                ]
+            ])
+            ->add("submit", SubmitType::class, [
+                "attr" => [
+                    "class" => "btn btn-secondary"
+                ]
+            ])
             ;
    
     }
