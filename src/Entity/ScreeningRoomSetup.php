@@ -37,8 +37,6 @@ class ScreeningRoomSetup
         $this->screeningRooms = new ArrayCollection();
     }
 
-
-
     public function getId(): ?int
     {
         return $this->id;
@@ -52,6 +50,10 @@ class ScreeningRoomSetup
 
     public function setSoundFormat(string $soundFormat): static
     {
+        
+        if ($this->id && $soundFormat !== $this->soundFormat) {
+            throw new \RuntimeException('SoundFormat name is immutable.');
+        }
         $this->soundFormat = $soundFormat;
 
         return $this;
@@ -76,8 +78,11 @@ class ScreeningRoomSetup
 
     public function setVisualFormat(?VisualFormat $visualFormat): static
     {
-        $this->visualFormat = $visualFormat;
+        if ($this->id && $visualFormat !== $this->visualFormat) {
+            throw new \RuntimeException('VisualFormat name is immutable.');
+        }
 
+        $this->visualFormat = $visualFormat;
         return $this;
     }
 

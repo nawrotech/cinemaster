@@ -83,7 +83,9 @@ class Cinema
     /**
      * @var Collection<int, VisualFormat>
      */
-    #[ORM\OneToMany(targetEntity: VisualFormat::class, mappedBy: 'cinema', cascade: ["persist"], orphanRemoval: true)]
+    // cascade: ["persist"],
+    // orphanRemoval: true
+    #[ORM\OneToMany(targetEntity: VisualFormat::class, mappedBy: 'cinema')]
     private Collection $visualFormats;
 
     /**
@@ -388,9 +390,8 @@ class Cinema
     public function removeVisualFormat(VisualFormat $visualFormat): static
     {
         if ($this->visualFormats->removeElement($visualFormat)) {
-            // set the owning side to null (unless already changed)
             if ($visualFormat->getCinema() === $this) {
-                $visualFormat->setCinema(null);
+                $visualFormat->setActive(false);
             }
         }
 

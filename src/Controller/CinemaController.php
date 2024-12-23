@@ -11,6 +11,7 @@ use App\Repository\CinemaRepository;
 use App\Repository\MovieRepository;
 use App\Repository\MovieScreeningFormatRepository;
 use App\Repository\ScreeningFormatRepository;
+use App\Repository\VisualFormatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
@@ -75,13 +76,24 @@ class CinemaController extends AbstractController
     public function addVisualFormats(
         Request $request,
         Cinema $cinema,
+        VisualFormatRepository $visualFormatRepository,
         EntityManagerInterface $em,
     ): Response {   
 
-        $form = $this->createForm(CinemaVisualFormatCollectionType::class, $cinema);
+        $activeVisualFormats = $visualFormatRepository->findActiveByCinema($cinema, true);
+
+        $form = $this->createForm(CinemaVisualFormatCollectionType::class, $cinema, [
+            "active_visual_formats" => $activeVisualFormats
+        ]);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            
+            foreach ($cinema->getVisualFormats() as $visualFormat) {
+                $visualFormat->setCinema($cinema);
+                $em->persist($visualFormat);
+            }
 
             $em->flush();
             $this->addFlash("success", "Visual Formats has been added!");
@@ -92,7 +104,7 @@ class CinemaController extends AbstractController
             
             return $this->redirectToRoute($routeName, [
                 "slug" => $cinema->getSlug()
-            ]);
+            ]);        
         }
 
         return $this->render('cinema/visual_formats_collection_form.html.twig', [
@@ -164,10 +176,13 @@ class CinemaController extends AbstractController
 
 
     #[Route('/{slug}', name: 'app_cinema_details')]
-    public function cinemaDetails(Cinema $cinema) {
+    public function cinemaDetails(Cinema $cinema, VisualFormatRepository $visualFormatRepository) {
+
+        $visualFormats = $visualFormatRepository->findActiveByCinema($cinema, true);
 
         return $this->render("cinema/cinema_details.html.twig", [
-            "cinema" => $cinema
+            "cinema" => $cinema,
+            "visualFormats" => $visualFormats
         ]);
     }
 

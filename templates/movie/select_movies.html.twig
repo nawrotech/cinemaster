@@ -10,7 +10,7 @@
         name: "q"
     }) }}
     {% set cinemaSlug = app.current_route_parameters.slug %}
-
+    
     <p>Can't find movie? <a href="{{ path("app_movie_create", {slug: cinemaSlug}) }}">Create your own!</a></p>
 
     

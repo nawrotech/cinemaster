@@ -22,6 +22,9 @@ class VisualFormat
     #[ORM\JoinColumn(nullable: false)]
     private ?Cinema $cinema = null;
 
+    #[ORM\Column]
+    private ?bool $active = true;
+
     /**
      * @var Collection<int, ScreeningRoomSetup>
      */
@@ -33,6 +36,7 @@ class VisualFormat
      */
     #[ORM\OneToMany(targetEntity: ScreeningFormat::class, mappedBy: 'visualFormat', orphanRemoval: true)]
     private Collection $screeningFormats;
+
 
 
     public function __construct()
@@ -52,6 +56,10 @@ class VisualFormat
 
     public function setName(string $name): static
     {
+        if ($this->id && $name !== $this->name) {
+            throw new \RuntimeException('VisualFormat name is immutable.');
+        }
+
         $this->name = $name;
 
         return $this;
@@ -65,6 +73,18 @@ class VisualFormat
     public function setCinema(?Cinema $cinema): static
     {
         $this->cinema = $cinema;
+
+        return $this;
+    }
+
+    public function isActive(): ?bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): static
+    {
+        $this->active = $active;
 
         return $this;
     }

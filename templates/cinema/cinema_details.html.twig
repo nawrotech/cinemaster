@@ -39,12 +39,11 @@
             <div class="col-4">
                 <h3>Visual formats</h3>
                 <ul>
-                    {% for visualFormat in cinema.visualFormats %}
-                            <li>{{ visualFormat.name }}</li>
+                    {% for visualFormat in visualFormats %}
+                        <li>{{ visualFormat.name }}</li>
                     {% endfor %}
                 </ul>
-                <a class="link" href="">Add more</a>
-
+                <a class="link" href="{{ path("app_cinema_add_visual_formats", {slug: cinema.slug}) }}">Edit</a>
             </div>
             <div class="col-4">
                 <h3>Screening room setups</h3>
@@ -53,7 +52,7 @@
                             <li>{{ screeningRoomSetup.displaySetup }}</li>
                     {% endfor %}
                 </ul>
-                <a class="link" href="">Add more</a>
+                <a class="link" href="{{ path("app_cinema_add_screening_room_setups", {slug: cinema.slug}) }}">Edit</a>
             </div>
             <div class="col-4">
                 <h3>Screening formats</h3>
@@ -73,7 +72,9 @@
         {% endif %}
      
         {% if cinema.screeningFormats is not empty %}     
-            <a class="link d-inline-block" href="">Add movies</a>
+            <a class="link d-inline-block" href="">
+                Add movies
+            </a>
         {% endif %}
 
         <a class="btn btn-success" href="{{ path("app_showtime_showtime_axis", {slug: cinema.slug }) }}">Show Scheduled showtimes</a>

@@ -18,6 +18,7 @@ class CinemaVisualFormatCollectionType extends AbstractType
         $builder
             ->add('visualFormats', CollectionType::class, [
                 "label" => false,
+                "data" => $options["active_visual_formats"],
                 "entry_type" => VisualFormatType::class,
                 "entry_options" => ["label" => false],
                 "allow_add" => true,
@@ -43,6 +44,7 @@ class CinemaVisualFormatCollectionType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Cinema::class,
+            "active_visual_formats" => null
         ]);
     }
 }
