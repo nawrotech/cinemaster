@@ -11,6 +11,15 @@
                 </li>
             {% endfor %}
     </ul>
-    <button class="btn btn-success" type="button" {{ stimulus_action('form-collection', 'addCollectionElement') }}>{{ addButtonText }}</button>
+
+    
+    {% if (allowAddingElements is not defined) or (allowAddingElements) %}
+        <button class="btn btn-success" type="button" {{ stimulus_action('form-collection', 'addCollectionElement') }}>
+            {{ addButtonText }}
+        </button>
+    {% endif %}
+
+    
+
 </div>
 
