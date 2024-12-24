@@ -118,11 +118,6 @@ class CinemaController extends AbstractController
     ): Response {   
 
         $activeVisualFormats = $visualFormatRepository->findActiveByCinema($cinema, true);
-        if (empty($activeVisualFormats)) {
-            return $this->redirectToRoute("app_cinema_details", [
-                "slug" => $cinema->getSlug()
-            ]);
-        }
 
         $activeScreeningRoomSetups = $screeningRoomSetupRepository->findActiveByCinema($cinema, true);
         $form = $this->createForm(CinemaScreeningRoomSetupCollectionType::class, $cinema, [
@@ -132,7 +127,6 @@ class CinemaController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
 
             $em->flush();
             $this->addFlash("success", "Screening room setups has been added!");
@@ -147,7 +141,8 @@ class CinemaController extends AbstractController
         }
 
         return $this->render('cinema/screening_room_setups_collection_form.html.twig', [
-            "form" => $form
+            "form" => $form,
+            "activeVisualFormats" => $activeVisualFormats
         ]);
     }
 

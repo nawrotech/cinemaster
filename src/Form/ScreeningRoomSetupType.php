@@ -33,9 +33,19 @@ class ScreeningRoomSetupType extends AbstractType
 
                 if ($screeningRoomSetup?->getId()) {
                     $form->add("soundFormat", TextType::class, [
+                        "mapped" => false,
+                        "data" => $screeningRoomSetup->getSoundFormat(),
                         "attr" => [
                             "readonly" => true
-                        ]
+                        ],
+                    ]);
+                    $form->add("visualFormat", TextType::class, [
+                        "mapped" => false,
+                        "data" => $screeningRoomSetup->getVisualFormat()->getName(),
+                        "attr" => [
+                            "readonly" => true
+                        ],
+
                     ]);
                 }
             })
