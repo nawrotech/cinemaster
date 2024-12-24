@@ -83,15 +83,13 @@ class Cinema
     /**
      * @var Collection<int, VisualFormat>
      */
-    // cascade: ["persist"],
-    // orphanRemoval: true
-    #[ORM\OneToMany(targetEntity: VisualFormat::class, mappedBy: 'cinema')]
+    #[ORM\OneToMany(targetEntity: VisualFormat::class, mappedBy: 'cinema', cascade: ["persist"])]
     private Collection $visualFormats;
 
     /**
      * @var Collection<int, ScreeningRoomSetup>
      */
-    #[ORM\OneToMany(targetEntity: ScreeningRoomSetup::class, mappedBy: 'cinema',  cascade: ["persist"], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: ScreeningRoomSetup::class, mappedBy: 'cinema', cascade: ["persist"])]
     private Collection $screeningRoomSetups;
 
     /**
@@ -421,7 +419,7 @@ class Cinema
         if ($this->screeningRoomSetups->removeElement($screeningRoomSetup)) {
             // set the owning side to null (unless already changed)
             if ($screeningRoomSetup->getCinema() === $this) {
-                $screeningRoomSetup->setCinema(null);
+                $screeningRoomSetup->setActive(false);
             }
         }
 

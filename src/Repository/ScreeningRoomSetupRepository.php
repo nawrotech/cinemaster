@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Cinema;
 use App\Entity\ScreeningRoomSetup;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -16,28 +17,20 @@ class ScreeningRoomSetupRepository extends ServiceEntityRepository
         parent::__construct($registry, ScreeningRoomSetup::class);
     }
 
-    //    /**
-    //     * @return ScreeningSetupType[] Returns an array of ScreeningSetupType objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('s.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+    * @return ScreeningRoomSetup[] Returns an array of ScreeningRoomSetup objects
+    */
+    public function findActiveByCinema(Cinema $cinema, bool $isActive = null): array
+    {
+        $qb = $this->createQueryBuilder('srs')
+            ->andWhere('srs.cinema = :cinema')
+            ->setParameter('cinema', $cinema);
 
-    //    public function findOneBySomeField($value): ?ScreeningSetupType
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        if ($isActive !== null) {
+                $qb->andWhere('srs.isActive = :active')
+                    ->setParameter('active', $isActive);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

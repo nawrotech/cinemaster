@@ -115,7 +115,6 @@ class MovieController extends AbstractController
                 $movie->setPosterFilename($posterFilename);
             }
 
-
             $submittedForm = $request->get($form->getName());
            
             if ($submittedForm["deletePoster"] ?? null) {

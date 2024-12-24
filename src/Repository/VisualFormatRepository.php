@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Cinema;
 use App\Entity\VisualFormat;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -16,28 +17,21 @@ class VisualFormatRepository extends ServiceEntityRepository
         parent::__construct($registry, VisualFormat::class);
     }
 
-    //    /**
-    //     * @return VisualFormat[] Returns an array of VisualFormat objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('v')
-    //            ->andWhere('v.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('v.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+       /**
+        * @return VisualFormat[] Returns an array of VisualFormat objects
+        */
+       public function findActiveByCinema(Cinema $cinema, bool $isActive = null): array
+       {
+           $qb = $this->createQueryBuilder('v')
+               ->andWhere('v.cinema = :cinema')
+               ->setParameter('cinema', $cinema);
 
-    //    public function findOneBySomeField($value): ?VisualFormat
-    //    {
-    //        return $this->createQueryBuilder('v')
-    //            ->andWhere('v.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+           if ($isActive !== null) {
+                $qb->andWhere('v.active = :active')
+                    ->setParameter('active', $isActive);
+           }
+
+           return $qb->getQuery()->getResult();
+       }
+
 }

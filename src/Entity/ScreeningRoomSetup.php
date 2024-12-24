@@ -32,6 +32,9 @@ class ScreeningRoomSetup
     #[ORM\OneToMany(targetEntity: ScreeningRoom::class, mappedBy: 'screeningRoomSetup')]
     private Collection $screeningRooms;
 
+    #[ORM\Column]
+    private ?bool $isActive = true;
+
     public function __construct()
     {
         $this->screeningRooms = new ArrayCollection();
@@ -112,11 +115,22 @@ class ScreeningRoomSetup
     public function removeScreeningRoom(ScreeningRoom $screeningRoom): static
     {
         if ($this->screeningRooms->removeElement($screeningRoom)) {
-            // set the owning side to null (unless already changed)
             if ($screeningRoom->getScreeningRoomSetup() === $this) {
                 $screeningRoom->setScreeningRoomSetup(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isActive(): ?bool
+    {
+        return $this->isActive;
+    }
+
+    public function setActive(bool $isActive): static
+    {
+        $this->isActive = $isActive;
 
         return $this;
     }
