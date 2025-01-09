@@ -45,6 +45,9 @@ class ScreeningFormat
 
     public function setVisualFormat(?VisualFormat $visualFormat): static
     {
+        if ($this->visualFormat !== null) {
+            throw new \LogicException('VisualFormat cannot be changed once set.');
+        }
         $this->visualFormat = $visualFormat;
 
         return $this;
@@ -57,6 +60,9 @@ class ScreeningFormat
 
     public function setLanguagePresentation(LanguagePresentation $languagePresentation): static
     {
+        if ($this->languagePresentation !== null) {
+            throw new \LogicException('LanguagePresentation cannot be changed once set.');
+        }
 
         $this->languagePresentation = $languagePresentation;
 

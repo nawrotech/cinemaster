@@ -22,7 +22,7 @@ class CinemaScreeningFormatCollectionType extends AbstractType
                 "entry_type" => ScreeningFormatType::class,
                 "entry_options" => [
                     "label" => false,
-                    "query_constraint" => $options["data"]
+                    "cinema" => $options["data"]
                 ],
                 "allow_add" => true,
                 "allow_delete" => true,

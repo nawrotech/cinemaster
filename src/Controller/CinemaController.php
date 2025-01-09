@@ -173,8 +173,6 @@ class CinemaController extends AbstractController
 
         $activeScreeningFormats = $screeningFormatRepository->findByCinemaAndActiveStatus($cinema, true);
 
-        // dd($activeScreeningFormats);
-
         $form = $this->createForm(CinemaScreeningFormatCollectionType::class, $cinema, [
             "active_screening_formats" => $activeScreeningFormats
         ]);

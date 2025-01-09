@@ -95,7 +95,7 @@ class Cinema
     /**
      * @var Collection<int, ScreeningFormat>
      */
-    #[ORM\OneToMany(targetEntity: ScreeningFormat::class, mappedBy: 'cinema', cascade: ["persist"], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: ScreeningFormat::class, mappedBy: 'cinema', cascade: ["persist"])]
     private Collection $screeningFormats;
 
     /**
@@ -446,7 +446,6 @@ class Cinema
     public function removeScreeningFormat(ScreeningFormat $screeningFormat): static
     {
         if ($this->screeningFormats->removeElement($screeningFormat)) {
-            // set the owning side to null (unless already changed)
             if ($screeningFormat->getCinema() === $this) {
                 $screeningFormat->setActive(false);
             }
