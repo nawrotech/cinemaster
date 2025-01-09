@@ -20,7 +20,7 @@ class ScreeningRoomSetupRepository extends ServiceEntityRepository
     /**
     * @return ScreeningRoomSetup[] Returns an array of ScreeningRoomSetup objects
     */
-    public function findActiveByCinema(Cinema $cinema, bool $isActive = null): array
+    public function findByCinemaAndActiveStatus(Cinema $cinema, bool $isActive = null): array
     {
         $qb = $this->createQueryBuilder('srs')
             ->andWhere('srs.cinema = :cinema')

@@ -20,7 +20,7 @@ class VisualFormatRepository extends ServiceEntityRepository
        /**
         * @return VisualFormat[] Returns an array of VisualFormat objects
         */
-       public function findActiveByCinema(Cinema $cinema, bool $isActive = null): array
+       public function findByCinemaAndActiveStatus(Cinema $cinema, bool $isActive = null): array
        {
            $qb = $this->createQueryBuilder('v')
                ->andWhere('v.cinema = :cinema')

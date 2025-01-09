@@ -81,7 +81,7 @@ class CinemaController extends AbstractController
         EntityManagerInterface $em,
     ): Response {   
 
-        $activeVisualFormats = $visualFormatRepository->findActiveByCinema($cinema, true);
+        $activeVisualFormats = $visualFormatRepository->findByCinemaAndActiveStatus($cinema, true);
         
         $form = $this->createForm(CinemaVisualFormatCollectionType::class, $cinema, [
             "active_visual_formats" => $activeVisualFormats
@@ -117,7 +117,7 @@ class CinemaController extends AbstractController
         EntityManagerInterface $em,
     ): Response {   
 
-        $activeVisualFormats = $visualFormatRepository->findActiveByCinema($cinema, true);
+        $activeVisualFormats = $visualFormatRepository->findByCinemaAndActiveStatus($cinema, true);
 
         if (count($activeVisualFormats) < 1) {
             $this->addFlash("danger", "Add visual formats before adding screening room setups!");
@@ -126,7 +126,7 @@ class CinemaController extends AbstractController
             ]);
         }
 
-        $activeScreeningRoomSetups = $screeningRoomSetupRepository->findActiveByCinema($cinema, true);
+        $activeScreeningRoomSetups = $screeningRoomSetupRepository->findByCinemaAndActiveStatus($cinema, true);
         $form = $this->createForm(CinemaScreeningRoomSetupCollectionType::class, $cinema, [
             "active_screening_room_setups" => $activeScreeningRoomSetups
         ]);
