@@ -417,7 +417,6 @@ class Cinema
     public function removeScreeningRoomSetup(ScreeningRoomSetup $screeningRoomSetup): static
     {
         if ($this->screeningRoomSetups->removeElement($screeningRoomSetup)) {
-            // set the owning side to null (unless already changed)
             if ($screeningRoomSetup->getCinema() === $this) {
                 $screeningRoomSetup->setActive(false);
             }
@@ -449,7 +448,7 @@ class Cinema
         if ($this->screeningFormats->removeElement($screeningFormat)) {
             // set the owning side to null (unless already changed)
             if ($screeningFormat->getCinema() === $this) {
-                $screeningFormat->setCinema(null);
+                $screeningFormat->setActive(false);
             }
         }
 

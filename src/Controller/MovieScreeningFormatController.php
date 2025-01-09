@@ -22,12 +22,12 @@ class MovieScreeningFormatController extends AbstractController
     public function cinemaScreeningFormats(
         ScreeningFormatRepository $screeningFormatRepository,
         Cinema $cinema,
-        #[MapQueryParameter()] string $screeningFormat = ""
+        #[MapQueryParameter()] string $screeningFormatTerm = ""
     ): Response {
 
         $screeningFormats = $screeningFormatRepository
                                     ->findScreeningFormatsBySearchedTermForCinema($cinema,
-                                     $screeningFormat);
+                                     $screeningFormatTerm);
 
         if (empty($screeningFormats)) {
             return new Response("<div class=\"list-group-item\" >No results :(</div>");

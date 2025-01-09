@@ -29,6 +29,9 @@ class ScreeningFormat
     #[ORM\OneToMany(mappedBy: "screeningFormat", targetEntity: MovieScreeningFormat::class, orphanRemoval: true)]
     private Collection $movieScreeningFormats;
 
+    #[ORM\Column]
+    private ?bool $active = null;
+
 
     public function getId(): ?int
     {
@@ -72,9 +75,21 @@ class ScreeningFormat
         return $this;
     }
 
-    public function getDisplayFormat() {
+    public function getDisplayScreeningFormat() {
 
         return "{$this->getVisualFormat()->getName()} {$this->getLanguagePresentation()->value}";
+    }
+
+    public function isActive(): ?bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): static
+    {
+        $this->active = $active;
+
+        return $this;
     }
 
 }

@@ -86,7 +86,7 @@ class MovieScreeningFormat
         return "Movie: {$this->movie->getTitle()},
                 Duration: {$this->movie->getDurationInMinutes()} minutes,
                 Screening format: {$this->screeningFormat->getVisualFormat()->getName()}, 
-                                    {$this->screeningFormat->getLanguagePresentation()}";
+                                    {$this->screeningFormat->getLanguagePresentation()->value}";
     }
 
     public function getCinema(): ?Cinema

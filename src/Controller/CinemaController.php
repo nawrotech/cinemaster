@@ -119,6 +119,13 @@ class CinemaController extends AbstractController
 
         $activeVisualFormats = $visualFormatRepository->findActiveByCinema($cinema, true);
 
+        if (count($activeVisualFormats) < 1) {
+            $this->addFlash("danger", "Add visual formats before adding screening room setups!");
+            return $this->redirectToRoute("app_cinema_details", [
+                "slug" => $cinema->getSlug()
+            ]);
+        }
+
         $activeScreeningRoomSetups = $screeningRoomSetupRepository->findActiveByCinema($cinema, true);
         $form = $this->createForm(CinemaScreeningRoomSetupCollectionType::class, $cinema, [
             "active_screening_room_setups" => $activeScreeningRoomSetups
@@ -149,14 +156,21 @@ class CinemaController extends AbstractController
     #[Route('/{slug}/add-screening-formats', name: 'app_cinema_add_screening_formats')]
     public function addScreeningFormats(
         Request $request,
+        VisualFormatRepository $visualFormatRepository,
         Cinema $cinema,
         EntityManagerInterface $em,
     ): Response {   
 
+        $activeVisualFormats = $visualFormatRepository->findActiveByCinema($cinema, true);
 
-        if ($cinema->getVisualFormats()->isEmpty()) {
-            return $this->redirectToRoute("app_cinema");
+        if (count($activeVisualFormats) < 1) {
+            $this->addFlash("danger", "Add visual formats before adding screening formats!");
+            return $this->redirectToRoute("app_cinema_details", [
+                "slug" => $cinema->getSlug()
+            ]);
         }
+
+        
 
         $form = $this->createForm(CinemaScreeningFormatCollectionType::class, $cinema);
         $form->handleRequest($request);

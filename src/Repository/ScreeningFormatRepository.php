@@ -27,19 +27,19 @@ class ScreeningFormatRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
-
+    
     public function findScreeningFormatsBySearchedTermForCinema(
         Cinema $cinema, 
-        string $screeningFormat): array
+        string $screeningFormatTerm): array
     {
         return $this->createQueryBuilder('sf')
                         ->innerJoin("sf.visualFormat", "vf")
-                        ->andWhere("sf.languagePresentation LIKE :screeningFormat
+                        ->andWhere("sf.languagePresentation LIKE :screeningFormatTerm
                         OR
-                        vf.name LIKE :screeningFormat")
+                        vf.name LIKE :screeningFormatTerm")
                         ->andWhere("sf.cinema = :cinema")
                         ->setParameter("cinema", $cinema)
-                        ->setParameter("screeningFormat", "%$screeningFormat%")
+                        ->setParameter("screeningFormat", "%$screeningFormatTerm%")
                         ->getQuery()
                         ->getResult()
         ;
