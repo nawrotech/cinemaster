@@ -30,7 +30,7 @@ class ScreeningFormat
     private Collection $movieScreeningFormats;
 
     #[ORM\Column]
-    private ?bool $active = null;
+    private ?bool $active = true;
 
 
     public function getId(): ?int

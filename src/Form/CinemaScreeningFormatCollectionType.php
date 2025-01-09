@@ -17,6 +17,7 @@ class CinemaScreeningFormatCollectionType extends AbstractType
 
         $builder
            ->add("screeningFormats", CollectionType::class, [
+                "data" => $options["active_screening_formats"],
                 "label" => false,
                 "entry_type" => ScreeningFormatType::class,
                 "entry_options" => [
@@ -36,6 +37,7 @@ class CinemaScreeningFormatCollectionType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Cinema::class,
+            "active_screening_formats" => null
         ]);
     }
 }

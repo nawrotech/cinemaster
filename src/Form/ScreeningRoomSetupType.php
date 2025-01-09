@@ -52,7 +52,7 @@ class ScreeningRoomSetupType extends AbstractType
             ->add('soundFormat', TextType::class)
             ->add('visualFormat', EntityType::class, [
                 'class' => VisualFormat::class,
-                "choices" => $this->visualFormatRepository->findActiveByCinema($cinema, true),
+                "choices" => $this->visualFormatRepository->findByCinemaAndActiveStatus($cinema, true),
                 'choice_label' => 'name',
                 "attr" => [
                     "readonly" => true

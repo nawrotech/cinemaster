@@ -33,11 +33,11 @@
                 <div class="col-4">
                     <h3>Screening formats</h3>
                     <ul>
-                        {% for screeningFormat in cinema.screeningFormats %}
+                        {% for screeningFormat in screeningFormats %}
                                 <li>{{ screeningFormat.displayScreeningFormat }}</li>
                         {% endfor %}
                     </ul>
-                    <a class="link" href="">Add more</a>
+                    <a class="link" href="{{ path("app_cinema_add_screening_formats", {slug: cinema.slug}) }}">Add more</a>
                 </div>
             </div>
         </aside>

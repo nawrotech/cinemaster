@@ -157,11 +157,12 @@ class CinemaController extends AbstractController
     public function addScreeningFormats(
         Request $request,
         VisualFormatRepository $visualFormatRepository,
+        ScreeningFormatRepository $screeningFormatRepository,
         Cinema $cinema,
         EntityManagerInterface $em,
     ): Response {   
 
-        $activeVisualFormats = $visualFormatRepository->findActiveByCinema($cinema, true);
+        $activeVisualFormats = $visualFormatRepository->findByCinemaAndActiveStatus($cinema, true);
 
         if (count($activeVisualFormats) < 1) {
             $this->addFlash("danger", "Add visual formats before adding screening formats!");
@@ -170,9 +171,13 @@ class CinemaController extends AbstractController
             ]);
         }
 
-        
+        $activeScreeningFormats = $screeningFormatRepository->findByCinemaAndActiveStatus($cinema, true);
 
-        $form = $this->createForm(CinemaScreeningFormatCollectionType::class, $cinema);
+        // dd($activeScreeningFormats);
+
+        $form = $this->createForm(CinemaScreeningFormatCollectionType::class, $cinema, [
+            "active_screening_formats" => $activeScreeningFormats
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -191,15 +196,17 @@ class CinemaController extends AbstractController
 
 
     #[Route('/{slug}', name: 'app_cinema_details')]
-    public function cinemaDetails(Cinema $cinema, VisualFormatRepository $visualFormatRepository, ScreeningRoomSetupRepository $screeningRoomSetupRepository) {
+    public function cinemaDetails(Cinema $cinema, VisualFormatRepository $visualFormatRepository, ScreeningRoomSetupRepository $screeningRoomSetupRepository, ScreeningFormatRepository $screeningFormatRepository) {
 
-        $visualFormats = $visualFormatRepository->findActiveByCinema($cinema, true);
-        $screeningRoomSetups = $screeningRoomSetupRepository->findActiveByCinema($cinema, true);
+        $visualFormats = $visualFormatRepository->findByCinemaAndActiveStatus($cinema, true);
+        $screeningRoomSetups = $screeningRoomSetupRepository->findByCinemaAndActiveStatus($cinema, true);
+        $screeningFormats = $screeningFormatRepository->findByCinemaAndActiveStatus($cinema, true);
 
         return $this->render("cinema/cinema_details.html.twig", [
             "cinema" => $cinema,
             "visualFormats" => $visualFormats,
-            "screeningRoomSetups" => $screeningRoomSetups
+            "screeningRoomSetups" => $screeningRoomSetups,
+            "screeningFormats" => $screeningFormats
         ]);
     }
 

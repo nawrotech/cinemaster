@@ -17,6 +17,23 @@ class ScreeningFormatRepository extends ServiceEntityRepository
         parent::__construct($registry, ScreeningFormat::class);
     }
 
+
+    /**
+    * @return ScreeningFormat[] Returns an array of ScreeningFormat objects
+    */
+    public function findByCinemaAndActiveStatus(Cinema $cinema, bool $isActive = null): array
+    {
+        $qb = $this->createQueryBuilder('sf')
+            ->andWhere('sf.cinema = :cinema')
+            ->setParameter('cinema', $cinema);
+
+        if ($isActive !== null) {
+                $qb->andWhere('sf.active = :active')
+                    ->setParameter('active', $isActive);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
     
     public function findByIds(array $screeningFormatIds): array
     {
