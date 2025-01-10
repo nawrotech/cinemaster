@@ -2,6 +2,7 @@
 
 namespace App\Tests;
 
+use App\Entity\Cinema;
 use App\Entity\VisualFormat;
 use App\Factory\CinemaFactory;
 use App\Factory\VisualFormatFactory;
@@ -9,7 +10,7 @@ use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Test\Factories;
 
-class VisualFormatRepositoryTestPhpTest extends KernelTestCase
+class CinemaTest extends KernelTestCase
 {
 
     use Factories;
@@ -23,13 +24,23 @@ class VisualFormatRepositoryTestPhpTest extends KernelTestCase
             ->getManager();
     }
 
-    public function testVisualFormatsAreActiveOnCreation(): void
-    {
+
+    public function testVisualFormatBecomesInactiveAfterRemovedFromCinemaCollection(): void {
+        
+        $cinema = CinemaFactory::random()->_real();
         $visualFormat = VisualFormatFactory::createOne([
-            "cinema" => CinemaFactory::random()
-        ]);
+            "cinema" => $cinema
+        ])->_real();
+
         assert($visualFormat instanceof VisualFormat);
+        assert($cinema instanceof Cinema);
+
         $this->assertTrue($visualFormat->isActive());
+
+        $cinema->removeVisualFormat($visualFormat);
+
+        $this->assertFalse($visualFormat->isActive());
+
     }
 
     protected function tearDown(): void
