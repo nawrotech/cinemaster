@@ -7,6 +7,7 @@ use App\Entity\VisualFormat;
 use App\Enum\LanguagePresentation;
 use App\Factory\CinemaFactory;
 use App\Factory\ScreeningFormatFactory;
+use App\Factory\ScreeningRoomSetupFactory;
 use App\Factory\VisualFormatFactory;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -34,8 +35,6 @@ class CinemaTest extends KernelTestCase
             "cinema" => $cinema
         ])->_real();
 
-        assert($visualFormat instanceof VisualFormat);
-        assert($cinema instanceof Cinema);
 
         $this->assertTrue($visualFormat->isActive());
 
@@ -58,7 +57,6 @@ class CinemaTest extends KernelTestCase
             "languagePresentation" => LanguagePresentation::SUBTITLES
         ])->_real();
 
-        assert($cinema instanceof Cinema);
         $this->assertTrue($screeningFormat->isActive());
 
         $cinema->removeScreeningFormat($screeningFormat);
@@ -66,6 +64,28 @@ class CinemaTest extends KernelTestCase
 
     }
 
+    public function testScreeningRoomSetupBecomesInactiveAfterRemovedFromCinemaCollection(): void {
+        $cinema = CinemaFactory::random()->_real();
+
+        $visualFormat = VisualFormatFactory::createOne([
+            "cinema" => $cinema
+        ])->_real();
+
+        $screeningRoomSetup = ScreeningRoomSetupFactory::createOne([
+            "cinema" => $cinema,
+            "visualFormat" => $visualFormat
+        ])->_real();
+
+        assert($cinema instanceof Cinema);
+
+        $this->assertTrue($screeningRoomSetup->isActive());
+
+        $cinema->removeScreeningRoomSetup($screeningRoomSetup);
+
+        $this->assertFalse($screeningRoomSetup->isActive());
+
+
+    }
 
     protected function tearDown(): void
     {
