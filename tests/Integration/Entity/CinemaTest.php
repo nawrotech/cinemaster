@@ -4,7 +4,9 @@ namespace App\Tests;
 
 use App\Entity\Cinema;
 use App\Entity\VisualFormat;
+use App\Enum\LanguagePresentation;
 use App\Factory\CinemaFactory;
+use App\Factory\ScreeningFormatFactory;
 use App\Factory\VisualFormatFactory;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -42,6 +44,28 @@ class CinemaTest extends KernelTestCase
         $this->assertFalse($visualFormat->isActive());
 
     }
+
+    public function testScreeningFormatBecomesInactiveAfterRemovedFromCinemaCollection(): void {
+        $cinema = CinemaFactory::random()->_real();
+
+        $visualFormat = VisualFormatFactory::createOne([
+            "cinema" => $cinema
+        ])->_real();
+
+        $screeningFormat = ScreeningFormatFactory::createOne([
+            "cinema" => $cinema,
+            "visualFormat" => $visualFormat,
+            "languagePresentation" => LanguagePresentation::SUBTITLES
+        ])->_real();
+
+        assert($cinema instanceof Cinema);
+        $this->assertTrue($screeningFormat->isActive());
+
+        $cinema->removeScreeningFormat($screeningFormat);
+        $this->assertFalse($screeningFormat->isActive());
+
+    }
+
 
     protected function tearDown(): void
     {
