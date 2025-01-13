@@ -5,6 +5,7 @@ namespace App\Tests;
 use App\Entity\Cinema;
 use App\Entity\User;
 use App\Factory\CinemaFactory;
+use App\Factory\UserFactory;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -13,9 +14,10 @@ use Zenstruck\Foundry\Test\Factories;
 class CinemaControllerTest extends WebTestCase
 {
 
-    const EMAIL = "m@n.com";
+    const EMAIL = "m@nly.com";
 
     use Factories;
+
     private KernelBrowser $client;
     private User $user;
     private Cinema $cinema;
@@ -23,10 +25,19 @@ class CinemaControllerTest extends WebTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
 
-        $this->client = $this->createAuthenticatedClient($this::EMAIL);
+        $this->client = static::createClient();
+        $this->initializeUser();
+        $this->client->loginUser($this->user);
+        $this->cinema = $this->initializeCinema();
 
+    }
+
+
+    private function initializeUser() {
+        $this->user = UserFactory::createOne([
+            "email" => $this::EMAIL
+        ])->_real();
     }
 
     private function initializeCinema(): Cinema {
@@ -42,23 +53,10 @@ class CinemaControllerTest extends WebTestCase
         return $cinema;
     }
 
-    private function createAuthenticatedClient(): KernelBrowser {
-
-        $client = static::createClient();
-
-        $userRepository = static::getContainer()->get(UserRepository::class);
-        $user = $userRepository->findOneByEmail($this::EMAIL);
-
-        $client->loginUser($user);
-
-        return $client;
-    }
-
+ 
 
     public function testCinemaVisualFormatFormRedirectsDependingOnTheClickedButton(): void
-    {
-
-      
+    {      
         $cinema = $this->initializeCinema();
         
         $slug = $cinema->getSlug();
@@ -75,7 +73,6 @@ class CinemaControllerTest extends WebTestCase
         $this->client->submit($form);
 
         $this->assertResponseRedirects("/admin/cinemas/$slug");
-
     }
 
 
