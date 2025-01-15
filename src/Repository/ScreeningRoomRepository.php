@@ -19,15 +19,33 @@ class ScreeningRoomRepository extends ServiceEntityRepository
     
     
     public function findDistinctRoomNames(Cinema $cinema): array
-       {
-           return array_column($this->createQueryBuilder('sr')
-                    ->select("sr.name")
-                    ->distinct()
-                    ->andWhere("sr.cinema = :cinema")
-                    ->setParameter("cinema", $cinema)
-                    ->getQuery()
-                    ->getScalarResult(), "name")
-           ;
-       }
+    {
+        return array_column($this->createQueryBuilder('sr')
+                ->select("sr.name")
+                ->distinct()
+                ->andWhere("sr.cinema = :cinema")
+                ->setParameter("cinema", $cinema)
+                ->getQuery()
+                ->getScalarResult(), "name")
+        ;
+    }
+
+        /**
+        * @return ScreeningRoom[]
+        */
+        public function findByCinemaAndActiveStatus(Cinema $cinema, bool $isActive = null): array
+        {
+            $qb = $this->createQueryBuilder('sr')
+                ->andWhere('sr.cinema = :cinema')
+                ->setParameter('cinema', $cinema);
+
+            if ($isActive !== null) {
+                    $qb->andWhere('sr.active = :active')
+                        ->setParameter('active', $isActive);
+            }
+
+            return $qb->getQuery()->getResult();
+        }
+
 
 }
