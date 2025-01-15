@@ -65,9 +65,11 @@ class ScreeningRoom
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')] 
     private ?ScreeningRoomSetup $screeningRoomSetup = null;
 
+    #[ORM\Column]
+    private ?bool $active = true;
+
     public function __construct()
     {
-
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
         $this->screeningRoomSeats = new ArrayCollection();
@@ -247,6 +249,18 @@ class ScreeningRoom
     public function setScreeningRoomSetup(?ScreeningRoomSetup $screeningRoomSetup): static
     {
         $this->screeningRoomSetup = $screeningRoomSetup;
+
+        return $this;
+    }
+
+    public function isActive(): ?bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): static
+    {
+        $this->active = $active;
 
         return $this;
     }

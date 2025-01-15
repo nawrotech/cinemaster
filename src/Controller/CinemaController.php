@@ -11,6 +11,7 @@ use App\Repository\CinemaRepository;
 use App\Repository\MovieRepository;
 use App\Repository\MovieScreeningFormatRepository;
 use App\Repository\ScreeningFormatRepository;
+use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSetupRepository;
 use App\Repository\VisualFormatRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -194,17 +195,19 @@ class CinemaController extends AbstractController
 
 
     #[Route('/{slug}', name: 'app_cinema_details')]
-    public function cinemaDetails(Cinema $cinema, VisualFormatRepository $visualFormatRepository, ScreeningRoomSetupRepository $screeningRoomSetupRepository, ScreeningFormatRepository $screeningFormatRepository) {
+    public function cinemaDetails(Cinema $cinema, ScreeningRoomRepository $screeningRoomRepository, VisualFormatRepository $visualFormatRepository, ScreeningRoomSetupRepository $screeningRoomSetupRepository, ScreeningFormatRepository $screeningFormatRepository) {
 
         $visualFormats = $visualFormatRepository->findByCinemaAndActiveStatus($cinema, true);
         $screeningRoomSetups = $screeningRoomSetupRepository->findByCinemaAndActiveStatus($cinema, true);
         $screeningFormats = $screeningFormatRepository->findByCinemaAndActiveStatus($cinema, true);
+        $screeningRooms = $screeningRoomRepository->findByCinemaAndActiveStatus($cinema, true);
 
         return $this->render("cinema/cinema_details.html.twig", [
             "cinema" => $cinema,
             "visualFormats" => $visualFormats,
             "screeningRoomSetups" => $screeningRoomSetups,
-            "screeningFormats" => $screeningFormats
+            "screeningFormats" => $screeningFormats,
+            "screeningRooms" => $screeningRooms
         ]);
     }
 

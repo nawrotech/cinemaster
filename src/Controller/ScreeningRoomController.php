@@ -10,6 +10,7 @@ use App\Form\ScreeningRoomType;
 use App\Form\SeatLineType;
 use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSeatRepository;
+use App\Repository\ScreeningRoomSetupRepository;
 use App\Repository\SeatRepository;
 use App\Service\SeatsService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,11 +20,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+
 #[Route("/admin/cinemas/{slug}/screening-rooms")]
 class ScreeningRoomController extends AbstractController
 {
 
-    // plus filtering
     #[Route('/', name: 'app_screening_room')]
     public function index(
         Cinema $cinema,
@@ -45,14 +46,19 @@ class ScreeningRoomController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         SeatRepository $seatRepository,
+        ScreeningRoomSetupRepository $screeningRoomSetupRepository,
         Cinema $cinema,
     ): Response {
 
 
-        if ($cinema->getScreeningRoomSetups()->isEmpty()) {
-            return $this->redirectToRoute("app_cinema");
-        }
+        if (count($screeningRoomSetupRepository->findByCinemaAndActiveStatus($cinema, true)) <= 0) {
+            $this->addFlash("danger", "Add screening room setups before creating screening room!");
 
+            return $this->redirectToRoute("app_cinema_details", [
+                "slug" => $cinema->getSlug()
+            ]);
+        }
+   
         if ($request->query->get("ajaxCall")) {
             return $this->json([
                 "maxSeatsPerRow" => $cinema->getMaxSeatsPerRow(),
@@ -92,7 +98,6 @@ class ScreeningRoomController extends AbstractController
                 $em->flush();
             });
 
-      
             return $this->redirectToRoute("app_screening_room", [
                 "slug" => $cinema->getSlug()
             ]);
@@ -112,10 +117,12 @@ class ScreeningRoomController extends AbstractController
         EntityManagerInterface $em
     ) {
 
+        // csrf token
+
         $seatType = $request->getPayload()->get("seatType");
         if (!in_array($seatType, ScreeningRoomSeatType::getValuesArray())) {
 
-            $this->addFlash("error", "Disallowed type for the value");
+            $this->addFlash("danger", "Disallowed type for the value");
 
             return $this->redirectToRoute(
                 "app_screening_room_edit",
@@ -126,7 +133,6 @@ class ScreeningRoomController extends AbstractController
             );
         }
         $screeningRoomSeat->setType($seatType);
-
 
         $seatStatus = $request->getPayload()->get("seatStatus") ? "available" : "unavailable";
         $screeningRoomSeat->setStatus($seatStatus);
@@ -143,6 +149,32 @@ class ScreeningRoomController extends AbstractController
     }
 
 
+    #[Route('/delete/{id}', name: 'app_screening_room_delete', methods:["DELETE"])]
+    public function deleteScreeningRoom(
+        Request $request,
+        ScreeningRoom $screeningRoom,
+        EntityManagerInterface $em) {
+
+        $cinemaSlug = $screeningRoom->getCinema()->getSlug();
+
+        $submittedToken = $request->getPayload()->get('token');
+        if (!$this->isCsrfTokenValid('delete-screening-room', $submittedToken)) {
+            return $this->redirectToRoute("app_cinema_details", [
+                "slug" => $cinemaSlug
+            ]);
+        }
+
+        $screeningRoom->setActive(false);
+        $em->flush();
+
+        $this->addFlash("warning", "Screening room has been removed!");
+
+        return $this->redirectToRoute("app_cinema_details", [
+            "slug" => $cinemaSlug
+        ]);
+
+       
+    }
 
     #[Route("/{screening_room_slug}/edit", name: 'app_screening_room_edit')]
     public function edit(

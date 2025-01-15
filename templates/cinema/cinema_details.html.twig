@@ -21,27 +21,23 @@
                     </ul>
                     <a class="link" href="{{ path("app_cinema_add_visual_formats", {slug: cinema.slug}) }}">Edit</a>
                 </div>
-                <div class="col-4">
-                    {% if visualFormats is not empty %}
-                        <h3>Screening room setups</h3>
-                        <ul>
-                            {% for screeningRoomSetup in screeningRoomSetups %}
-                                    <li>{{ screeningRoomSetup.displaySetup }}</li>
-                            {% endfor %}
-                        </ul>
-                        <a class="link" href="{{ path("app_cinema_add_screening_room_setups", {slug: cinema.slug}) }}">Edit</a>
-                    {% endif %}
+                <div class="col-4">                    
+                    <h3>Screening room setups</h3>
+                    <ul>
+                        {% for screeningRoomSetup in screeningRoomSetups %}
+                                <li>{{ screeningRoomSetup.displaySetup }}</li>
+                        {% endfor %}
+                    </ul>
+                    <a class="link" href="{{ path("app_cinema_add_screening_room_setups", {slug: cinema.slug}) }}">Edit</a>
                 </div>
                 <div class="col-4">
-                    {% if visualFormats is not empty %}
-                        <h3>Screening formats</h3>
-                        <ul>
-                            {% for screeningFormat in screeningFormats %}
-                                    <li>{{ screeningFormat.displayScreeningFormat }}</li>
-                            {% endfor %}
-                        </ul>
-                        <a class="link" href="{{ path("app_cinema_add_screening_formats", {slug: cinema.slug}) }}">Add more</a>
-                    {% endif %}
+                    <h3>Screening formats</h3>
+                    <ul>
+                        {% for screeningFormat in screeningFormats %}
+                                <li>{{ screeningFormat.displayScreeningFormat }}</li>
+                        {% endfor %}
+                    </ul>
+                    <a class="link" href="{{ path("app_cinema_add_screening_formats", {slug: cinema.slug}) }}">Add more</a>
                 </div>
             </div>
         </aside>
@@ -50,7 +46,7 @@
         <div>
             <h2>Rooms:</h2>
             <ul>
-                {% for screeningRoom in cinema.screeningRooms %}
+                {% for screeningRoom in screeningRooms %}
                     <li class="mb-2">
                         <div class="dropdown">
                             <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -68,6 +64,13 @@
                                         slug: cinema.slug
                                     }
                                 )}}">Schedule Showtime</a></li>
+                                <li>
+                                    <form action="{{ path("app_screening_room_delete", {id: screeningRoom.id, slug: cinema.slug}) }}" method="DELETE">
+                                        <button class="dropdown-item">Delete</button>
+
+                                        <input type="hidden" name="token" value="{{ csrf_token('delete-screening-room') }}">
+                                    </form>
+                                </li>
                             </ul>
                           </div>
                     </li>
