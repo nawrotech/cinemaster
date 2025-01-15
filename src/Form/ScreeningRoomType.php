@@ -4,8 +4,7 @@ namespace App\Form;
 
 use App\Entity\ScreeningRoom;
 use App\Entity\ScreeningRoomSetup;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\QueryBuilder;
+use App\Repository\ScreeningRoomSetupRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -20,6 +19,12 @@ use Symfony\Component\Validator\Constraints\Positive;
 
 class ScreeningRoomType extends AbstractType
 {
+    public function __construct(
+        private ScreeningRoomSetupRepository $screeningRoomSetupRepository
+        )
+    {   
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         [
@@ -61,6 +66,7 @@ class ScreeningRoomType extends AbstractType
                 ]
             ])
             ->add('seatsPerRow', CollectionType::class, [
+                "label" => false,
                 'entry_type' => NumberType::class,
                 'entry_options' => [
                     'label' => false,
@@ -77,6 +83,7 @@ class ScreeningRoomType extends AbstractType
                 'allow_add' => true,
                 'allow_delete' => true,
                 'prototype' => true,
+                "by_reference" => false,
                 'prototype_name' => '__seats_per_row__',
             ])
             ->add("maintenanceTimeInMinutes", NumberType::class, [
@@ -87,15 +94,10 @@ class ScreeningRoomType extends AbstractType
             ])
             ->add("screeningRoomSetup", EntityType::class, [
                 "class" => ScreeningRoomSetup::class,
-                "query_builder" => function(EntityRepository $er) use($cinema): QueryBuilder  {
-                    return $er->createQueryBuilder("srs")
-                            ->where("srs.cinema = :cinema")
-                            ->setParameter("cinema", $cinema);
-                },
+                "choices" => $this->screeningRoomSetupRepository->findByCinemaAndActiveStatus($cinema, true),
                 'choice_label' => 'displaySetup',
-
             ])
-            ->add("apply", SubmitType::class)
+            ->add("create", SubmitType::class)
         ;
     }
 
@@ -104,7 +106,6 @@ class ScreeningRoomType extends AbstractType
         $resolver->setDefaults([
             "data_class" => ScreeningRoom::class,
             "max_room_sizes" => null,
-
         ]);
     }
 }

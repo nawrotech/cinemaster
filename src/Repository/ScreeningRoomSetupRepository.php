@@ -33,4 +33,6 @@ class ScreeningRoomSetupRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+  
 }

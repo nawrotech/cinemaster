@@ -10,7 +10,6 @@
      data-dynamic-seat-rows-index-value="{{ form.seatsPerRow|length }}"
      data-dynamic-seat-rows-room-max-capacity-url-value="{{ path("app_screening_room_create", {
      slug: cinema_slug}) }}"
-     
      >
    
     {{ form_start(form) }}
@@ -31,7 +30,7 @@
             }
         }) }}
 
-        <button class="btn btn-success" {{ stimulus_action("dynamic-seat-rows", "renderRows") }}>Generate Rows</button>
+        <button type="button" class="btn btn-success" {{ stimulus_action("dynamic-seat-rows", "renderRows") }}>Generate Rows</button>
 
        
         <div {{ stimulus_target('dynamic-seat-rows', 'collectionHolder') }}>
@@ -42,9 +41,7 @@
 
         {{ form_row(form.screeningRoomSetup) }}
         {{ form_row(form.maintenanceTimeInMinutes) }}
-
-
-        {{ form_row(form.apply) }}
+        {{ form_row(form.create) }}
 
 
     {{ form_end(form) }}

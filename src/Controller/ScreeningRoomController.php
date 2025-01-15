@@ -16,10 +16,11 @@ use App\Service\SeatsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-
+use Symfony\Component\Security\Http\Attribute\IsCsrfTokenValid;
 
 #[Route("/admin/cinemas/{slug}/screening-rooms")]
 class ScreeningRoomController extends AbstractController
@@ -97,8 +98,9 @@ class ScreeningRoomController extends AbstractController
                 $em->persist($screeningRoom);
                 $em->flush();
             });
-
-            return $this->redirectToRoute("app_screening_room", [
+            
+            $this->addFlash("success", "Screening room has been created!");
+            return $this->redirectToRoute("app_cinema_details", [
                 "slug" => $cinema->getSlug()
             ]);
         }
@@ -109,7 +111,6 @@ class ScreeningRoomController extends AbstractController
         ]);
     }
 
-
     #[Route('/seat/type/{id}', name: 'app_screening_room_seat_type_change', methods: ["POST"])]
     public function changeSeatType(
         Request $request,
@@ -117,7 +118,16 @@ class ScreeningRoomController extends AbstractController
         EntityManagerInterface $em
     ) {
 
-        // csrf token
+        $submittedToken = $request->getPayload()->get('token');
+        if (!$this->isCsrfTokenValid('edit-seat-' . $screeningRoomSeat->getId() , $submittedToken)) {
+            return $this->redirectToRoute(
+                "app_screening_room_edit",
+                [
+                    "screening_room_slug" => $request->getPayload()->get("screeningRoomSlug"),
+                    "slug" => $request->getPayload()->get("cinemaSlug")
+                ]
+            );
+        }
 
         $seatType = $request->getPayload()->get("seatType");
         if (!in_array($seatType, ScreeningRoomSeatType::getValuesArray())) {
@@ -197,7 +207,6 @@ class ScreeningRoomController extends AbstractController
             "allowed_rows" => $roomRows,
             "allowed_seat_types" => ScreeningRoomSeatType::getValuesArray()
         ]);
-
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

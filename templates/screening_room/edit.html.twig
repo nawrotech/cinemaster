@@ -23,19 +23,23 @@
                             })}}">
                             <input type="hidden" name="cinemaSlug" value="{{cinema.slug}}" >
                             <input type="hidden" name="screeningRoomSlug" value="{{room.slug}}">
+                            <input type="hidden" name="token" value="{{ csrf_token('edit-seat-' ~ seat.id) }}">
+
                                                         
                             <select name="seatType" id="seatType">
                                 {% for seatType in seatTypes %}
                                     <option
-                                    {{ seatType == seat.type ? "selected" : "" }}
-                                    for="seatType"
-                                    value="{{ seatType }}">{{ seatType }}</option>
+                                        {{ seatType == seat.type ? "selected" : "" }}
+                                        for="seatType"
+                                        value="{{ seatType }}">{{ seatType }}
+                                    </option>
                                 {% endfor %}
                             </select>
 
-                            <label for="seatStatus">
+                            <label for="{{ "seatStatus" ~ seat.id }}">
                                 Seat Available:
                                 <input 
+                                    id="{{ "seatStatus" ~ seat.id }}"
                                     name="seatStatus" 
                                     type="checkbox"
                                     {{ seat.status == "available" ? "checked" : "" }}
