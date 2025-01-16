@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Cinema;
 use App\Entity\ScreeningFormat;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -28,11 +29,20 @@ class ScreeningFormatRepository extends ServiceEntityRepository
             ->setParameter('cinema', $cinema);
 
         if ($isActive !== null) {
-                $qb->andWhere('sf.active = :active')
-                    ->setParameter('active', $isActive);
+            $qb->addCriteria($this->activeScreeningFormatCriteria($isActive));
         }
 
         return $qb->getQuery()->getResult();
+    }
+
+    public static function activeScreeningFormatCriteria(?bool $isActive): Criteria {
+        $criteria = Criteria::create();
+
+        if ($isActive !== null) {
+            $criteria->andWhere(Criteria::expr()->eq('active', $isActive));
+        }
+
+        return $criteria;
     }
     
     public function findByIds(array $screeningFormatIds): array
@@ -47,7 +57,8 @@ class ScreeningFormatRepository extends ServiceEntityRepository
     
     public function findScreeningFormatsBySearchedTermForCinema(
         Cinema $cinema, 
-        string $screeningFormatTerm): array
+        string $screeningFormatTerm,
+        bool $isActive = true): array
     {
         return $this->createQueryBuilder('sf')
                         ->innerJoin("sf.visualFormat", "vf")
@@ -56,7 +67,8 @@ class ScreeningFormatRepository extends ServiceEntityRepository
                         vf.name LIKE :screeningFormatTerm")
                         ->andWhere("sf.cinema = :cinema")
                         ->setParameter("cinema", $cinema)
-                        ->setParameter("screeningFormat", "%$screeningFormatTerm%")
+                        ->setParameter("screeningFormatTerm", "%$screeningFormatTerm%")
+                        ->addCriteria($this->activeScreeningFormatCriteria($isActive))
                         ->getQuery()
                         ->getResult()
         ;
