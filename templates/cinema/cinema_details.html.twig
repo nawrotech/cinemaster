@@ -68,7 +68,7 @@
                                     <form action="{{ path("app_screening_room_delete", {id: screeningRoom.id, slug: cinema.slug}) }}" method="DELETE">
                                         <button class="dropdown-item">Delete</button>
 
-                                        <input type="hidden" name="token" value="{{ csrf_token('delete-screening-room') }}">
+                                        <input type="hidden" name="token" value="{{ csrf_token('delete-screening-room-' ~ screeningRoom.id) }}">
                                     </form>
                                 </li>
                             </ul>

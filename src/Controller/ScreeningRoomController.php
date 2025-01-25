@@ -111,23 +111,14 @@ class ScreeningRoomController extends AbstractController
         ]);
     }
 
+
+    #[IsCsrfTokenValid(new Expression('"edit-seat-" ~ args["screeningRoomSeat"].getId()'), tokenKey: 'token')]
     #[Route('/seat/type/{id}', name: 'app_screening_room_seat_type_change', methods: ["POST"])]
     public function changeSeatType(
         Request $request,
         ScreeningRoomSeat $screeningRoomSeat,
         EntityManagerInterface $em
     ) {
-
-        $submittedToken = $request->getPayload()->get('token');
-        if (!$this->isCsrfTokenValid('edit-seat-' . $screeningRoomSeat->getId() , $submittedToken)) {
-            return $this->redirectToRoute(
-                "app_screening_room_edit",
-                [
-                    "screening_room_slug" => $request->getPayload()->get("screeningRoomSlug"),
-                    "slug" => $request->getPayload()->get("cinemaSlug")
-                ]
-            );
-        }
 
         $seatType = $request->getPayload()->get("seatType");
         if (!in_array($seatType, ScreeningRoomSeatType::getValuesArray())) {
@@ -158,22 +149,13 @@ class ScreeningRoomController extends AbstractController
         );
     }
 
-
+    #[IsCsrfTokenValid(new Expression('"delete-screening-room-" ~ args["screeningRoom"].getId()'), tokenKey: 'token')]
     #[Route('/delete/{id}', name: 'app_screening_room_delete', methods:["DELETE"])]
     public function deleteScreeningRoom(
-        Request $request,
         ScreeningRoom $screeningRoom,
         EntityManagerInterface $em) {
 
         $cinemaSlug = $screeningRoom->getCinema()->getSlug();
-
-        $submittedToken = $request->getPayload()->get('token');
-        if (!$this->isCsrfTokenValid('delete-screening-room', $submittedToken)) {
-            return $this->redirectToRoute("app_cinema_details", [
-                "slug" => $cinemaSlug
-            ]);
-        }
-
         $screeningRoom->setActive(false);
         $em->flush();
 
@@ -183,10 +165,11 @@ class ScreeningRoomController extends AbstractController
             "slug" => $cinemaSlug
         ]);
 
-       
     }
 
-    #[Route("/{screening_room_slug}/edit", name: 'app_screening_room_edit')]
+
+
+    #[Route("/edit/{screening_room_slug}", name: 'app_screening_room_edit')]
     public function edit(
         #[MapEntity(mapping: ["slug" => "slug"])]
         Cinema $cinema,
