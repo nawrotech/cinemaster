@@ -34,5 +34,17 @@ class ScreeningRoomSetupRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-  
+    public function hasActiveSetupForCinema(Cinema $cinema): bool
+    {
+        $count = $this->createQueryBuilder('srs')
+            ->select('COUNT(srs.id)')
+            ->andWhere('srs.cinema = :cinema')
+            ->andWhere('srs.isActive = :active')
+            ->setParameter("cinema", $cinema)
+            ->setParameter("active", true)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count > 0;
+    }
 }

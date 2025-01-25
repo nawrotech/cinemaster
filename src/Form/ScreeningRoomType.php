@@ -8,7 +8,7 @@ use App\Repository\ScreeningRoomSetupRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -41,7 +41,7 @@ class ScreeningRoomType extends AbstractType
                     "placeholder" => "e.g. Room A"
                 ]
             ])
-            ->add("maxRows", NumberType::class, [
+            ->add("maxRows", IntegerType::class, [
                 "label" => "Specify number of rows in your room",
                 "mapped" => false,
                 'constraints' => [
@@ -53,7 +53,7 @@ class ScreeningRoomType extends AbstractType
                     ])
                 ]
             ])
-            ->add("maxSeatsPerRow", NumberType::class, [
+            ->add("maxSeatsPerRow", IntegerType::class, [
                 "label" => "Seats per row default",
                 "mapped" => false,
                 "constraints" => [
@@ -67,7 +67,7 @@ class ScreeningRoomType extends AbstractType
             ])
             ->add('seatsPerRow', CollectionType::class, [
                 "label" => false,
-                'entry_type' => NumberType::class,
+                'entry_type' => IntegerType::class,
                 'entry_options' => [
                     'label' => false,
                     'constraints' => [
@@ -86,7 +86,7 @@ class ScreeningRoomType extends AbstractType
                 "by_reference" => false,
                 'prototype_name' => '__seats_per_row__',
             ])
-            ->add("maintenanceTimeInMinutes", NumberType::class, [
+            ->add("maintenanceTimeInMinutes", IntegerType::class, [
                 "constraints" => [
                     new NotBlank(),
                     new Positive()
