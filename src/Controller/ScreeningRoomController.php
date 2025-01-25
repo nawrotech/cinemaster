@@ -9,6 +9,7 @@ use App\Enum\ScreeningRoomSeatType;
 use App\Form\ScreeningRoomType;
 use App\Form\SeatLineType;
 use App\Form\SeatRowType;
+use App\Repository\CinemaRepository;
 use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSeatRepository;
 use App\Repository\ScreeningRoomSetupRepository;
@@ -97,40 +98,42 @@ class ScreeningRoomController extends AbstractController
 
 
     #[IsCsrfTokenValid(new Expression('"edit-seat-" ~ args["screeningRoomSeat"].getId()'), tokenKey: 'token')]
-    #[Route('/seat/type/{id}', name: 'app_screening_room_seat_type_change', methods: ["POST"])]
+    #[Route('/seat/type/{id}', name: 'app_screening_room_seat_update', methods: ["POST"])]
     public function changeSeatType(
         Request $request,
         ScreeningRoomSeat $screeningRoomSeat,
+        CinemaRepository $cinemaRepository,
+        ScreeningRoomRepository $screeningRoomRepository,
         EntityManagerInterface $em
     ) {
 
-        $seatType = $request->getPayload()->get("seatType");
-
-
-
-        if (!in_array($seatType, ScreeningRoomSeatType::getValuesArray())) {
-
-            $this->addFlash("danger", "Disallowed type for the value");
-
-            return $this->redirectToRoute(
-                "app_screening_room_edit",
-                [
-                    "screening_room_slug" => $request->getPayload()->get("screeningRoomSlug"),
-                    "slug" => $request->getPayload()->get("cinemaSlug")
-                ]
-            );
+        $cinema = $cinemaRepository->findOneBy(["slug" => $request->getPayload()->get("cinemaSlug")]);
+        if (!$cinema) {
+            throw $this->createNotFoundException('Cinema not found.');
         }
-        $screeningRoomSeat->setType($seatType);
 
+        $screeningRoom = $screeningRoomRepository->findOneBy(["slug" => $request->getPayload()->get("screeningRoomSlug")]);
+        if (!$screeningRoom) {
+            throw $this->createNotFoundException('Screening Room not found.');
+        }
+
+        $seatType = ScreeningRoomSeatType::tryFrom($request->getPayload()->get("seatType"));
+        if ($seatType == null) {
+            throw $this->createNotFoundException('Screening room type not found.');
+
+        }
+
+        $screeningRoomSeat->setType($seatType);
         $seatStatus = $request->getPayload()->get("seatStatus") ? "available" : "unavailable";
+
         $screeningRoomSeat->setStatus($seatStatus);
         $em->flush();
 
         return $this->redirectToRoute(
             "app_screening_room_edit",
             [
-                "screening_room_slug" => $request->getPayload()->get("screeningRoomSlug"),
-                "slug" => $request->getPayload()->get("cinemaSlug")
+                "screening_room_slug" => $screeningRoom->getSlug(),
+                "slug" => $cinema->getSlug()
 
             ]
         );
@@ -153,8 +156,6 @@ class ScreeningRoomController extends AbstractController
         ]);
 
     }
-
-
 
     #[Route("/edit/{screening_room_slug}", name: 'app_screening_room_edit')]
     public function edit(

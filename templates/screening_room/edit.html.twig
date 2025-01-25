@@ -15,10 +15,11 @@
                     <p>Seat type: {{ seat.type.value }}</p>
                     <p>Seat status: {{ seat.status }}</p>
                     <p>{{ seat.seat.seatPosition }}</p>
-                    <form method="post" action="{{path("app_screening_room_seat_type_change", {
+                    <form method="post" action="{{path("app_screening_room_seat_update", {
                         id: seat.id,
                         slug: cinema.name
                         })}}">
+
                         <input type="hidden" name="cinemaSlug" value="{{cinema.slug}}" >
                         <input type="hidden" name="screeningRoomSlug" value="{{room.slug}}">
                         <input type="hidden" name="token" value="{{ csrf_token('edit-seat-' ~ seat.id) }}">
