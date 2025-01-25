@@ -38,7 +38,7 @@ class SeatsService {
         ];
     }
 
-    private function calculateMaxRowAndSeat(array $rowsAndSeats): array {
+    public function calculateMaxRowAndSeat(array $rowsAndSeats): array {
         if (empty($rowsAndSeats)) {
             throw new \InvalidArgumentException('Seats per row array cannot be empty.');
         }
@@ -50,7 +50,7 @@ class SeatsService {
 
     }
 
-    private function groupSeatsByRow(array $rowsAndSeats) {
+    public function groupSeatsByRow(array $rowsAndSeats) {
 
         [$maxRow, $maxSeatsInRow]  = $this->calculateMaxRowAndSeat($rowsAndSeats);
 
