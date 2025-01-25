@@ -8,10 +8,12 @@ use App\Entity\ScreeningRoomSeat;
 use App\Enum\ScreeningRoomSeatType;
 use App\Form\ScreeningRoomType;
 use App\Form\SeatLineType;
+use App\Form\SeatRowType;
 use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSeatRepository;
 use App\Repository\ScreeningRoomSetupRepository;
 use App\Repository\SeatRepository;
+use App\Service\ScreeningRoomSeatService;
 use App\Service\SeatsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -103,6 +105,9 @@ class ScreeningRoomController extends AbstractController
     ) {
 
         $seatType = $request->getPayload()->get("seatType");
+
+
+
         if (!in_array($seatType, ScreeningRoomSeatType::getValuesArray())) {
 
             $this->addFlash("danger", "Disallowed type for the value");
@@ -157,40 +162,28 @@ class ScreeningRoomController extends AbstractController
         Cinema $cinema,
         #[MapEntity(mapping: ["screening_room_slug" => "slug"])]
         ScreeningRoom $screeningRoom,
-        SeatsService $seatsService,
-        ScreeningRoomSeatRepository $screeningRoomSeatRepository,
-        EntityManagerInterface $em,
+        ScreeningRoomSeatService $screeningRoomSeatService,
         Request $request
     ): Response {
 
-        [
-            "roomRows" => $roomRows,
-            "seatsInRow" => $seatsInRow
-        ] = $seatsService->createGrid($screeningRoom, $screeningRoomSeatRepository);
+        $groupedSeats = $screeningRoomSeatService->groupSeatsForLayout($screeningRoom);
+        $roomRows = array_keys($groupedSeats);
         
-        $form = $this->createForm(SeatLineType::class, options: [
+        $form = $this->createForm(SeatRowType::class, options: [
             "allowed_rows" => $roomRows,
-            "allowed_seat_types" => ScreeningRoomSeatType::getValuesArray()
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $seatsInRow = $screeningRoomSeatRepository
-                ->findSeatsInRange(
-                    $screeningRoom,
-                    $form->get("row")->getData(),
-                    $form->get("row")->getData(),
-                    $form->get("colStart")->getData(),
-                    $form->get("colEnd")->getData(),
-                );
-
-            foreach ($seatsInRow as $screeningRoomSeat) {
-                $screeningRoomSeat->setSeatType($form->get("seatType")->getData());
-            }
-
-            $em->flush();
-
+            $screeningRoomSeatService->updateSeatTypeForRow(
+                $screeningRoom,
+                $form->get("row")->getData(),
+                $form->get("firstSeatInRow")->getData(),
+                $form->get("lastSeatInRow")->getData(),
+                $form->get("seatType")->getData(),
+            );
+     
             return $this->redirectToRoute("app_screening_room_edit", [
                 "screening_room_slug" => $screeningRoom->getSlug(),
                 "slug" => $cinema->getSlug()
@@ -199,11 +192,10 @@ class ScreeningRoomController extends AbstractController
 
         return $this->render('screening_room/edit.html.twig', [
             "room" => $screeningRoom,
-            "roomRows" => $roomRows,
-            "rowLine" => $seatsInRow,
             "form" => $form,
             "cinema" => $cinema,
-            "seatTypes" => ScreeningRoomSeatType::getValuesArray()
+            "seatTypes" => ScreeningRoomSeatType::getValuesArray(),
+            "groupedSeats" => $groupedSeats
         ]);
     }
 }
