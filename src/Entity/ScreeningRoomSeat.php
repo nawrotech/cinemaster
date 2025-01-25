@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\ScreeningRoomSeatType;
 use App\Repository\ScreeningRoomSeatRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -20,8 +21,8 @@ class ScreeningRoomSeat
     #[ORM\Column(length: 15)]
     private ?string $status = "available";
 
-    #[ORM\Column(length: 15)]
-    private ?string $type = "regular";
+    #[ORM\Column(type: "string", enumType: ScreeningRoomSeatType::class)]
+    private ?ScreeningRoomSeatType $type = ScreeningRoomSeatType::REGULAR;
 
     #[ORM\Column]
     private ?bool $isVisible = true;
@@ -60,12 +61,12 @@ class ScreeningRoomSeat
         return $this;
     }
 
-    public function getType(): ?string
+    public function getType(): ?ScreeningRoomSeatType
     {
         return $this->type;
     }
 
-    public function setType(string $type): static
+    public function setType(ScreeningRoomSeatType $type): static
     {
         $this->type = $type;
 
