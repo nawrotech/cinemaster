@@ -4,10 +4,11 @@ namespace App\Service;
 
 use App\Entity\ScreeningRoom;
 use App\Entity\ScreeningRoomSeat;
+use App\Exception\InvalidRowsAndSeatsStructureException;
 use App\Repository\SeatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class SeatsService {
+class SeatService {
 
     public function __construct(
         private SeatRepository $seatRepository, 
@@ -15,10 +16,13 @@ class SeatsService {
     {
     }
 
-
     public function calculateMaxRowAndSeat(array $rowsAndSeats): array {
         if (empty($rowsAndSeats)) {
             throw new \InvalidArgumentException('Seats per row array cannot be empty.');
+        }
+
+        if ($rowsAndSeats !== array_combine(range(1, count($rowsAndSeats)), array_values($rowsAndSeats))) {
+            throw new InvalidRowsAndSeatsStructureException();
         }
 
         $maxRow = array_key_last($rowsAndSeats);
