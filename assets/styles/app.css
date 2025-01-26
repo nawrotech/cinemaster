@@ -164,3 +164,12 @@
 
      
  }
+
+
+ /* _screening_room_seat.html.twig */
+ .seat-status-checkbox[type="checkbox"] {
+    outline: 5px solid red;
+ }
+ .seat-status-checkbox[type="checkbox"]:checked {
+    outline: 5px solid green;
+ }

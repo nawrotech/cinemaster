@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Enum\ScreeningRoomSeatType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -35,6 +36,7 @@ class SeatRowType extends AbstractType
                 'placeholder' => 'Choose a seat type for the entire row',
                 'required' => true,
             ])
+            ->add("available", CheckboxType::class)
             ->add("firstSeatInRow", IntegerType::class, [
                 "data" => 1
             ])

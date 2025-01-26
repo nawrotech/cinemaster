@@ -4,56 +4,25 @@
 
 {% block body %}
     <h1>Screening room name: {{ room.name }}</h1>   
-
-    {% for groupedSeat in groupedSeats %}
-
     <div class="row">
-        <h1 class="col-1">{{loop.index}}</h1>
-        <div class="col-1 d-flex gap-2">
-            {% for seat in groupedSeat  %}
-            <div class="col-12">
-                    <p>Seat type: {{ seat.type.value }}</p>
-                    <p>Seat status: {{ seat.status }}</p>
-                    <p>{{ seat.seat.seatPosition }}</p>
-                    <form method="post" action="{{path("app_screening_room_seat_update", {
-                        id: seat.id,
-                        slug: cinema.name
-                        })}}">
-
-                        <input type="hidden" name="cinemaSlug" value="{{cinema.slug}}" >
-                        <input type="hidden" name="screeningRoomSlug" value="{{room.slug}}">
-                        <input type="hidden" name="token" value="{{ csrf_token('edit-seat-' ~ seat.id) }}">
-
-                        <select name="seatType" id="seatType">
-                            {% for seatType in enum('App\\Enum\\ScreeningRoomSeatType').cases %}
-                                <option
-                                    {{ seatType.value == seat.type.value ? "selected" : "" }}
-                                    for="seatType"
-                                    value="{{ seatType.value }}">{{ seatType.value }}
-                                </option>
-                            {% endfor %}
-                        </select>
-
-                        <label for="{{ "seatStatus" ~ seat.id }}">
-                            Seat Available:
-                            <input 
-                                id="{{ "seatStatus" ~ seat.id }}"
-                                name="seatStatus" 
-                                type="checkbox"
-                                {{ seat.status == "available" ? "checked" : "" }}
-                                >
-                        </label>
-
-                        <button class="btn btn-sm btn-primary">Apply</button>
-                    </form>
+        <div class="col-10">
+            {% for groupedSeat in groupedSeats %}
+                <div class="row">
+                    <h1 class="col-1">{{loop.index}}</h1>
+                    <div class="col-1 d-flex gap-2">
+                        {% for seat in groupedSeat  %}
+                            {{ include("partials/screening_room/_screening_room_seat.html.twig") }}
+                        {% endfor %}
+                    </div>
                 </div>
             {% endfor %}
         </div>
-   </div>
-
-
-    {% endfor %}
-
+        <div class="col-2">
+        </div>
+    </div>
+    
     {{form(form)}}
+
+   
 
 {% endblock %}
