@@ -75,7 +75,6 @@ class MovieController extends AbstractController
             "slug" => $cinema->getSlug(),
             "page" => $page,
             "q" => $q,
-            "_fragment" => $request->get("formId")
         ]);
 
     }
@@ -95,7 +94,8 @@ class MovieController extends AbstractController
         if (!$movie) {
             $movie = new Movie();
             $movie->setCinema($cinema);
-        } else {
+        } 
+        else {
             if ($movie->getTmdbId()) {
                 $cachedMovie = $tmdbApiService->cacheMovie($movie->getTmdbId());
             }
