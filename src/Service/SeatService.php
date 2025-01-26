@@ -16,13 +16,13 @@ class SeatService {
     {
     }
 
-    public function calculateMaxRowAndSeat(array $rowsAndSeats): array {
+    private function calculateMaxRowAndSeat(array $rowsAndSeats): array {
         if (empty($rowsAndSeats)) {
             throw new \InvalidArgumentException('Seats per row array cannot be empty.');
         }
 
         if ($rowsAndSeats !== array_combine(range(1, count($rowsAndSeats)), array_values($rowsAndSeats))) {
-            throw new InvalidRowsAndSeatsStructureException();
+            throw new InvalidRowsAndSeatsStructureException('Seats per row array must be 1-based and sequential.');
         }
 
         $maxRow = array_key_last($rowsAndSeats);
