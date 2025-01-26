@@ -8,15 +8,18 @@ use App\Factory\PagerfantaFactory;
 use App\Form\MovieFormType;
 use App\Repository\MovieRepository;
 use App\Repository\ShowtimeRepository;
+use App\Service\MovieService;
 use App\Service\TmdbApiService;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsCsrfTokenValid;
 
 #[Route("/admin/cinemas/{slug}")]
 class MovieController extends AbstractController
@@ -40,34 +43,18 @@ class MovieController extends AbstractController
         ]);
     }
 
+    #[IsCsrfTokenValid(new Expression('"add-tmdbMovie-" ~ args["tmdbId"]'), tokenKey: 'token')]
     #[Route('/movies/add-movie/{tmdbId}', name: 'app_movie_add', methods: ["POST"])]
     public function add(
-        TmdbApiService $tmdbApiService,
-        Request $request,
-        EntityManagerInterface $em,
         Cinema $cinema,
         int $tmdbId,
+        MovieService $movieService,
         #[MapQueryParameter] int $page = 1,
         #[MapQueryParameter] string $q = "",
         ): Response
     {
-        $submittedToken = $request->get("token");
-        if (!$this->isCsrfTokenValid("add-tmdbMovie", $submittedToken)) {
-            $this->addFlash("danger", "There was a problem, try again later!");
-            return $this->redirectToRoute("app_movie_select_movies", [
-                "slug" => $cinema->getSlug()
-            ]);
-        }
 
-        $movieTmdbDto = $tmdbApiService->cacheMovie($tmdbId);
-        
-        $movie = new Movie();
-        $movie->setTmdbId($tmdbId);
-        $movie->setTitle($movieTmdbDto->getTitle());
-        $movie->setDurationInMinutes($movieTmdbDto->getDurationInMinutes());
-        $movie->setCinema($cinema);
-        $em->persist($movie);
-        $em->flush();
+        $movieService->createMovie($tmdbId, $cinema);
 
         $this->addFlash("success", "Movie has been added");
         
@@ -94,8 +81,7 @@ class MovieController extends AbstractController
         if (!$movie) {
             $movie = new Movie();
             $movie->setCinema($cinema);
-        } 
-        else {
+        } else {
             if ($movie->getTmdbId()) {
                 $cachedMovie = $tmdbApiService->cacheMovie($movie->getTmdbId());
             }
