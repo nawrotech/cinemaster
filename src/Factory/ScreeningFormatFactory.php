@@ -3,6 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\ScreeningFormat;
+use App\Enum\LanguagePresentation;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
@@ -33,8 +34,8 @@ final class ScreeningFormatFactory extends PersistentProxyObjectFactory
     {
         return [
             'cinema' => CinemaFactory::random(),
-            'languagePresentation' => self::faker()->unique()->word(),
-            'visualFormat' => VisualFormatFactory::random(),
+            'languagePresentation' => LanguagePresentation::DUBBING,
+            'visualFormat' => VisualFormatFactory::new(),
         ];
     }
 

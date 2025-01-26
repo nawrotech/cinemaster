@@ -25,17 +25,17 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         SeatFactory::createGrid();
-        UserFactory::createOne();
+        $user = UserFactory::createOne();
 
-        // CinemaFactory::createMany(1, [
-        //     "owner" => UserFactory::random()
-        // ]);
+        CinemaFactory::createMany(1, [
+            "owner" => $user
+        ]);
 
-        // VisualFormatFactory::createMany(12, function() {
-        //     return [
-        //         "cinema" => CinemaFactory::random()
-        //     ];
-        // });
+        VisualFormatFactory::createMany(12, function() {
+            return [
+                "cinema" => CinemaFactory::random()
+            ];
+        });
 
 
         // MovieFactory::createMany(32);e

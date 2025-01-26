@@ -3,6 +3,7 @@
 namespace App\Factory;
 
 use App\Adapter\TmdbAdapter;
+use Pagerfanta\Adapter\AdapterInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -14,7 +15,7 @@ class TmdbAdapterFactory {
         private string $tmdbApiKey) {
     }
 
-    public function create(string $endpoint, array $parameters = []) {
+    public function create(string $endpoint, array $parameters = []): AdapterInterface {
 
         $url = "https://api.themoviedb.org/3/$endpoint";
         $parameters = array_merge($parameters, [

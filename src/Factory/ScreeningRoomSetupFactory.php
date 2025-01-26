@@ -32,7 +32,7 @@ final class ScreeningRoomSetupFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'cinema' => CinemaFactory::new(),
+            'cinema' => CinemaFactory::random(),
             'soundFormat' => self::faker()->text(50),
             'visualFormat' => VisualFormatFactory::new(),
         ];

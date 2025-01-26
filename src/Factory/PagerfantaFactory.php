@@ -14,7 +14,6 @@ class PagerfantaFactory {
         private TmdbAdapterFactory $tmdbAdapterFactory,
         private MovieDataMerger $movieDataMerger
     ) {
-        
     }
 
     public function createTmdbPagerfanta(string $q, int $page, ): Pagerfanta {
