@@ -25,11 +25,11 @@
                         <input type="hidden" name="token" value="{{ csrf_token('edit-seat-' ~ seat.id) }}">
 
                         <select name="seatType" id="seatType">
-                            {% for seatType in seatTypes %}
+                            {% for seatType in enum('App\\Enum\\ScreeningRoomSeatType').cases %}
                                 <option
-                                    {{ seatType == seat.type ? "selected" : "" }}
+                                    {{ seatType.value == seat.type.value ? "selected" : "" }}
                                     for="seatType"
-                                    value="{{ seatType }}">{{ seatType }}
+                                    value="{{ seatType.value }}">{{ seatType.value }}
                                 </option>
                             {% endfor %}
                         </select>
