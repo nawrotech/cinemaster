@@ -49,7 +49,20 @@ class SeatRepository extends ServiceEntityRepository
     }
 
 
-    
+
+    public function findSeatsUpToMax(int $maxRow, int $maxSeatsInRow): array
+    {
+        return $this->createQueryBuilder("s")
+            ->andWhere("s.rowNum <= :maxRow")
+            ->andWhere("s.seatNumInRow <= :maxSeatsInRow")
+            ->setParameter("maxRow", $maxRow)
+            ->setParameter("maxSeatsInRow", $maxSeatsInRow)
+            ->addOrderBy("s.rowNum", "ASC")
+            ->addOrderBy("s.seatNumInRow", "ASC")
+            ->getQuery()
+            ->getResult();
+    }
+        
 
 
 }

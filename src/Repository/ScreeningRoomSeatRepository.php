@@ -74,28 +74,39 @@ class ScreeningRoomSeatRepository extends ServiceEntityRepository implements Sea
     //         ->getOneOrNullResult();
     // }
 
+    public function findSeatsByScreeningRoom(ScreeningRoom $screeningRoom)  {
+        return $this->createQueryBuilder('srs')
+                ->addSelect("s")
+                ->innerJoin("srs.seat", "s")
+                ->andWhere("srs.screeningRoom = :screeningRoom")
+                ->setParameter("screeningRoom", $screeningRoom)
+                ->addOrderBy("s.rowNum", "ASC")
+                ->addOrderBy("s.seatNumInRow", "ASC")
+                ->getQuery()
+                ->getResult();
+    }
+
     public function findSeatsInRange(
         ScreeningRoom $screeningRoom,
-        int $rowStart,
-        int $rowEnd,
-        int $colStart,
-        int $colEnd
+        int $rowNumStart,
+        int $rowNumEnd,
+        int $seatNumInRowStart,
+        int $seatNumInRowEnd
     ) {
 
         return $this->createQueryBuilder('srs')
             ->innerJoin("srs.screeningRoom", "sr")
-            ->innerJoin("srs.seat", "cs")
-            ->innerJoin("cs.seat", "s")
-            ->andWhere("s.rowNum BETWEEN :rowStart AND :rowEnd")
-            ->andWhere("s.colNum BETWEEN :colStart AND :colEnd")
-            ->andWhere("sr = :screeningRoom")
+            ->innerJoin("srs.seat", "s")
+            ->andWhere("s.rowNum BETWEEN :rowNumStart AND :rowNumEnd")
+            ->andWhere("s.seatNumInRow BETWEEN :seatNumInRowStart AND :seatNumInRowEnd")
+            ->andWhere("srs.screeningRoom = :screeningRoom")
             ->setParameter("screeningRoom", $screeningRoom)
-            ->setParameter("rowStart", $rowStart)
-            ->setParameter("rowEnd", $rowEnd)
-            ->setParameter("colStart", $colStart)
-            ->setParameter("colEnd", $colEnd)
+            ->setParameter("rowNumStart", $rowNumStart)
+            ->setParameter("rowNumEnd", $rowNumEnd)
+            ->setParameter("seatNumInRowStart", $seatNumInRowStart)
+            ->setParameter("seatNumInRowEnd", $seatNumInRowEnd)
             ->addOrderBy("s.rowNum", "ASC")
-            ->addOrderBy("s.colNum", "ASC")
+            ->addOrderBy("s.seatNumInRow", "ASC")
             ->getQuery()
             ->getResult();
     }
