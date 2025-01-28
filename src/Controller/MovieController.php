@@ -67,7 +67,6 @@ class MovieController extends AbstractController
     }
 
  
-
     #[Route('/movies/create/{id?}', name: 'app_movie_create')]
     public function create(
         Request $request,
@@ -81,10 +80,8 @@ class MovieController extends AbstractController
         if (!$movie) {
             $movie = new Movie();
             $movie->setCinema($cinema);
-        } else {
-            if ($movie->getTmdbId()) {
-                $cachedMovie = $tmdbApiService->cacheMovie($movie->getTmdbId());
-            }
+        } elseif ($movie->getTmdbId() !== null)  {
+            $cachedMovie = $tmdbApiService->cacheMovie($movie->getTmdbId());
         }
 
         $form = $this->createForm(MovieFormType::class, $movie, [
@@ -99,10 +96,8 @@ class MovieController extends AbstractController
                 $posterFilename = $uploaderHelper->uploadMoviePoster($posterFile, $movie?->getPosterFilename());
                 $movie->setPosterFilename($posterFilename);
             }
-
-            $submittedForm = $request->get($form->getName());
            
-            if ($submittedForm["deletePoster"] ?? null) {
+            if ($form->get("deletePoster")->isClicked() ) {
 
                 $em->wrapInTransaction(function($em) use($uploaderHelper, $movie) {
                     $uploaderHelper->deleteFile($movie->getPosterPath());
@@ -111,9 +106,10 @@ class MovieController extends AbstractController
                     $em->flush();
                 });
      
-
                 $this->addFlash('warning', 'Poster successfully deleted!');
-                return $this->redirectToRoute('app_movie_available_movies', ["slug" => $cinema->getSlug()]);      
+                return $this->redirectToRoute('app_movie_available_movies', [
+                    "slug" => $cinema->getSlug()
+                ]);      
             }
             
             
@@ -158,7 +154,7 @@ class MovieController extends AbstractController
      ]);
  }
 
-
+//  #[IsCsrfTokenValid(new Expression('"add-tmdbMovie-" ~ args["tmdbId"]'), tokenKey: 'token')]
  #[Route('/movies/{id}', name: 'app_movie_delete', methods: ["DELETE"])]
  public function addMovieFormats(
      Request $request,
@@ -169,7 +165,7 @@ class MovieController extends AbstractController
      #[MapQueryParameter] int $page = 1,
      #[MapQueryParameter] string $q = "",
      ): Response
- {
+    {
      $submittedToken = $request->get("token");
      if (!$this->isCsrfTokenValid("delete-movie-token", $submittedToken)) {
          $this->addFlash("error", "Invalid CSRF token");
@@ -183,16 +179,14 @@ class MovieController extends AbstractController
 
     $this->addFlash("warning", "Movie has been removed");
 
-     return $this->redirectToRoute("app_movie_available_movies", [
-         "page" => $page,
-         "q" => $q,
-         "slug" => $cinema->getSlug(),
-         "_fragment" => $request->get("formId")
-     ]);
+        return $this->redirectToRoute("app_movie_available_movies", [
+            "page" => $page,
+            "q" => $q,
+            "slug" => $cinema->getSlug(),
+        ]);
 
- }
+    }
    
-
     #[Route('/edit', name: 'app_cinema_movies_edit')]
     public function edit(): Response
     {

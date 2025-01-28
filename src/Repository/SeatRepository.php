@@ -16,7 +16,6 @@ class SeatRepository extends ServiceEntityRepository
         parent::__construct($registry, Seat::class);
     }
 
-
     public function findMax()
     {
         return $this->createQueryBuilder('s')
@@ -49,7 +48,9 @@ class SeatRepository extends ServiceEntityRepository
     }
 
 
-
+    /**
+     * @return Seat[]
+     */
     public function findSeatsUpToMax(int $maxRow, int $maxSeatsInRow): array
     {
         return $this->createQueryBuilder("s")

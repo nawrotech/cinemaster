@@ -7,6 +7,7 @@ use App\Entity\Movie;
 use App\Service\MovieDataMerger;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
+use Pagerfanta\PagerfantaInterface;
 
 class PagerfantaFactory {
 
@@ -16,7 +17,7 @@ class PagerfantaFactory {
     ) {
     }
 
-    public function createTmdbPagerfanta(string $q, int $page, ): Pagerfanta {
+    public function createTmdbPagerfanta(string $q, int $page, ): PagerfantaInterface {
 
         $endpoint = $q ? "search/movie" : "movie/now_playing";
         $params = $q ? ["query" => $q] : [];
@@ -31,7 +32,7 @@ class PagerfantaFactory {
         return $pagerfanta;
     }
 
-    public function createAvailableMoviesPagerfanta(array $movies, int $page): Pagerfanta {
+    public function createAvailableMoviesPagerfanta(array $movies, int $page): PagerfantaInterface {
 
         $mergedMovies = array_map(function(Movie $movie) {
             return $this->movieDataMerger->mergeWithApiData($movie);

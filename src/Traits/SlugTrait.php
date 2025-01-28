@@ -2,7 +2,6 @@
 
 namespace App\Traits;
 
-use Symfony\Component\String\AbstractUnicodeString;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 
 trait SlugTrait {

@@ -7,15 +7,12 @@ use App\Entity\ScreeningRoom;
 use App\Entity\ScreeningRoomSeat;
 use App\Enum\ScreeningRoomSeatType;
 use App\Form\ScreeningRoomType;
-use App\Form\SeatLineType;
 use App\Form\SeatRowType;
 use App\Repository\CinemaRepository;
 use App\Repository\ScreeningRoomRepository;
-use App\Repository\ScreeningRoomSeatRepository;
 use App\Repository\ScreeningRoomSetupRepository;
-use App\Repository\SeatRepository;
 use App\Service\ScreeningRoomSeatService;
-use App\Service\SeatsService;
+use App\Service\SeatService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -48,7 +45,7 @@ class ScreeningRoomController extends AbstractController
         Request $request,
         ScreeningRoomSetupRepository $screeningRoomSetupRepository,
         Cinema $cinema,
-        SeatsService $seatsService
+        SeatService $seatService
     ): Response {
 
         if ($request->query->get("ajaxCall")) {
@@ -82,7 +79,7 @@ class ScreeningRoomController extends AbstractController
             $seatsPerRow = $form->get("seatsPerRow")->getData();
             $rowsAndSeats = array_combine(range(1, count($seatsPerRow)), $seatsPerRow);
 
-            $seatsService->assignSeatsToScreeningRoom($screeningRoom, $rowsAndSeats);
+            $seatService->assignSeatsToScreeningRoom($screeningRoom, $rowsAndSeats);
 
             $this->addFlash("success", "Screening room has been created!");
             return $this->redirectToRoute("app_cinema_details", [

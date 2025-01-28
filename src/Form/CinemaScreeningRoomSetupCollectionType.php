@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Cinema;
+use App\Repository\ScreeningRoomSetupRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -12,17 +13,25 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CinemaScreeningRoomSetupCollectionType extends AbstractType
 {
+
+    public function __construct(private ScreeningRoomSetupRepository $screeningRoomSetupRepository)
+    {   
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        /** @var Cinema $cinema */
+        $cinema = $options['data'];
+        $screeningRoomSetups = $this->screeningRoomSetupRepository->findByCinemaAndActiveStatus($cinema, true);
 
         $builder
            ->add("screeningRoomSetups", CollectionType::class, [
-                "data" => $options["active_screening_room_setups"],
+                "data" => $screeningRoomSetups,
                 "label" => "Enter types can be played in your screening rooms",
                 "entry_type" => ScreeningRoomSetupType::class,
                 "entry_options" => [
                     "label" => false,
-                    "query_constraint" => $options["data"] 
+                    "query_constraint" => $cinema
                 ],
                 "allow_add" => true,
                 "allow_delete" => true,
@@ -47,7 +56,6 @@ class CinemaScreeningRoomSetupCollectionType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Cinema::class,
-            "active_screening_room_setups" => null
         ]);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Cinema;
+use App\Repository\VisualFormatRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -12,12 +13,21 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CinemaVisualFormatCollectionType extends AbstractType
 {
+
+    public function __construct(private VisualFormatRepository $visualFormatRepository)
+    {   
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        /** @var Cinema $cinema */
+        $cinema = $options['data'];
+        $activeVisualFormats = $this->visualFormatRepository
+                        ->findByCinemaAndActiveStatus($cinema, true);
 
         $builder
             ->add('visualFormats', CollectionType::class, [
-                "data" => $options["active_visual_formats"],
+                "data" => $activeVisualFormats,
                 "entry_type" => VisualFormatType::class,
                 "label" => false,
                 "entry_options" => ["label" => false],
@@ -44,7 +54,6 @@ class CinemaVisualFormatCollectionType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Cinema::class,
-            "active_visual_formats" => null
         ]);
     }
 }
