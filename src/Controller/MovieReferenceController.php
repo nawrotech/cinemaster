@@ -23,8 +23,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class MovieReferenceController extends AbstractController
 {
-    #[Route('/movie/{id}/references', name: 'app_movie_add_reference', methods: ["POST"])]
+
     #[IsGranted("ROLE_ADMIN")]
+    #[Route('/movie/{id}/references', name: 'app_movie_add_reference', methods: ["POST"])]
     public function uploadMovieReference(Movie $movie, Request $request, UploaderHelper $uploaderHelper, EntityManagerInterface $em, ValidatorInterface $validator): Response
     {
         /** @var \Symfony\Component\HttpFoundation\File\UploadedFile $uploadedFile */

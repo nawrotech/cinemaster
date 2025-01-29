@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Cinema;
+use App\Entity\ScreeningFormat;
 use App\Repository\ScreeningFormatRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -26,7 +27,7 @@ class CinemaScreeningFormatCollectionType extends AbstractType
  
         $builder
            ->add("screeningFormats", CollectionType::class, [
-                "data" => $screeningFormats,
+                "data" => $screeningFormats ?: [new ScreeningFormat()],
                 "label" => false,
                 "entry_type" => ScreeningFormatType::class,
                 "entry_options" => [

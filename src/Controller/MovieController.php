@@ -55,7 +55,7 @@ class MovieController extends AbstractController
     {
 
         $movieService->createMovie($tmdbId, $cinema);
-
+        
         $this->addFlash("success", "Movie has been added");
         
         return $this->redirectToRoute("app_movie_select_movies", [
@@ -97,7 +97,10 @@ class MovieController extends AbstractController
                 $movie->setPosterFilename($posterFilename);
             }
            
-            if ($form->get("deletePoster")->isClicked() ) {
+            /** @var SubmitButton $deletePosterButton */
+            $deletePosterButton = $form->get("deletePoster");
+
+            if ($deletePosterButton->isClicked()) {
 
                 $em->wrapInTransaction(function($em) use($uploaderHelper, $movie) {
                     $uploaderHelper->deleteFile($movie->getPosterPath());

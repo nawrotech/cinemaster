@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Cinema;
+use App\Entity\VisualFormat;
 use App\Repository\VisualFormatRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -27,7 +28,7 @@ class CinemaVisualFormatCollectionType extends AbstractType
 
         $builder
             ->add('visualFormats', CollectionType::class, [
-                "data" => $activeVisualFormats,
+                "data" => $activeVisualFormats ?: [new VisualFormat()],
                 "entry_type" => VisualFormatType::class,
                 "label" => false,
                 "entry_options" => ["label" => false],

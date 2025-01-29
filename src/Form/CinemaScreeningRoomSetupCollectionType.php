@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Cinema;
+use App\Entity\ScreeningRoomSetup;
 use App\Repository\ScreeningRoomSetupRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -26,7 +27,7 @@ class CinemaScreeningRoomSetupCollectionType extends AbstractType
 
         $builder
            ->add("screeningRoomSetups", CollectionType::class, [
-                "data" => $screeningRoomSetups,
+                'data' => $screeningRoomSetups ?: [new ScreeningRoomSetup()],
                 "label" => "Enter types can be played in your screening rooms",
                 "entry_type" => ScreeningRoomSetupType::class,
                 "entry_options" => [
