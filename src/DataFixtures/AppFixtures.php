@@ -27,7 +27,7 @@ class AppFixtures extends Fixture
         SeatFactory::createGrid();
         $user = UserFactory::createOne();
 
-        CinemaFactory::createMany(1, [
+        CinemaFactory::createMany(2, [
             "owner" => $user
         ]);
 
@@ -36,9 +36,6 @@ class AppFixtures extends Fixture
                 "cinema" => CinemaFactory::random()
             ];
         });
-
-
-        // MovieFactory::createMany(32);e
 
 
         // CinemaFactory::createMany(2);

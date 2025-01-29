@@ -8,12 +8,11 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
-use Doctrine\ORM\Mapping\PreUpdate;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[UniqueEntity(
-    fields: ["name"],
-    message: "Name of this room is alredy taken",
+    fields: ['name', 'cinema'],
+    message: "Screening room with that name is already taken",
 )]
 #[HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: ScreeningRoomRepository::class)]
@@ -25,7 +24,7 @@ class ScreeningRoom implements SlugInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50, unique: true)]
+    #[ORM\Column(length: 50)]
     private ?string $name = null;
 
     #[ORM\Column(length: 100, unique: true)]
@@ -64,7 +63,7 @@ class ScreeningRoom implements SlugInterface
 
     public function __toString(): string
     {
-        return $this->name;
+        return $this->name . ' ' . $this->cinema->getName();
     }
 
     public function __construct()

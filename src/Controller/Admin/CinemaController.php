@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Admin;
 
 use App\Entity\Cinema;
 use App\Form\CinemaScreeningFormatCollectionType;
@@ -22,12 +22,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[IsGranted("ROLE_USER")]
 #[Route("/admin/cinemas")]
 class CinemaController extends AbstractController
 {
+    public function __construct(private EntityManagerInterface $em)
+    {
+    }
+
     #[Route('/', name: 'app_cinema', methods: ['GET'])]
     public function index(
         CinemaRepository $cinemaRepository,
@@ -43,7 +45,6 @@ class CinemaController extends AbstractController
     #[Route('/create', name: 'app_cinema_create', methods: ['GET', 'POST'])]
     public function create(
         Request $request,
-        EntityManagerInterface $em,
     ): Response {   
 
         $cinema =  new Cinema();
@@ -55,8 +56,8 @@ class CinemaController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $em->persist($cinema);
-            $em->flush();
+            $this->em->persist($cinema);
+            $this->em->flush();
 
             $this->addFlash("success", "Cinema created successfully!");
         
@@ -81,7 +82,6 @@ class CinemaController extends AbstractController
     public function addVisualFormats(
         Request $request,
         Cinema $cinema,
-        EntityManagerInterface $em,
     ): Response {   
 
    
@@ -90,7 +90,7 @@ class CinemaController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
     
-            $em->flush();
+            $this->em->flush();
             $this->addFlash("success", "Visual Formats have been added!");
 
             /** @var SubmitButton $addScreeningRoomSetupsButton */
@@ -115,7 +115,6 @@ class CinemaController extends AbstractController
         Request $request,
         Cinema $cinema,
         VisualFormatRepository $visualFormatRepository,
-        EntityManagerInterface $em,
     ): Response {   
 
         $activeVisualFormats = $visualFormatRepository->findByCinemaAndActiveStatus($cinema, true);
@@ -130,7 +129,7 @@ class CinemaController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em->flush();
+            $this->em->flush();
         
             /** @var SubmitButton $addScreeningFormatsButton */
             $addScreeningFormatsButton = $form->get("addScreeningFormats");
@@ -156,7 +155,6 @@ class CinemaController extends AbstractController
         Request $request,
         VisualFormatRepository $visualFormatRepository,
         Cinema $cinema,
-        EntityManagerInterface $em,
     ): Response {   
 
         $visualFormats = $visualFormatRepository->findByCinemaAndActiveStatus($cinema, true);
@@ -171,7 +169,7 @@ class CinemaController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em->flush();
+            $this->em->flush();
             $this->addFlash("success", "Screening room setups has been added!");
             
             return $this->redirectToRoute("app_cinema_details", [
@@ -185,7 +183,7 @@ class CinemaController extends AbstractController
     }
 
 
-    #[Route('/{slug}', name: 'app_cinema_details')]
+    #[Route('/{slug}', name: 'app_cinema_details', methods: ['GET'])]
     public function cinemaDetails(Cinema $cinema, ScreeningRoomRepository $screeningRoomRepository, VisualFormatRepository $visualFormatRepository, ScreeningRoomSetupRepository $screeningRoomSetupRepository, ScreeningFormatRepository $screeningFormatRepository) {
 
         $visualFormats = $visualFormatRepository->findByCinemaAndActiveStatus($cinema, true);
@@ -201,7 +199,6 @@ class CinemaController extends AbstractController
             "screeningRooms" => $screeningRooms
         ]);
     }
-
 
 
     #[Route('/{slug}/add-movies/', name: 'app_cinema_add_movies')]
