@@ -2,7 +2,6 @@
 
 namespace App\Repository;
 
-use App\Contracts\SeatsGridInterface;
 use App\Entity\ReservationSeat;
 use App\Entity\ScreeningRoom;
 use App\Entity\Showtime;
@@ -13,7 +12,7 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<ReservationSeat>
  */
-class ReservationSeatRepository extends ServiceEntityRepository implements SeatsGridInterface
+class ReservationSeatRepository extends ServiceEntityRepository 
 {
     public function __construct(ManagerRegistry $registry)
     {

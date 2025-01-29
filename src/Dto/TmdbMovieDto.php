@@ -2,7 +2,7 @@
 
 namespace App\Dto;
 
-use App\Contracts\MovieInterface;
+use App\Contract\MovieInterface;
 
 class TmdbMovieDto implements MovieInterface {
     private int $id;

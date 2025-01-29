@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Contracts\MovieInterface;
+use App\Contract\MovieInterface;
 use App\Repository\MovieRepository;
 use App\Service\UploaderHelper;
 use Doctrine\Common\Collections\ArrayCollection;

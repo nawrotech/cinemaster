@@ -48,9 +48,10 @@ class CinemaController extends AbstractController
 
         $cinema =  new Cinema();
         $cinema->setOwner($this->getUser());
-        
+    
         $form = $this->createForm(CinemaType::class, $cinema);
         $form->handleRequest($request);
+        
 
         if ($form->isSubmitted() && $form->isValid()) {
 

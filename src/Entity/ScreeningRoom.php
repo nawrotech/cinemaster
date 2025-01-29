@@ -2,13 +2,12 @@
 
 namespace App\Entity;
 
+use App\Contract\SlugInterface;
 use App\Repository\ScreeningRoomRepository;
-use App\Traits\SlugTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
-use Doctrine\ORM\Mapping\PreFlush;
 use Doctrine\ORM\Mapping\PreUpdate;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
@@ -18,10 +17,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 )]
 #[HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: ScreeningRoomRepository::class)]
-class ScreeningRoom
+class ScreeningRoom implements SlugInterface
 {
-
-    use SlugTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -49,9 +46,6 @@ class ScreeningRoom
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $updatedAt = null;
-
     #[ORM\Column(nullable: true)]
     private ?int $maintenanceTimeInMinutes = null;
     
@@ -68,27 +62,16 @@ class ScreeningRoom
     #[ORM\Column]
     private ?bool $active = true;
 
+    public function __toString(): string
+    {
+        return $this->name;
+    }
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
         $this->screeningRoomSeats = new ArrayCollection();
         $this->showtimes = new ArrayCollection();
-    }
-
-    #[PreFlush]
-    public function createSlugAndCreationDates(): static
-    {
-        $this->slug = $this->generateSlug($this->name);
-        return $this;
-    }
-
-    #[PreUpdate]
-    public function updateUpdatedAt(): static
-    {
-        $this->updatedAt = new \DateTimeImmutable();
-        $this->slug = $this->generateSlug($this->name);
-        return $this;
     }
 
     public function getId(): ?int
@@ -183,18 +166,6 @@ class ScreeningRoom
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
-    {
-        $this->updatedAt = $updatedAt;
 
         return $this;
     }

@@ -2,14 +2,12 @@
 
 namespace App\Entity;
 
+use App\Contract\SlugInterface;
 use App\Repository\CinemaRepository;
-use App\Traits\SlugTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
-use Doctrine\ORM\Mapping\PrePersist;
-use Doctrine\ORM\Mapping\PreUpdate;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[UniqueEntity(
@@ -18,9 +16,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 )]
 #[HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: CinemaRepository::class)]
-class Cinema
+class Cinema implements SlugInterface
 {
-    use SlugTrait;
     
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -110,6 +107,10 @@ class Cinema
     #[ORM\OneToMany(targetEntity: Movie::class, mappedBy: 'cinema')]
     private Collection $movies;
 
+    public function __toString()
+    {
+        return $this->name;
+    }
 
     public function __construct()
     {
@@ -123,22 +124,6 @@ class Cinema
         $this->movieScreeningFormats = new ArrayCollection();
         $this->movies = new ArrayCollection();
     }
-
-    #[PrePersist]
-    public function createSlug(): static
-    {
-        $this->slug = $this->generateSlug($this->name);
-        return $this;
-    }
-
-    #[PreUpdate]
-    public function updateUpdatedAt(): static
-    {
-        $this->updatedAt = new \DateTimeImmutable();
-        $this->slug = $this->generateSlug($this->name);
-        return $this;
-    }
-
 
     public function getId(): ?int
     {

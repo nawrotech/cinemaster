@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Contracts;
+namespace App\Contract;
 
 interface MovieInterface {
     public function getId(): ?int;

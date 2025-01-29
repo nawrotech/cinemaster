@@ -31,7 +31,7 @@ class AppFixtures extends Fixture
             "owner" => $user
         ]);
 
-        VisualFormatFactory::createMany(12, function() {
+        VisualFormatFactory::createMany(4, function() {
             return [
                 "cinema" => CinemaFactory::random()
             ];
