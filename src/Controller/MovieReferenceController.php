@@ -135,13 +135,9 @@ class MovieReferenceController extends AbstractController
     #[Route("movie/references/{id}", name: "movie_reference_delete", methods: ["DELETE"])]
     public function deleteMovieReference(MovieReference $movieReference, UploaderHelper $uploaderHelper, EntityManagerInterface $em) {
 
-        $movie = $movieReference->getMovie();
-        // $this->denyAccessUnlessGranted("");
-
+        $uploaderHelper->deleteFile($movieReference->getFilePath());
         $em->remove($movieReference);
         $em->flush();
-
-        $uploaderHelper->deleteFile($movieReference->getFilePath());
 
         return new Response(null, 204);
     }

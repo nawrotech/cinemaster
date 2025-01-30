@@ -27,6 +27,5 @@ class MovieService {
         $movie->setCinema($cinema);
         $this->em->persist($movie);
         $this->em->flush();
-
     }
 }

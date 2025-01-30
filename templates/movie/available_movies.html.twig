@@ -19,6 +19,8 @@
         name: "q",
     }) }}
   
+    <a href="{{ path('app_movie_select_movies', {slug: app.current_route_parameters.slug}) }}" class="link">Add more movie</a>
+
     <div class="grid-container">
      
       {% for movie in pager %}
@@ -32,8 +34,8 @@
                     <p class="card-text text-truncate">{{ movie.overview }}</p>
             
                         {{ include("partials/movie/_add_movie_screening_formats.html.twig") }}
-                   
-                        {% if (isScheduledShowtimeForMovie[movie.id] == false and movie.movieReferences is empty) %}
+
+                        {% if (movie.id not in scheduledMovieIds and movie.movieReferences is empty) %}
                             {{ include("partials/movie/_movie_update_form.html.twig") }}
                         {% endif %}
 

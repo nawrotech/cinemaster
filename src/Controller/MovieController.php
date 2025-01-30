@@ -24,19 +24,18 @@ use Symfony\Component\Security\Http\Attribute\IsCsrfTokenValid;
 #[Route("/admin/cinemas/{slug}")]
 class MovieController extends AbstractController
 {
-    #[Route('/movies/select-movies' , name: 'app_movie_select_movies')]
+    #[Route('/movies/select-movies', name: 'app_movie_select_movies')]
     public function selectMovies(
         MovieRepository $movieRepository,
         PagerfantaFactory $pagerfantaFactory,
         Cinema $cinema,
         #[MapQueryParameter()] string $q = "",
         #[MapQueryParameter()] int $page = 1,
-        ): Response
-    {
+    ): Response {
         $pagerfanta = $pagerfantaFactory->createTmdbPagerfanta($q, $page);
 
         $storedTmdbIds = $movieRepository->findTmdbIdsForCinema($cinema);
-        
+
         return $this->render('movie/select_movies.html.twig', [
             "storedTmdbIds" => $storedTmdbIds,
             "pager" => $pagerfanta,
@@ -51,22 +50,20 @@ class MovieController extends AbstractController
         MovieService $movieService,
         #[MapQueryParameter] int $page = 1,
         #[MapQueryParameter] string $q = "",
-        ): Response
-    {
+    ): Response {
 
         $movieService->createMovie($tmdbId, $cinema);
-        
+
         $this->addFlash("success", "Movie has been added");
-        
+
         return $this->redirectToRoute("app_movie_select_movies", [
             "slug" => $cinema->getSlug(),
             "page" => $page,
             "q" => $q,
         ]);
-
     }
 
- 
+
     #[Route('/movies/create/{id?}', name: 'app_movie_create')]
     public function create(
         Request $request,
@@ -80,7 +77,7 @@ class MovieController extends AbstractController
         if (!$movie) {
             $movie = new Movie();
             $movie->setCinema($cinema);
-        } elseif ($movie->getTmdbId() !== null)  {
+        } elseif ($movie->getTmdbId() !== null) {
             $cachedMovie = $tmdbApiService->cacheMovie($movie->getTmdbId());
         }
 
@@ -96,26 +93,26 @@ class MovieController extends AbstractController
                 $posterFilename = $uploaderHelper->uploadMoviePoster($posterFile, $movie?->getPosterFilename());
                 $movie->setPosterFilename($posterFilename);
             }
-           
+
             /** @var SubmitButton $deletePosterButton */
             $deletePosterButton = $form->get("deletePoster");
 
             if ($deletePosterButton->isClicked()) {
 
-                $em->wrapInTransaction(function($em) use($uploaderHelper, $movie) {
+                $em->wrapInTransaction(function ($em) use ($uploaderHelper, $movie) {
                     $uploaderHelper->deleteFile($movie->getPosterPath());
                     $movie->setPosterFilename(null);
 
                     $em->flush();
                 });
-     
+
                 $this->addFlash('warning', 'Poster successfully deleted!');
                 return $this->redirectToRoute('app_movie_available_movies', [
                     "slug" => $cinema->getSlug()
-                ]);      
+                ]);
             }
-            
-            
+
+
             $em->persist($movie);
             $em->flush();
 
@@ -130,66 +127,60 @@ class MovieController extends AbstractController
 
 
 
- #[Route('/movies/available-movies', name: 'app_movie_available_movies')]
- public function availableMovies(
-     MovieRepository $movieRepository,
-     PagerfantaFactory $pagerfantaFactory,
-     Cinema $cinema,
-     ShowtimeRepository $showtimeRepository,
-     #[MapQueryParameter()] int $page = 1,
-     #[MapQueryParameter()] string $q = ""
- ): Response
- {
-     $movies = $q 
-        ? $movieRepository->findBySearchTerm($cinema, $q) 
-        : $movieRepository->findBy(["cinema" => $cinema]);
-     
-    $pagerfanta = $pagerfantaFactory->createAvailableMoviesPagerfanta($movies, $page);
+    #[Route('/movies/available-movies', name: 'app_movie_available_movies')]
+    public function availableMovies(
+        MovieRepository $movieRepository,
+        PagerfantaFactory $pagerfantaFactory,
+        Cinema $cinema,
+        ShowtimeRepository $showtimeRepository,
+        #[MapQueryParameter()] int $page = 1,
+        #[MapQueryParameter()] string $q = ""
+    ): Response {
+        $movies = $q
+            ? $movieRepository->findBySearchTerm($cinema, $q)
+            : $movieRepository->findBy(["cinema" => $cinema]);
 
-     $isScheduledShowtimeForMovie = [];
-     foreach ($movies as $movie) {
-        $isScheduledShowtimeForMovie[$movie->getId()] =  $showtimeRepository->isScheduledShowtimeForMovie($movie);
-     }
+        $pagerfanta = $pagerfantaFactory->createAvailableMoviesPagerfanta($movies, $page);
 
-     return $this->render('movie/available_movies.html.twig', [
-         "pager" => $pagerfanta,
-         "isScheduledShowtimeForMovie" => $isScheduledShowtimeForMovie
-     ]);
- }
+        $scheduledMovieIds = $showtimeRepository->isScheduledShowtimeForMovie($cinema);
 
-//  #[IsCsrfTokenValid(new Expression('"add-tmdbMovie-" ~ args["tmdbId"]'), tokenKey: 'token')]
- #[Route('/movies/{id}', name: 'app_movie_delete', methods: ["DELETE"])]
- public function addMovieFormats(
-     Request $request,
-     EntityManagerInterface $em,
-     TmdbApiService $tmdbApiService,
-     #[MapEntity(mapping:["slug" => "slug"])] Cinema $cinema,
-     #[MapEntity(mapping:["id" => "id"])] Movie $movie,
-     #[MapQueryParameter] int $page = 1,
-     #[MapQueryParameter] string $q = "",
-     ): Response
-    {
-     $submittedToken = $request->get("token");
-     if (!$this->isCsrfTokenValid("delete-movie-token", $submittedToken)) {
-         $this->addFlash("error", "Invalid CSRF token");
-         return $this->redirectToRoute("app_movie");
-     }
+        return $this->render('movie/available_movies.html.twig', [
+            "pager" => $pagerfanta,
+            "scheduledMovieIds" => $scheduledMovieIds
+        ]);
+    }
 
-    $tmdbApiService->deleteMovie($movie->getTmdbId());
+    //  #[IsCsrfTokenValid(new Expression('"add-tmdbMovie-" ~ args["tmdbId"]'), tokenKey: 'token')]
+    #[Route('/movies/{id}', name: 'app_movie_delete', methods: ["DELETE"])]
+    public function addMovieFormats(
+        Request $request,
+        EntityManagerInterface $em,
+        TmdbApiService $tmdbApiService,
+        #[MapEntity(mapping: ["slug" => "slug"])] Cinema $cinema,
+        #[MapEntity(mapping: ["id" => "id"])] Movie $movie,
+        #[MapQueryParameter] int $page = 1,
+        #[MapQueryParameter] string $q = "",
+    ): Response {
+        $submittedToken = $request->get("token");
+        if (!$this->isCsrfTokenValid("delete-movie-token", $submittedToken)) {
+            $this->addFlash("error", "Invalid CSRF token");
+            return $this->redirectToRoute("app_movie");
+        }
 
-    $em->remove($movie);
-    $em->flush();
+        $tmdbApiService->deleteMovie($movie->getTmdbId());
 
-    $this->addFlash("warning", "Movie has been removed");
+        $em->remove($movie);
+        $em->flush();
+
+        $this->addFlash("warning", "Movie has been removed");
 
         return $this->redirectToRoute("app_movie_available_movies", [
             "page" => $page,
             "q" => $q,
             "slug" => $cinema->getSlug(),
         ]);
-
     }
-   
+
     #[Route('/edit', name: 'app_cinema_movies_edit')]
     public function edit(): Response
     {

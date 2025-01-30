@@ -3,7 +3,6 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Cinema;
-use App\Entity\VisualFormat;
 use App\Form\CinemaScreeningFormatCollectionType;
 use App\Form\CinemaScreeningRoomSetupCollectionType;
 use App\Form\CinemaType;
@@ -54,7 +53,6 @@ class CinemaController extends AbstractController
         $form = $this->createForm(CinemaType::class, $cinema);
         $form->handleRequest($request);
         
-
         if ($form->isSubmitted() && $form->isValid()) {
 
             $this->em->persist($cinema);

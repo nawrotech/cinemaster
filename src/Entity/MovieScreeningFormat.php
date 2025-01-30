@@ -31,6 +31,8 @@ class MovieScreeningFormat
     #[ORM\JoinColumn(nullable: false)]
     private ?Cinema $cinema = null;
 
+    
+
     /**
      * @var Collection<int, Showtime>
      */
