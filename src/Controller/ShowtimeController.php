@@ -130,18 +130,18 @@ class ShowtimeController extends AbstractController
     public function scheduledShowtimesOnDateInCinema(
         #[MapEntity(mapping: ["slug" => "slug"])] Cinema $cinema,
         ShowtimeRepository $showtimeRepository,
-        ScreeningRoomRepository $screeningRoomRepository,
         string $date,
     ) {
-        $screeningRooms = $screeningRoomRepository->findBy(["cinema" => $cinema]);
+
+        $showtimes = $showtimeRepository->findFiltered(
+            cinema: $cinema,
+            showtimeStartTime: $date,
+            resultWithScreeningRoomSlug: true
+        );
+
         $cinemaShowtimes = [];
-        foreach ($screeningRooms as $screeningRoom) {
-            $cinemaShowtimes[$screeningRoom->getSlug()] = $showtimeRepository->findFiltered(
-                cinema: $cinema,
-                screeningRoom: $screeningRoom,
-                showtimeStartTime: $date,
-                showtimeEndTime: $date
-            );
+        foreach ($showtimes as $showtime) {
+            $cinemaShowtimes[$showtime['screeningRoomSlug']][] = $showtime[0];
         }
 
         foreach ($cinemaShowtimes as &$roomShowtimes) {
@@ -165,14 +165,11 @@ class ShowtimeController extends AbstractController
             cinema: $cinema,
             screeningRoom: $screeningRoom,
             showtimeStartTime: $date,
-            showtimeEndTime: $date,
         );
-
 
         $showtimes = array_map(function (Showtime $showtime) {
             return ShowtimeDto::fromEntity($showtime);
         }, $showtimes);
-
 
         return $this->json($showtimes);
     }

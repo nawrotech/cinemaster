@@ -88,13 +88,19 @@ class ShowtimeRepository extends ServiceEntityRepository
         ?string $showtimeStartTime = null,
         ?string $showtimeEndTime = null,
         ?string $movieTitle = null,
-        ?bool $isPublished = false
+        ?bool $isPublished = false,
+        ?bool $resultWithScreeningRoomSlug = false
     ): array {
 
         $qb = $this->createQueryBuilder('s')
             ->addOrderBy("s.startsAt", "ASC")
             ->andWhere("s.cinema = :cinema")
             ->setParameter("cinema", $cinema);
+
+        if ($resultWithScreeningRoomSlug) {
+            $qb->addSelect("sr.slug AS screeningRoomSlug")
+                ->innerJoin("s.screeningRoom", "sr");
+        }
 
         if ($screeningRoom) {
             $qb = $this->findByScreeningRoomName($screeningRoom, $qb);
