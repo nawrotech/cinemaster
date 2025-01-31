@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Admin;
 
 use App\Entity\Cinema;
 use App\Entity\Movie;
@@ -11,7 +11,6 @@ use App\Repository\ShowtimeRepository;
 use App\Service\MovieService;
 use App\Service\TmdbApiService;
 use App\Service\UploaderHelper;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -97,23 +96,25 @@ class MovieController extends AbstractController
                 $movie->setPosterFilename($posterFilename);
             }
 
-            /** @var SubmitButton $deletePosterButton */
-            $deletePosterButton = $form->get("deletePoster");
+            if ($form->has('deletePoster')) {
 
-            if ($deletePosterButton->isClicked()) {
+                /** @var SubmitButton $deletePosterButton */
+                $deletePosterButton = $form?->get("deletePoster");
 
-                $em->wrapInTransaction(function ($em) use ($uploaderHelper, $movie) {
-                    $uploaderHelper->deleteFile($movie->getPosterPath());
-                    $movie->setPosterFilename(null);
+                if ($deletePosterButton->isClicked()) {
+                    $em->wrapInTransaction(function ($em) use ($uploaderHelper, $movie) {
+                        $uploaderHelper->deleteFile($movie->getPosterPath());
+                        $movie->setPosterFilename(null);
 
-                    $em->flush();
-                });
+                        $em->flush();
+                    });
 
-                $this->addFlash('warning', 'Poster successfully deleted!');
-                return $this->redirectToRoute('app_movie_available_movies', [
-                    "slug" => $cinema->getSlug()
-                ]);
-            }
+                    $this->addFlash('warning', 'Poster successfully deleted!');
+                    return $this->redirectToRoute('app_movie_available_movies', [
+                        "slug" => $cinema->getSlug()
+                    ]);
+                }
+            };
 
             $em->persist($movie);
             $em->flush();
