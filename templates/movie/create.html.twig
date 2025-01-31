@@ -13,8 +13,6 @@
     {{ form_start(form) }}
         {{ form(form) }}
 
-        {# {{ dump(form.vars.data.posterFilename) }} #}
-
         {% if form.vars.data.posterFilename %}
             <figure style="width: 100px">
                 <img src="{{ asset(form.vars.data.posterPath, "uploads_url") }}" class="card-img-top" alt="{{ form.vars.data.title ~ "post-image" }}">

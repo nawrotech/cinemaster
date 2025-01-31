@@ -50,6 +50,12 @@ class MovieReference
         return $this->movie;
     }
 
+    public function setMovie(?Movie $movie): static
+    {
+        $this->movie = $movie;
+
+        return $this;
+    }
 
     public function getFilename(): ?string
     {
@@ -88,7 +94,8 @@ class MovieReference
     }
 
 
-    public function getFilePath(): string {
+    public function getFilePath(): string
+    {
         return UploaderHelper::MOVIE_REFERENCE . "/{$this->filename}";
     }
 
@@ -103,5 +110,4 @@ class MovieReference
 
         return $this;
     }
-
 }

@@ -8,27 +8,20 @@ use App\Form\CinemaScreeningRoomSetupCollectionType;
 use App\Form\CinemaType;
 use App\Form\CinemaVisualFormatCollectionType;
 use App\Repository\CinemaRepository;
-use App\Repository\MovieRepository;
-use App\Repository\MovieScreeningFormatRepository;
 use App\Repository\ScreeningFormatRepository;
 use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSetupRepository;
 use App\Repository\VisualFormatRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Pagerfanta\Doctrine\ORM\QueryAdapter;
-use Pagerfanta\Pagerfanta;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route("/admin/cinemas")]
 class CinemaController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $em)
-    {
-    }
+    public function __construct(private EntityManagerInterface $em) {}
 
     #[Route('/', name: 'app_cinema', methods: ['GET'])]
     public function index(
@@ -45,28 +38,28 @@ class CinemaController extends AbstractController
     #[Route('/create', name: 'app_cinema_create', methods: ['GET', 'POST'])]
     public function create(
         Request $request,
-    ): Response {   
+    ): Response {
 
         $cinema =  new Cinema();
         $cinema->setOwner($this->getUser());
-    
+
         $form = $this->createForm(CinemaType::class, $cinema);
         $form->handleRequest($request);
-        
+
         if ($form->isSubmitted() && $form->isValid()) {
 
             $this->em->persist($cinema);
             $this->em->flush();
 
             $this->addFlash("success", "Cinema created successfully!");
-        
+
             /** @var SubmitButton $addVisualsFormatsButton  */
             $addVisualsFormatsButton = $form->get("addVisualFormats");
 
-            $routeName = $addVisualsFormatsButton->isClicked() 
+            $routeName = $addVisualsFormatsButton->isClicked()
                 ? "app_cinema_add_visual_formats"
                 : "app_cinema_details";
-            
+
             return $this->redirectToRoute($routeName, [
                 "slug" => $cinema->getSlug()
             ]);
@@ -81,27 +74,27 @@ class CinemaController extends AbstractController
     public function addVisualFormats(
         Request $request,
         Cinema $cinema,
-    ): Response {   
+    ): Response {
 
-        
+
         $form = $this->createForm(CinemaVisualFormatCollectionType::class, $cinema);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-    
+
             $this->em->flush();
             $this->addFlash("success", "Visual Formats have been added!");
 
             /** @var SubmitButton $addScreeningRoomSetupsButton */
             $addScreeningRoomSetupsButton =  $form->get("addScreeningRoomSetups");
 
-            $routeName = $addScreeningRoomSetupsButton->isClicked() 
+            $routeName = $addScreeningRoomSetupsButton->isClicked()
                 ? "app_cinema_add_screening_room_setups"
                 : "app_cinema_details";
-            
+
             return $this->redirectToRoute($routeName, [
                 "slug" => $cinema->getSlug()
-            ]);        
+            ]);
         }
 
         return $this->render('cinema/visual_formats_collection_form.html.twig', [
@@ -114,7 +107,7 @@ class CinemaController extends AbstractController
         Request $request,
         Cinema $cinema,
         VisualFormatRepository $visualFormatRepository,
-    ): Response {   
+    ): Response {
 
         $activeVisualFormats = $visualFormatRepository->findByCinemaAndActiveStatus($cinema, true);
         if (count($activeVisualFormats) < 1) {
@@ -129,7 +122,7 @@ class CinemaController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->em->flush();
-        
+
             /** @var SubmitButton $addScreeningFormatsButton */
             $addScreeningFormatsButton = $form->get("addScreeningFormats");
             $routeName = $addScreeningFormatsButton->isClicked()
@@ -137,7 +130,7 @@ class CinemaController extends AbstractController
                 : "app_cinema_details";
 
             $this->addFlash("success", "Screening room setups have been added!");
-            
+
             return $this->redirectToRoute($routeName, [
                 "slug" => $cinema->getSlug()
             ]);
@@ -154,7 +147,7 @@ class CinemaController extends AbstractController
         Request $request,
         VisualFormatRepository $visualFormatRepository,
         Cinema $cinema,
-    ): Response {   
+    ): Response {
 
         $visualFormats = $visualFormatRepository->findByCinemaAndActiveStatus($cinema, true);
         if (count($visualFormats) < 1) {
@@ -170,7 +163,7 @@ class CinemaController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->em->flush();
             $this->addFlash("success", "Screening room setups has been added!");
-            
+
             return $this->redirectToRoute("app_cinema_details", [
                 "slug" => $cinema->getSlug()
             ]);
@@ -183,7 +176,8 @@ class CinemaController extends AbstractController
 
 
     #[Route('/{slug}', name: 'app_cinema_details', methods: ['GET'])]
-    public function cinemaDetails(Cinema $cinema, ScreeningRoomRepository $screeningRoomRepository, VisualFormatRepository $visualFormatRepository, ScreeningRoomSetupRepository $screeningRoomSetupRepository, ScreeningFormatRepository $screeningFormatRepository) {
+    public function cinemaDetails(Cinema $cinema, ScreeningRoomRepository $screeningRoomRepository, VisualFormatRepository $visualFormatRepository, ScreeningRoomSetupRepository $screeningRoomSetupRepository, ScreeningFormatRepository $screeningFormatRepository)
+    {
 
         $visualFormats = $visualFormatRepository->findByCinemaAndActiveStatus($cinema, true);
         $screeningRoomSetups = $screeningRoomSetupRepository->findByCinemaAndActiveStatus($cinema, true);
@@ -198,43 +192,4 @@ class CinemaController extends AbstractController
             "screeningRooms" => $screeningRooms
         ]);
     }
-
-
-    #[Route('/{slug}/add-movies/', name: 'app_cinema_add_movies')]
-    public function addMovies(
-        MovieRepository $movieRepository,
-        ScreeningFormatRepository $screeningFormatRepository,
-        MovieScreeningFormatRepository $movieScreeningFormatRepository,
-        Cinema $cinema,
-        #[MapQueryParameter] ?string $searchTerm = null,
-        #[MapQueryParameter] ?int $page = null
-    ): Response {
-
-        $adapter = new QueryAdapter($movieRepository->findBySearchTerm($cinema, $searchTerm, true));
-        $pagerfanta = new Pagerfanta($adapter);
-
-        $pagerfanta->setMaxPerPage(10);
-        $pagerfanta->setCurrentPage($page ?? 1);
-
-        $screeningFormats = $screeningFormatRepository->findBy([
-            "cinema" => $cinema
-        ]);
-
-        $screeningFormatIdsForMovie = [];
-        foreach ($movieRepository->findAll() as $movie) {
-            $screeningFormatIdsForMovie[$movie->getId()] = $movieScreeningFormatRepository->findScreeningFormatIdsByMovie($movie, $cinema);
-        }
-
-        return $this->render('cinema/movie_screening_formats.html.twig', [
-            "cinema" => $cinema,
-            "screeningFormats" => $screeningFormats,
-            "screeningFormatIdsForMovie" => $screeningFormatIdsForMovie,
-            "pager" => $pagerfanta
-        ]);
-    }
-
-    
-
-
-  
 }
