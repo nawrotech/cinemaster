@@ -7,11 +7,6 @@
     <link href=" https://cdn.jsdelivr.net/npm/dropzone@6.0.0-beta.2/dist/dropzone.min.css " rel="stylesheet">
 {% endblock %}
 
-{% block importmap %}
-    {{ importmap(['modal-close-page-refresh', "app"]) }}
-{% endblock %}
-
-
 {% block body %}
     {{ include("partials/_search_input.html.twig", {
         action_route: "",
