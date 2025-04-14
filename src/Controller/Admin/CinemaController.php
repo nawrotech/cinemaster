@@ -8,6 +8,8 @@ use App\Form\CinemaScreeningRoomSetupCollectionType;
 use App\Form\CinemaType;
 use App\Form\CinemaVisualFormatCollectionType;
 use App\Repository\CinemaRepository;
+use App\Repository\MovieRepository;
+use App\Repository\MovieScreeningFormatRepository;
 use App\Repository\ScreeningFormatRepository;
 use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSetupRepository;
@@ -176,20 +178,29 @@ class CinemaController extends AbstractController
 
 
     #[Route('/{slug}', name: 'app_cinema_details', methods: ['GET'])]
-    public function cinemaDetails(Cinema $cinema, ScreeningRoomRepository $screeningRoomRepository, VisualFormatRepository $visualFormatRepository, ScreeningRoomSetupRepository $screeningRoomSetupRepository, ScreeningFormatRepository $screeningFormatRepository)
-    {
+    public function cinemaDetails(
+        Cinema $cinema,
+        ScreeningRoomRepository $screeningRoomRepository,
+        VisualFormatRepository $visualFormatRepository,
+        ScreeningRoomSetupRepository $screeningRoomSetupRepository,
+        ScreeningFormatRepository $screeningFormatRepository,
+        MovieScreeningFormatRepository $movieScreeningFormatRepository
+    ) {
 
         $visualFormats = $visualFormatRepository->findByCinemaAndActiveStatus($cinema, true);
         $screeningRoomSetups = $screeningRoomSetupRepository->findByCinemaAndActiveStatus($cinema, true);
         $screeningFormats = $screeningFormatRepository->findByCinemaAndActiveStatus($cinema, true);
         $screeningRooms = $screeningRoomRepository->findByCinemaAndActiveStatus($cinema, true);
 
+        $movieVisualFormats = $movieScreeningFormatRepository->findMovieScreeningFormatsForCinema($cinema);
+
         return $this->render("cinema/cinema_details.html.twig", [
             "cinema" => $cinema,
             "visualFormats" => $visualFormats,
             "screeningRoomSetups" => $screeningRoomSetups,
             "screeningFormats" => $screeningFormats,
-            "screeningRooms" => $screeningRooms
+            "screeningRooms" => $screeningRooms,
+            "movieVisualFormats" => $movieVisualFormats
         ]);
     }
 }

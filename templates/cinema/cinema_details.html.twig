@@ -7,8 +7,6 @@
         
 <div class="container-sm">
     <h1 class="mb-4">Cinema {{ cinema.name }}</h1>
-
-
         <aside>
             <h2 class="mb-4">Cinema settings</h2>
             <div class="row mb-4">
@@ -47,6 +45,9 @@
             <h2>Rooms:</h2>
             <ul>
                 {% for screeningRoom in screeningRooms %}
+                   
+
+
                     <li class="mb-2">
                         <div class="dropdown">
                             <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -57,13 +58,20 @@
                                 {screening_room_slug: screeningRoom.slug,
                                     slug: cinema.slug}
                                 )}}">Edit seats</a></li>
-                              <li><a class="dropdown-item" 
-                                    href="{{path("app_showtime_create",
-                                    {
-                                        screening_room_slug: screeningRoom.slug,
-                                        slug: cinema.slug
-                                    }
-                                )}}">Schedule Showtime</a></li>
+                              <li>
+                                {% set screeningRoomVisualFormatName = screeningRoom.screeningRoomSetup.visualFormat.name %}
+
+                                {% if screeningRoomVisualFormatName in movieVisualFormats  %}
+                                    <a class="dropdown-item" 
+                                        href="{{path("app_showtime_create",
+                                            {
+                                                screening_room_slug: screeningRoom.slug,
+                                                slug: cinema.slug
+                                            }
+                                        )}}">Schedule Showtime</a>
+                                {% endif %}
+                                
+                                </li>
                                 <li>
                                     <form action="{{ path("app_screening_room_delete", {id: screeningRoom.id, slug: cinema.slug}) }}" method="DELETE">
                                         <button class="dropdown-item">Delete</button>
