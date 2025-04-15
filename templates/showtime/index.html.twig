@@ -3,6 +3,7 @@
 {% block body %}
 
     {{ include("partials/showtime/_showtime_filtering_form.html.twig") }}
+
     <div class="container d-grid gap-2">
         {% for showtime in showtimes %}
             <div class="card">
@@ -14,16 +15,18 @@
                 <p>Start time: {{ showtime.startsAt|date("F jS \\a\\t g:ia")  }}</p>
                 <p>End time: {{ showtime.endsAt|date("F jS \\a\\t g:ia")  }}</p>
                 <p>Status: {{ showtime.published ? "Published" : "Unpublished"}}</p>
-                <a class="btn btn-secondary" 
-                    href="{{ path("app_showtime_create",
-                     {
-                    slug: showtime.screeningRoom.cinema.slug,
-                    screening_room_slug: showtime.screeningRoom.slug,
-                    showtime_id: showtime.id,
-                    startsAt: showtime.startsAt|date("Y-m-d")
-                     }) }}">Edit</a>
 
-               
+                {% if not showtime.published %}
+                    <a class="btn btn-secondary" 
+                        href="{{ path("app_showtime_create",
+                        {
+                            slug: showtime.screeningRoom.cinema.slug,
+                            screening_room_slug: showtime.screeningRoom.slug,
+                            showtime_id: showtime.id,
+                            startsAt: showtime.startsAt|date("Y-m-d")
+                        }) }}">Edit</a>
+                {% endif %}
+                
                 {% if not showtime.published %}
                     <form method="POST" action="{{ path("app_showtime_publish", {
                         slug: showtime.screeningRoom.cinema.slug,
