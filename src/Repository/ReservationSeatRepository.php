@@ -12,7 +12,7 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<ReservationSeat>
  */
-class ReservationSeatRepository extends ServiceEntityRepository 
+class ReservationSeatRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -20,16 +20,34 @@ class ReservationSeatRepository extends ServiceEntityRepository
     }
 
 
+    public function findSeatsByShowtime(Showtime $showtime)
+    {
+        return $this->createQueryBuilder('rs')
+            ->addSelect("srs")
+            ->innerJoin("rs.seat", "srs")
+            ->addSelect("s")
+            ->innerJoin("srs.seat", "s")
+            ->andWhere("rs.showtime = :showtime")
+            ->setParameter("showtime", $showtime)
+            ->addOrderBy("s.rowNum", "ASC")
+            ->addOrderBy("s.seatNumInRow", "ASC")
+            ->getQuery()
+            ->getResult();
+    }
+
+
+
     public function findExpiredLockedSeats(
         DateTimeImmutable $currentDateTime,
-        ?string $status = "locked") {
+        ?string $status = "locked"
+    ) {
         return $this->createQueryBuilder("rs")
-                    ->andWhere("rs.statusLockedExpiresAt < :currentDateTime")
-                    ->andWhere("rs.status = :status")
-                    ->setParameter("currentDateTime", $currentDateTime)
-                    ->setParameter("status", $status)
-                    ->getQuery()
-                    ->getResult()
+            ->andWhere("rs.statusLockedExpiresAt < :currentDateTime")
+            ->andWhere("rs.status = :status")
+            ->setParameter("currentDateTime", $currentDateTime)
+            ->setParameter("status", $status)
+            ->getQuery()
+            ->getResult()
 
         ;
     }
@@ -48,7 +66,7 @@ class ReservationSeatRepository extends ServiceEntityRepository
             ->addOrderBy("s.rowNum", "ASC")
             ->getQuery()
             ->getResult();
-     
+
         return array_map("intval", array_column($result, "rowNum"));
     }
 
@@ -57,10 +75,10 @@ class ReservationSeatRepository extends ServiceEntityRepository
      * @return ReservationSeat[]
      */
     public function findSeatsInRow(
-        ScreeningRoom $screeningRoom, 
-        int $rowNum, 
-        ?Showtime $showtime = null): array
-    {
+        ScreeningRoom $screeningRoom,
+        int $rowNum,
+        ?Showtime $showtime = null
+    ): array {
         return $this->createQueryBuilder('rs')
             ->innerJoin("rs.seat", "srs")
             ->innerJoin("srs.seat", "s")
@@ -74,11 +92,6 @@ class ReservationSeatRepository extends ServiceEntityRepository
             ->setParameter("showtime", $showtime)
             ->getQuery()
             ->getResult()
-            ;
-        
+        ;
     }
-
-
-    
-
 }

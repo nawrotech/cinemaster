@@ -9,11 +9,10 @@ use App\Form\ReservationType;
 use App\Repository\ReservationSeatRepository;
 use App\Service\CartService;
 use App\Service\Mailer;
+use App\Service\ReservationSeatService;
 use App\Service\ReservationService;
-use App\Service\SeatsService;
-use Doctrine\ORM\EntityManager;
+use App\Service\SeatService;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping\Entity;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,14 +20,48 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\UriSigner;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[Route("/cinemas/{slug}/reservations")]
 class ReservationController extends AbstractController
 {
+    #[Route('/{showtime_slug}', name: 'app_reservation_reserve_showtime')]
+    public function reserveShowtime(
+        ReservationSeatRepository $reservationSeatRepository,
+        ReservationService $reservationService,
+        ReservationSeatService $reservationSeatService,
+        Request $request,
+        #[MapEntity(mapping: ["slug" => "slug"])] Cinema $cinema,
+        #[MapEntity(mapping: ["showtime_slug" => "slug"])] Showtime $showtime,
+    ): Response {
 
-    #[Route("/{showtime_slug}/add-to-cart", name: "app_reservation_add_to_cart" ,methods: ["POST"])]
+        $groupedReservationSeats = $reservationSeatService->groupSeatsForLayout($showtime);
+
+        $session = $request->getSession();
+        $form = $this->createForm(ReservationType::class, options: [
+            "cart" => $session->get("cart")
+        ]);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $reservationService->lockSeats($session, $form->get("email")->getData());
+
+            return $this->redirectToRoute("app_reservation_create_reservation", [
+                "slug" => $cinema->getSlug(),
+                "showtime_slug" => $showtime->getSlug()
+            ]);
+        }
+
+        return $this->render('reservation/index.html.twig', [
+            "groupedReservationSeats" => $groupedReservationSeats,
+            "showtime" => $showtime,
+            "form" => $form,
+            "cinema" => $cinema
+        ]);
+    }
+
+
+
+    #[Route("/{showtime_slug}/add-to-cart", name: "app_reservation_add_to_cart", methods: ["POST"])]
     public function addToCart(
         CartService $cartService,
         ReservationSeatRepository $reservationSeatRepository,
@@ -36,25 +69,26 @@ class ReservationController extends AbstractController
         #[MapEntity(mapping: ["slug" => "slug"])]
         Cinema $cinema,
         #[MapEntity(mapping: ["showtime_slug" => "slug"])]
-        Showtime $showtime) {
-        
+        Showtime $showtime
+    ) {
+
         $reservationSeatId = $request->request->get("reservation_seat_id");
         $session = $request->getSession();
 
         $selectedSeat  = $reservationSeatRepository->find($reservationSeatId);
         $isNotAvailable =  $selectedSeat->getStatus() !== "available" || $selectedSeat->getStatusLockedExpiresAt() > new \DateTimeImmutable();
-       
+
         if ($isNotAvailable) {
             return $this->redirectToRoute("app_reservation_reserve_showtime", [
                 "slug" => $cinema->getSlug(),
                 "showtime_slug" => $showtime->getSlug()
             ]);
         }
-        
+
         if ($request->request->get("reserve")) {
             $cartService->addSeat($reservationSeatId, $session);
         }
-        
+
         if ($request->request->get("cancel")) {
             $cartService->removeSeat($reservationSeatId, $session);
         }
@@ -63,7 +97,6 @@ class ReservationController extends AbstractController
             "slug" => $cinema->getSlug(),
             "showtime_slug" => $showtime->getSlug()
         ]);
-
     }
 
     #[Route("/{id}/validation-form", name: 'app_reservation_show_validation_form')]
@@ -86,7 +119,6 @@ class ReservationController extends AbstractController
         return $this->render("reservation/reservation_validation_form.html.twig", [
             "reservation" => $reservation
         ]);
-         
     }
 
     #[Route("/{id}/process-validation", name: 'app_reservation_process_validation', methods: ["POST"])]
@@ -113,54 +145,9 @@ class ReservationController extends AbstractController
     }
 
 
-
-    #[Route('/{showtime_slug}', name: 'app_reservation_reserve_showtime')]
-    public function reserveShowtime(
-        SeatsService $seatService,
-        ReservationSeatRepository $reservationSeatRepository,
-        ReservationService $reservationService,
-        Request $request,
-        #[MapEntity(mapping: ["slug" => "slug"])] Cinema $cinema,
-        #[MapEntity(mapping: ["showtime_slug" => "slug"])] Showtime $showtime,
-        ): Response
-    {
-
-        ["roomRows" => $roomRows, "seatsInRow" => $seatsInRow] = $seatService->createGrid(
-            $showtime->getScreeningRoom(), 
-            $reservationSeatRepository,
-            $showtime
-        );
-
-        $session = $request->getSession();
-        $form = $this->createForm(ReservationType::class, options: [
-            "cart" => $session->get("cart")
-        ]);
-
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $reservationService->lockSeats($session, $form->get("email")->getData());
-   
-            return $this->redirectToRoute("app_reservation_create_reservation", [
-                "slug" => $cinema->getSlug(),
-                "showtime_slug" => $showtime->getSlug()
-            ]);
-
-           
-        }
-        
-        return $this->render('reservation/index.html.twig', [
-            "roomRows" => $roomRows,
-            "seatsInRow" => $seatsInRow,
-            "showtime" => $showtime,
-            "form" => $form,
-            "cinema" => $cinema
-        ]);
-    }
-
     #[Route('/create/showtimes/{showtime_slug}', name: 'app_reservation_create_reservation')]
     public function createReservation(
-        Mailer $mailer, 
+        Mailer $mailer,
         Request $request,
         ReservationService $reservationService,
         #[MapEntity(mapping: ["slug" => "slug"])] Cinema $cinema,
@@ -175,13 +162,7 @@ class ReservationController extends AbstractController
         return $this->redirectToRoute("app_reservation_reserve_showtime", [
             "slug" => $cinema->getSlug(),
             "showtime_slug" => $showtime->getSlug(),
-          
+
         ]);
-
     }
-
-
-    
-
-
 }
