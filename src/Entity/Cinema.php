@@ -6,6 +6,7 @@ use App\Contract\SlugInterface;
 use App\Repository\CinemaRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -18,7 +19,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 #[ORM\Entity(repositoryClass: CinemaRepository::class)]
 class Cinema implements SlugInterface
 {
-    
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -106,6 +107,12 @@ class Cinema implements SlugInterface
      */
     #[ORM\OneToMany(targetEntity: Movie::class, mappedBy: 'cinema')]
     private Collection $movies;
+
+    #[ORM\Column(type: Types::TIME_IMMUTABLE)]
+    private ?\DateTimeImmutable $openTime = null;
+
+    #[ORM\Column(type: Types::TIME_IMMUTABLE)]
+    private ?\DateTimeImmutable $closeTime = null;
 
     public function __toString()
     {
@@ -499,6 +506,27 @@ class Cinema implements SlugInterface
         return $this;
     }
 
+    public function getOpenTime(): ?\DateTimeImmutable
+    {
+        return $this->openTime;
+    }
 
-    
+    public function setOpenTime(\DateTimeImmutable $openTime): static
+    {
+        $this->openTime = $openTime;
+
+        return $this;
+    }
+
+    public function getCloseTime(): ?\DateTimeImmutable
+    {
+        return $this->closeTime;
+    }
+
+    public function setCloseTime(\DateTimeImmutable $closeTime): static
+    {
+        $this->closeTime = $closeTime;
+
+        return $this;
+    }
 }
