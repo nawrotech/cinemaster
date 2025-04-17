@@ -29,11 +29,9 @@ class ShowtimeRepository extends ServiceEntityRepository
         ?Showtime $excludeShowtime = null,
     ): QueryBuilder {
         $qb = $this->createQueryBuilder('s')
-            ->andWhere('(
-                (:startsAt >= s.startsAt AND :startsAt < s.endsAt) OR
-                (:endsAt > s.startsAt AND :endsAt <= s.endsAt) OR
-                (:startsAt <= s.startsAt AND :endsAt >= s.endsAt)
-            )')
+            ->orWhere("(:startsAt >= s.startsAt AND :startsAt < s.endsAt)")
+            ->orWhere("(:endsAt > s.startsAt AND :endsAt <= s.endsAt)")
+            ->orWhere("(:startsAt <= s.startsAt AND :endsAt >= s.endsAt)")
             ->andWhere("s.cinema = :cinema")
             ->setParameter('startsAt', $startsAt)
             ->setParameter('endsAt', $endsAt)
