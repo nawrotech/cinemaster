@@ -11,9 +11,7 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 class SameMoviePlayingInTwoRoomsAtTheSameTimeValidator  extends ConstraintValidator {
 
-    public function __construct(private ShowtimeRepository $showtimeRepository) {
-
-    }
+    public function __construct(private ShowtimeRepository $showtimeRepository) {}
 
     public function validate(mixed $value, Constraint $constraint): void {
 
@@ -35,26 +33,23 @@ class SameMoviePlayingInTwoRoomsAtTheSameTimeValidator  extends ConstraintValida
                                         $value->getMovieScreeningFormat(), 
                                         $value->getStartsAt(), 
                                         $value->getEndsAt(),
-                                        $value->getId()
+                                        $value?->getId() ?  $value : null
                                     );
         
 
-
-        if ($concurrentlyPlayingShowtime === null) {
+        if (empty($concurrentlyPlayingShowtime)) {
             return;
         } 
 
+        $concurrentlyPlayingShowtime = $concurrentlyPlayingShowtime[0];
 
         $this->context->buildViolation($constraint->message)
             ->setParameter("{{ movieTitle }}", $value->getMovieScreeningFormat()->getMovie()->getTitle())
             ->setParameter("{{ roomName }}", $concurrentlyPlayingShowtime->getScreeningRoom()->getName())
-            ->setParameter("{{ date }}", $concurrentlyPlayingShowtime->getStartsAt()->format("d-m-y"))
-            ->setParameter("{{ startsAt }}", $concurrentlyPlayingShowtime->getStartsAt()->format("h:i"))
-            ->setParameter("{{ endsAt }}", $concurrentlyPlayingShowtime->getEndsAt()->format("h:i"))
+            ->setParameter("{{ date }}", $concurrentlyPlayingShowtime->getStartsAt()->format("d-m-Y"))
+            ->setParameter("{{ startsAt }}", $concurrentlyPlayingShowtime->getStartsAt()->format("H:i"))
+            ->setParameter("{{ endsAt }}", $concurrentlyPlayingShowtime->getEndsAt()->format("H:i"))    
             ->addViolation();
-
-        
-
     }
 
 

@@ -29,32 +29,33 @@ final class ShowtimeScheduleValidator extends ConstraintValidator
         $showtimeEndsAt = $value->getEndsAt(); 
         $showtimeDate = $showtimeStartsAt->format('Y-m-d'); 
 
-        $cinema = $value->getCinema(); 
+        $cinema = $value->getCinema();
         $openTime = $cinema->getOpenTime(); 
         $closeTime = $cinema->getCloseTime(); 
 
+        
         $openDateTime = new \DateTimeImmutable($showtimeDate . ' ' . $openTime->format('H:i:s')); 
         $closeDateTime = new \DateTimeImmutable($showtimeDate . ' ' . $closeTime->format('H:i:s'));  
 
         // Handle overnight operations
         $isOvernight = $closeTime->format('H:i') < $openTime->format('H:i'); 
         if ($isOvernight) {  
-            $closeDateTime = $closeDateTime->modify('+1 day'); 
-
             if ($showtimeEndsAt->format('H:i') < $openTime->format('H:i')) { 
-                $showtimeEndsAt = $showtimeEndsAt->modify('+1 day');
+              
                 $midnight = new \DateTimeImmutable($showtimeDate . ' 00:00:00');  
                 if ($showtimeStartsAt >= $midnight && $showtimeEndsAt <= $closeDateTime) { 
-                    return;
+                    return; 
                 }
             }
+            $closeDateTime = $closeDateTime->modify('+1 day'); 
         }
 
       
-        if ($showtimeStartsAt >= $openDateTime && $showtimeEndsAt <= $closeDateTime) {  //
+        if ($showtimeStartsAt >= $openDateTime && $showtimeEndsAt <= $closeDateTime) {  
             return;
         }
 
+      
         $operatingHours = $openTime->format('H:i') . ' - ' . $closeTime->format('H:i');
         $showtimeDuration = $showtimeStartsAt->format('H:i') . ' - ' . $showtimeEndsAt->format('H:i');
 

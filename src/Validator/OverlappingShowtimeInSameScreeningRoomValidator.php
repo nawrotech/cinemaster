@@ -35,7 +35,7 @@ class OverlappingShowtimeInSameScreeningRoomValidator extends ConstraintValidato
                                         $value->getScreeningRoom(), 
                                         $value->getStartsAt(), 
                                         $value->getEndsAt(),
-                                        $value->getId()
+                                        $value?->getId() ?  $value : null
                                     );
 
         if (empty($overlappingShowtimes)) {

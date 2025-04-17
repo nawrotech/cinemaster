@@ -26,7 +26,7 @@ class ShowtimeRepository extends ServiceEntityRepository
         Cinema $cinema,
         \DateTimeImmutable $startsAt,
         \DateTimeImmutable $endsAt,
-        ?int $excludeId = null
+        ?Showtime $excludeShowtime = null,
     ): QueryBuilder {
         $qb = $this->createQueryBuilder('s')
             ->andWhere('(
@@ -39,9 +39,9 @@ class ShowtimeRepository extends ServiceEntityRepository
             ->setParameter('endsAt', $endsAt)
             ->setParameter('cinema', $cinema);
 
-        if ($excludeId) {
-            $qb->andWhere('s.id != :excludeId')
-                ->setParameter('excludeId', $excludeId);
+        if ($excludeShowtime) {
+            $qb->andWhere('s != :excludeShowtime')
+                ->setParameter('excludeShowtime', $excludeShowtime);
         }
         return $qb;
     }
@@ -55,9 +55,9 @@ class ShowtimeRepository extends ServiceEntityRepository
         ScreeningRoom $screeningRoom,
         \DateTimeImmutable $startsAt,
         \DateTimeImmutable $endsAt,
-        ?int $excludeId = null
+        ?Showtime $excludeShowtime = null,  
     ): array {
-        return $this->findOverlapping($cinema, $startsAt, $endsAt, $excludeId)
+        return $this->findOverlapping($cinema, $startsAt, $endsAt, $excludeShowtime)
             ->andWhere('s.screeningRoom = :screeningRoom')
             ->setParameter("screeningRoom", $screeningRoom)
             ->getQuery()
@@ -72,31 +72,15 @@ class ShowtimeRepository extends ServiceEntityRepository
         MovieScreeningFormat $movieScreeningFormat,
         \DateTimeImmutable $startsAt,
         \DateTimeImmutable $endsAt,
-        ?int $excludeId = null
-    ): ?Showtime {
-        return $this->findOverlapping($cinema, $startsAt, $endsAt, $excludeId)
-            ->andWhere('s.movieScreeningFormat = :movieScreeningFormat')
-            ->setParameter("movieScreeningFormat", $movieScreeningFormat)
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
-
-    /**
-     * @return Showtime[] Returns showtimes where same movie was scheduled in different rooms
-     */
-    public function findOverlappingForMovieMultiple(
-        Cinema $cinema,
-        MovieScreeningFormat $movieScreeningFormat,
-        \DateTimeImmutable $startsAt,
-        \DateTimeImmutable $endsAt,
-        ?int $excludeId = null
+        ?Showtime $excludeShowtime = null,
     ): array {
-        return $this->findOverlapping($cinema, $startsAt, $endsAt, $excludeId)
+        return $this->findOverlapping($cinema, $startsAt, $endsAt, $excludeShowtime)
             ->andWhere('s.movieScreeningFormat = :movieScreeningFormat')
             ->setParameter("movieScreeningFormat", $movieScreeningFormat)
             ->getQuery()
             ->getResult();
     }
+
 
     /**
      * @return Showtime[] returns filtered showtimes

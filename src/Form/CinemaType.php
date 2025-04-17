@@ -18,7 +18,6 @@ class CinemaType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
 
-
         $builder
             ->add(
                 "name",
@@ -62,15 +61,16 @@ class CinemaType extends AbstractType
 
                     ]
                 ]
-            )
-            ->add("closeTime", TimeType::class, [
-                'input'  => 'datetime_immutable',
-                'widget' => 'choice',
-            ])
+            )  
             ->add("openTime", TimeType::class, [
                 'input'  => 'datetime_immutable',
                 'widget' => 'choice',
             ])
+            ->add("closeTime", TimeType::class, [
+                'input'  => 'datetime_immutable',
+                'widget' => 'choice',
+            ])
+          
             ->add("streetName")
             ->add("buildingNumber")
             ->add("postalCode")
