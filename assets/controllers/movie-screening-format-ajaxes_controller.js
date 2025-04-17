@@ -11,39 +11,57 @@ export default class CustomAutocomplete extends Autocomplete {
             movieScreeningFormatCreateUrl: String,
         }
         
-        storedValues = [];
         connect() {
             super.connect();
             this.element.addEventListener("autocomplete.change", this.handleChangeEvent.bind(this));
-            this.fetchMovieScreeningFormats();
-                
+            this.fetchMovieScreeningFormats();  
           }
+
+        disconnect() {
+        this.element.removeEventListener("autocomplete.change", this.handleChangeEvent)
+        super.disconnect()
+        }
     
           fetchMovieScreeningFormats() {
             fetch(this.screeningFormatsForMovieUrlValue)
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return res.json();
+                })
                 .then(data => {
-                    
-
-                    const movieScreeningFormatsList = data.map((el) => {
-                        return  `<li>
-                                    <input type="hidden" value=${el.id} name="screeningFormats[]" />
-                                    ${el.movieScreeningFormatName} 
-                                    ${!el.isScheduledShowtime ?  
-                                        `<button class="btn btn-danger btn-sm" type="button" value="${el.id}" 
-                                            data-action="movie-screening-format-ajaxes#deleteMovieScreeningFormat">
-                                        Delete</button>` : ""}
-                                </li>`
-                    });
-                    const screeningFormatsForMovieListElements = movieScreeningFormatsList.join("");
-                    this.screeningFormatsForMovieTarget.innerHTML = screeningFormatsForMovieListElements;         
+                   this.loadMovieScreeningFormats(data);
+                })
+                .catch(error => {
+                   throw error;
                 });
           }
+
+          loadMovieScreeningFormats(data) {
+            const movieScreeningFormatsList = data.map((msf) => {
+                return  this.createMovieScreeningFormatListItem(msf);
+            });
+            const screeningFormatsForMovieListElements = movieScreeningFormatsList.join("");
+            this.screeningFormatsForMovieTarget.innerHTML = screeningFormatsForMovieListElements;         
+          }
           
+
+          createMovieScreeningFormatListItem(movieScreeningFormat) {
+            return `<li>
+                        <input type="hidden" value=${movieScreeningFormat.id} name="screeningFormats[]" />
+                        ${movieScreeningFormat.displayScreeningFormat} 
+                        ${!movieScreeningFormat.isScheduledShowtime ?  
+                            `<button class="btn btn-danger btn-sm" type="button" value="${movieScreeningFormat.id}" 
+                                data-action="movie-screening-format-ajaxes#deleteMovieScreeningFormat">
+                        Delete</button>` : ""}
+                    </li>`
+          }
+
     
           handleChangeEvent(event) {
             const screeningFormatId = event.detail.value;
-            this.createMovieScreeningFormat(screeningFormatId);
+            this.addMovieScreeningFormat(screeningFormatId);
             this.inputTarget.select()
           }
         
@@ -52,13 +70,28 @@ export default class CustomAutocomplete extends Autocomplete {
                 const movieScreeningFormatId = event.currentTarget.value;
                 fetch(`${this.movieScreeningFormatDeleteUrlValue}/${movieScreeningFormatId}`, {
                     method: "DELETE"
-                }).then(() => this.fetchMovieScreeningFormats());    
+                }).then((res) => {
+                    if (!res.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    this.fetchMovieScreeningFormats();
+                }).catch((error) => {
+                    throw error;
+                });    
           }
     
-          createMovieScreeningFormat(screeningFormatId) {
+          addMovieScreeningFormat(screeningFormatId) {
             fetch(`${this.movieScreeningFormatCreateUrlValue}/${screeningFormatId}`, {
                 method: "POST"
-            }).then(() => this.fetchMovieScreeningFormats());
+            }).then((res) => {
+                if (!res.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                this.fetchMovieScreeningFormats();
+             
+            }).catch((error) => {
+                throw error;
+            });
           }
     
     
