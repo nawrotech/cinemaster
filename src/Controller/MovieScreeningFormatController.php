@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Dto\MovieScreeningFormatDto;
 use App\Entity\Cinema;
 use App\Entity\Movie;
 use App\Entity\MovieScreeningFormat;
@@ -30,20 +31,12 @@ class MovieScreeningFormatController extends AbstractController
                                      $screeningFormatTerm);
 
         if (empty($screeningFormats)) {
-            return new Response("<div class=\"list-group-item\" >No results :(</div>");
+            return $this->render('movie_screening_format/_screening_format_no_results_list_item.html.twig');
         }
 
-        $displayScreeningFormats = array_map(function (ScreeningFormat $screeningFormat) {
-            return 
-                "<li class=\"list-group-item\" role=\"option\" data-autocomplete-value=\"{$screeningFormat->getId()}\">
-                    {$screeningFormat->getDisplayScreeningFormat()}
-                </li>";
-        }, $screeningFormats);
-
-
-        $htmlFragment = (implode("", $displayScreeningFormats));
-        return new Response($htmlFragment);
-
+        return $this->render('movie_screening_format/_screening_format_list_items.html.twig', [
+            'screeningFormats' => $screeningFormats
+        ]);
     }
 
 
@@ -51,30 +44,24 @@ class MovieScreeningFormatController extends AbstractController
     public function movieScreeningFormatsForMovie(
         Movie $movie,
         MovieScreeningFormatRepository $movieScreeningFormatRepository
-    ) {
-
+    ): Response {
         $screeningFormats = $movieScreeningFormatRepository
                             ->findScreeningFormatsForMovie($movie);
 
         $apiResponseScreeningFormats = array_map(function (MovieScreeningFormat $msf) {
-            return [
-                "id" => $msf->getId(),
-                "movieScreeningFormatName" => $msf->getScreeningFormat()->getDisplayScreeningFormat(),
-                "isScheduledShowtime" => $msf->getShowtimes()->count()
-
-            ];
+            return MovieScreeningFormatDto::fromEntity($msf);
         }, $screeningFormats);
 
         return $this->json($apiResponseScreeningFormats);
     }
 
-    #[Route("/movie-screening-formats/movies/{movieId}/screening-formats/{id?}", name: "app_movie_screening_format_create", requirements: ["id" => "[^/]*"], methods: ["POST"])]    
+    #[Route("/movie-screening-formats/movies/{movieId}/screening-formats/{id?}", name: "app_movie_screening_format_create", methods: ["POST"])]    
     public function addMovieScreeningFormat(
         EntityManagerInterface $em,
         MovieScreeningFormatRepository $movieScreeningFormatRepository,
         #[MapEntity(mapping: ["movieId" => "id"])] Movie $movie,
-        #[MapEntity(mapping: ["id" => "id"])] ?ScreeningFormat $screeningFormat = null,
-    ) {
+        #[MapEntity(mapping: ["id" => "id"])] ScreeningFormat $screeningFormat
+    ): Response {
 
         $movieScreeningFormatExists = $movieScreeningFormatRepository->findBy([
             "movie" => $movie,
@@ -85,7 +72,7 @@ class MovieScreeningFormatController extends AbstractController
             return $this->json([
                 "status" => "conflict",
                 "message" => "A movie screening format with the specified parameters already exists."
-            ], 409);
+            ], Response::HTTP_CONFLICT);
         }
 
         $movieScreeningFormat = new MovieScreeningFormat();
@@ -96,30 +83,21 @@ class MovieScreeningFormatController extends AbstractController
         $em->persist($movieScreeningFormat);
         $em->flush();
 
-        return $this->json(null, 201);
+        return $this->json(null, Response::HTTP_CREATED);
     }
 
 
 
-    #[Route("/movie-screening-formats/{id?}", name: "app_movie_screening_format_delete", requirements: ["id" => "[^/]*"], methods: ["DELETE"])]    
+    #[Route("/movie-screening-formats/{id?}", name: "app_movie_screening_format_delete", methods: ["DELETE"])]    
     public function deleteMovieScreeningFormat(
         EntityManagerInterface $em,
-        ?MovieScreeningFormat $movieScreeningFormat = null,
-        
-    ) {
+        MovieScreeningFormat $movieScreeningFormat
+    ): Response {
         $em->remove($movieScreeningFormat);
         $em->flush();
 
-        return $this->json(null, 204);
+        return $this->json(null, Response::HTTP_NO_CONTENT);
     }
 
- 
 
-    #[Route('/movie/screening/format', name: 'app_movie_screening_format')]
-    public function index(): Response
-    {
-        return $this->render('movie_screening_format/index.html.twig', [
-            'controller_name' => 'MovieScreeningFormatController',
-        ]);
-    }
 }

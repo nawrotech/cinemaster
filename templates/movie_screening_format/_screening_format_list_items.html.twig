@@ -1,0 +1,6 @@
+{% for screeningFormat in screeningFormats %}
+    <li class="list-group-item" role="option" data-autocomplete-value="{{ screeningFormat.id }}">
+        {{ screeningFormat.displayScreeningFormat }}
+    </li>
+{% endfor %}
+
