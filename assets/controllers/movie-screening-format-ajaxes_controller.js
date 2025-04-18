@@ -3,26 +3,30 @@ import { Autocomplete } from 'stimulus-autocomplete'
 
 export default class CustomAutocomplete extends Autocomplete {
 
-        static targets = ["screeningFormatsForMovie"];
-    
         static values = {
             screeningFormatsForMovieUrl: String,
             movieScreeningFormatDeleteUrl: String,
             movieScreeningFormatCreateUrl: String,
+            csrfToken: String
         }
+    
+        static targets = ["screeningFormatsForMovie"];
+    
+        static classes = ["deleteButton"]
+      
         
         connect() {
             super.connect();
             this.element.addEventListener("autocomplete.change", this.handleChangeEvent.bind(this));
             this.fetchMovieScreeningFormats();  
-          }
+        }
 
         disconnect() {
-        this.element.removeEventListener("autocomplete.change", this.handleChangeEvent)
-        super.disconnect()
+            this.element.removeEventListener("autocomplete.change", this.handleChangeEvent)
+            super.disconnect()
         }
     
-          fetchMovieScreeningFormats() {
+        fetchMovieScreeningFormats() {
             fetch(this.screeningFormatsForMovieUrlValue)
                 .then(res => {
                     if (!res.ok) {
@@ -39,11 +43,14 @@ export default class CustomAutocomplete extends Autocomplete {
           }
 
           loadMovieScreeningFormats(data) {
-            const movieScreeningFormatsList = data.map((msf) => {
-                return  this.createMovieScreeningFormatListItem(msf);
-            });
-            const screeningFormatsForMovieListElements = movieScreeningFormatsList.join("");
-            this.screeningFormatsForMovieTarget.innerHTML = screeningFormatsForMovieListElements;         
+                if (!Array.isArray(data) || data.length === 0) {
+                    this.screeningFormatsForMovieTarget.innerHTML = '';
+                    return;
+                }  
+
+                this.screeningFormatsForMovieTarget.innerHTML = data.map((msf) => 
+                    this.createMovieScreeningFormatListItem(msf)
+                ).join("");         
           }
           
 
@@ -52,7 +59,7 @@ export default class CustomAutocomplete extends Autocomplete {
                         <input type="hidden" value=${movieScreeningFormat.id} name="screeningFormats[]" />
                         ${movieScreeningFormat.displayScreeningFormat} 
                         ${!movieScreeningFormat.isScheduledShowtime ?  
-                            `<button class="btn btn-danger btn-sm" type="button" value="${movieScreeningFormat.id}" 
+                            `<button class="${this.deleteButtonClasses.join(" ")}" type="button" value="${movieScreeningFormat.id}" 
                                 data-action="movie-screening-format-ajaxes#deleteMovieScreeningFormat">
                         Delete</button>` : ""}
                     </li>`
@@ -61,6 +68,9 @@ export default class CustomAutocomplete extends Autocomplete {
     
           handleChangeEvent(event) {
             const screeningFormatId = event.detail.value;
+            if (!screeningFormatId) {
+                return;
+            }
             this.addMovieScreeningFormat(screeningFormatId);
             this.inputTarget.select()
           }
@@ -88,7 +98,6 @@ export default class CustomAutocomplete extends Autocomplete {
                     throw new Error("Network response was not ok");
                 }
                 this.fetchMovieScreeningFormats();
-             
             }).catch((error) => {
                 throw error;
             });

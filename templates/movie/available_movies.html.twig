@@ -3,7 +3,7 @@
 {% block title %}Available movies{% endblock %}
 
 {% block stylesheets %}
-{{ parent() }}
+    {{ parent() }}
     <link href=" https://cdn.jsdelivr.net/npm/dropzone@6.0.0-beta.2/dist/dropzone.min.css " rel="stylesheet">
 {% endblock %}
 
@@ -28,18 +28,14 @@
                     <h5 class="card-title">{{ movie.title }}</h5>
                     <p class="card-text text-truncate">{{ movie.overview }}</p>
             
-                        {{ include("partials/movie/_add_movie_screening_formats.html.twig") }}
+                        {{ include("movie/_manage_movie_screening_formats.html.twig") }}
 
                         {% if (movie.id not in scheduledMovieIds and movie.movieReferences is empty) %}
-                            {{ include("partials/movie/_movie_update_form.html.twig") }}
+                            {{ include("movie/_movie_update_form.html.twig") }}
                         {% endif %}
 
-                        {{ include("partials/movie/_modal_ajax_reference_list.html.twig") }}
-                
+                        {{ include("movie/_modal_ajax_reference_list.html.twig") }}
                 </div>
-                    
-                   
-                
         </div>
           
       {% endfor %}

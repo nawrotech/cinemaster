@@ -1,0 +1,39 @@
+<div class="available-movies-screening-formats">
+    <p class="msf-legend">Screening formats available in your cinema:</p>
+    <div
+        role="combobox"
+        {{ stimulus_controller("movie-screening-format-ajaxes", {
+            "queryParam" : "screeningFormatTerm",
+                "url" : path("app_movie_screening_format_cinema_screening_formats", {slug:  app.current_route_parameters.slug }),
+
+                "screeningFormatsForMovieUrl" : path("app_movie_screening_format_for_movie", {id: movie.id}),
+                "movieScreeningFormatDeleteUrl" : path("app_movie_screening_format_delete"),
+                "movieScreeningFormatCreateUrl" : path("app_movie_screening_format_create", {movieId: movie.id}),
+        }, {
+            "deleteButton": "btn btn-danger btn-sm"
+        }) }}
+        >
+
+        <ul {{  stimulus_target("movie-screening-format-ajaxes", "movieScreeningFormats") }}></ul>
+
+        <input 
+            {{ stimulus_target("movie-screening-format-ajaxes", "input") }}
+            type="text" />
+
+        <input
+            {{ stimulus_target("movie-screening-format-ajaxes", "hidden") }}
+            value="{{ movieScreeningFormat.id ?? "" }}"
+            type="hidden" 
+            name="chosen-screening-format" />
+
+        <ul
+            {{ stimulus_target("movie-screening-format-ajaxes", "results") }}
+            class="list-group list-group-flush"
+           > 
+        </ul>
+
+        <ul
+            {{ stimulus_target("movie-screening-format-ajaxes", "screeningFormatsForMovie") }}
+        ></ul>
+    </div>
+</div>
