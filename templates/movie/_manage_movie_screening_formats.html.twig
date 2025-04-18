@@ -9,6 +9,8 @@
                 "screeningFormatsForMovieUrl" : path("app_movie_screening_format_for_movie", {id: movie.id}),
                 "movieScreeningFormatDeleteUrl" : path("app_movie_screening_format_delete"),
                 "movieScreeningFormatCreateUrl" : path("app_movie_screening_format_create", {movieId: movie.id}),
+                "deleteCsrfToken" : csrf_token("delete-movie-screening-format"),
+                "addCsrfToken" : csrf_token("add-movie-screening-format"),
         }, {
             "deleteButton": "btn btn-danger btn-sm"
         }) }}

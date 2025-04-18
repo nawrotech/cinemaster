@@ -12,8 +12,10 @@ use App\Repository\ScreeningFormatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
 class MovieScreeningFormatController extends AbstractController
@@ -59,9 +61,15 @@ class MovieScreeningFormatController extends AbstractController
     public function addMovieScreeningFormat(
         EntityManagerInterface $em,
         MovieScreeningFormatRepository $movieScreeningFormatRepository,
+        Request $request,
         #[MapEntity(mapping: ["movieId" => "id"])] Movie $movie,
         #[MapEntity(mapping: ["id" => "id"])] ScreeningFormat $screeningFormat
     ): Response {
+
+        $token = $request->headers->get('X-CSRF-Token');
+        if (!$this->isCsrfTokenValid("add-movie-screening-format", $token)) {
+            throw new AccessDeniedHttpException('Invalid CSRF token');
+        }
 
         $movieScreeningFormatExists = $movieScreeningFormatRepository->findBy([
             "movie" => $movie,
@@ -91,8 +99,15 @@ class MovieScreeningFormatController extends AbstractController
     #[Route("/movie-screening-formats/{id?}", name: "app_movie_screening_format_delete", methods: ["DELETE"])]    
     public function deleteMovieScreeningFormat(
         EntityManagerInterface $em,
+        Request $request,
         MovieScreeningFormat $movieScreeningFormat
     ): Response {
+
+        $token = $request->headers->get('X-CSRF-Token');
+        if (!$this->isCsrfTokenValid("delete-movie-screening-format", $token)) {
+            throw new AccessDeniedHttpException('Invalid CSRF token');
+        }
+
         $em->remove($movieScreeningFormat);
         $em->flush();
 

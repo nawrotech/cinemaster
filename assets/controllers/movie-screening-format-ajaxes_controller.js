@@ -7,18 +7,21 @@ export default class CustomAutocomplete extends Autocomplete {
             screeningFormatsForMovieUrl: String,
             movieScreeningFormatDeleteUrl: String,
             movieScreeningFormatCreateUrl: String,
-            csrfToken: String
+            deleteCsrfToken: String,
+            addCsrfToken: String,
         }
     
         static targets = ["screeningFormatsForMovie"];
     
         static classes = ["deleteButton"]
-      
-        
+    
         connect() {
             super.connect();
             this.element.addEventListener("autocomplete.change", this.handleChangeEvent.bind(this));
             this.fetchMovieScreeningFormats();  
+
+            console.log(this.addCsrfTokenValue);
+            console
         }
 
         disconnect() {
@@ -27,7 +30,8 @@ export default class CustomAutocomplete extends Autocomplete {
         }
     
         fetchMovieScreeningFormats() {
-            fetch(this.screeningFormatsForMovieUrlValue)
+            fetch(this.screeningFormatsForMovieUrlValue, 
+                )
                 .then(res => {
                     if (!res.ok) {
                         throw new Error("Network response was not ok");
@@ -79,7 +83,11 @@ export default class CustomAutocomplete extends Autocomplete {
           deleteMovieScreeningFormat(event) {
                 const movieScreeningFormatId = event.currentTarget.value;
                 fetch(`${this.movieScreeningFormatDeleteUrlValue}/${movieScreeningFormatId}`, {
-                    method: "DELETE"
+                    method: "DELETE",
+                    headers: {
+                        "X-CSRF-Token": this.deleteCsrfTokenValue,
+                        "Content-Type": "application/json",
+                    },
                 }).then((res) => {
                     if (!res.ok) {
                         throw new Error("Network response was not ok");
@@ -92,7 +100,11 @@ export default class CustomAutocomplete extends Autocomplete {
     
           addMovieScreeningFormat(screeningFormatId) {
             fetch(`${this.movieScreeningFormatCreateUrlValue}/${screeningFormatId}`, {
-                method: "POST"
+                method: "POST",
+                headers: {
+                    "X-CSRF-Token": this.addCsrfTokenValue,
+                    "Content-Type": "application/json",
+                },
             }).then((res) => {
                 if (!res.ok) {
                     throw new Error("Network response was not ok");
