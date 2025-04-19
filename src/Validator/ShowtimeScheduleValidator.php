@@ -33,29 +33,40 @@ final class ShowtimeScheduleValidator extends ConstraintValidator
         $openTime = $cinema->getOpenTime(); 
         $closeTime = $cinema->getCloseTime(); 
 
-        
         $openDateTime = new \DateTimeImmutable($showtimeDate . ' ' . $openTime->format('H:i:s')); 
         $closeDateTime = new \DateTimeImmutable($showtimeDate . ' ' . $closeTime->format('H:i:s'));  
 
-        // Handle overnight operations
-        $isOvernight = $closeTime->format('H:i') < $openTime->format('H:i'); 
-        if ($isOvernight) {  
-            if ($showtimeEndsAt->format('H:i') < $openTime->format('H:i')) { 
-              
-                $midnight = new \DateTimeImmutable($showtimeDate . ' 00:00:00');  
-                if ($showtimeStartsAt >= $midnight && $showtimeEndsAt <= $closeDateTime) { 
-                    return; 
-                }
+        $isOvernightCinema = $closeTime->format('H:i') < $openTime->format('H:i');
+        
+        if ($isOvernightCinema) {
+            // CASE 1: Show starts and ends after midnight (early morning)
+            if ($showtimeStartsAt->format('H:i') < $openTime->format('H:i') &&
+                $showtimeEndsAt->format('H:i') <= $closeTime->format('H:i')) {
+                return;
             }
-            $closeDateTime = $closeDateTime->modify('+1 day'); 
+             
+            // CASE 2: Show starts in evening and ends after midnight
+            if ($showtimeStartsAt->format('H:i') >= $openTime->format('H:i') &&
+                $showtimeEndsAt->format('H:i') < $showtimeStartsAt->format('H:i') &&
+                $showtimeEndsAt->format('H:i') <= $closeTime->format('H:i')) {
+                return; 
+            }
+            
+            // CASE 3: Show is entirely in evening part (before midnight)
+            if ($showtimeStartsAt->format('H:i') >= $openTime->format('H:i') &&
+                $showtimeEndsAt->format('H:i') > $showtimeStartsAt->format('H:i') &&
+                $showtimeEndsAt->format('H:i') <= '23:59') {
+                return; 
+            }
+        } else {
+            // Show must be entirely within operating hours
+            if ($showtimeStartsAt >= $openDateTime && 
+                $showtimeEndsAt <= $closeDateTime &&
+                $showtimeEndsAt->format('H:i') > $showtimeStartsAt->format('H:i')) {
+                return; 
+            }
         }
 
-      
-        if ($showtimeStartsAt >= $openDateTime && $showtimeEndsAt <= $closeDateTime) {  
-            return;
-        }
-
-      
         $operatingHours = $openTime->format('H:i') . ' - ' . $closeTime->format('H:i');
         $showtimeDuration = $showtimeStartsAt->format('H:i') . ' - ' . $showtimeEndsAt->format('H:i');
 

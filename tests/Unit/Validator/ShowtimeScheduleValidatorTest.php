@@ -53,8 +53,11 @@ class ShowtimeScheduleValidatorTest extends ConstraintValidatorTestCase
         yield 'overnight: evening showtime' => [$this->createShowtime('14:30', '16:30', '14:00', '02:00')];
         yield 'overnight: early morning showtime' => [$this->createShowtime('00:30', '01:30', '14:00', '02:00')];
         yield 'overnight: spanning midnight' => [$this->createShowtime('23:00', '01:00', '14:00', '02:00')];
+        
+        // Additional tests for overnight cinemas
+        yield 'overnight: late night before midnight' => [$this->createShowtime('22:00', '23:59', '20:00', '04:00')];
+        yield 'overnight: earliest morning show' => [$this->createShowtime('00:01', '02:00', '20:00', '04:00')];
     }
-
 
     /**
      * @dataProvider provideInvalidShowtimes
@@ -83,7 +86,6 @@ class ShowtimeScheduleValidatorTest extends ConstraintValidatorTestCase
         $this->validator->validate(new \stdClass(), new ShowtimeSchedule());
     }
 
-
     public function provideInvalidShowtimes(): \Generator
     {
         // Standard operating hours (10:00 - 23:00)
@@ -105,7 +107,7 @@ class ShowtimeScheduleValidatorTest extends ConstraintValidatorTestCase
             '07:00 - 09:00'
         ];
         
-        // // Overnight operating hours (14:00 - 02:00)
+        // Overnight operating hours (14:00 - 02:00)
         yield 'overnight: starts before opening' => [
             $this->createShowtime('13:00', '15:00', '14:00', '02:00'),
             '14:00 - 02:00',
@@ -123,16 +125,34 @@ class ShowtimeScheduleValidatorTest extends ConstraintValidatorTestCase
             '14:00 - 02:00',
             '08:00 - 10:00'
         ];
+        
+        // Additional invalid cases
+        yield 'standard: overnight show not allowed' => [
+            $this->createShowtime('22:00', '02:00', '10:00', '22:00'),
+            '10:00 - 22:00',
+            '22:00 - 02:00'
+        ];
+        
+        yield 'overnight: show spans across "forbidden" morning hours' => [
+            $this->createShowtime('01:30', '08:00', '18:00', '02:00'),
+            '18:00 - 02:00',
+            '01:30 - 08:00'
+        ];
     }
     
     /**
-     * Tests specially for overnight operations
+     * Tests specifically for overnight operations
      */
     public function testOvernightOperationDetection(): void
     {
         // Valid: showtime spans past midnight but within overnight hours
         $validOvernight = $this->createShowtime('22:00', '01:00', '14:00', '02:00');
         $this->validator->validate($validOvernight, new ShowtimeSchedule());
+        $this->assertNoViolation();
+        
+        // Valid: showtime entirely after midnight
+        $earlyMorning = $this->createShowtime('01:00', '02:00', '14:00', '02:00');
+        $this->validator->validate($earlyMorning, new ShowtimeSchedule());
         $this->assertNoViolation();
         
         // Invalid: showtime outside overnight hours
@@ -185,6 +205,4 @@ class ShowtimeScheduleValidatorTest extends ConstraintValidatorTestCase
         
         return $showtime;
     }
-    
-
 }
