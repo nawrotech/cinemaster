@@ -89,8 +89,9 @@ class ShowtimeRepository extends ServiceEntityRepository
         ?string $showtimeStartTime = null,
         ?string $showtimeEndTime = null,
         ?string $movieTitle = null,
-        bool $isPublished = false,
-        ?bool $includeRoomSlug = false
+        ?bool $isPublished = null,
+        bool $includeScreeningRoomName = false,
+        ?string $date = null
     ): array {
 
         $qb = $this->createQueryBuilder('s')
@@ -98,33 +99,48 @@ class ShowtimeRepository extends ServiceEntityRepository
             ->andWhere("s.cinema = :cinema")
             ->setParameter("cinema", $cinema);
 
-        if ($includeRoomSlug) {
-            $qb->addSelect("sr.slug AS screeningRoomSlug")
+        if ($includeScreeningRoomName) {
+            $qb->addSelect("sr.name AS screeningRoomName")
                 ->innerJoin("s.screeningRoom", "sr");
         }
 
-        if ($screeningRoom) {
+        if ($screeningRoom !== null) {
             $qb = $this->findByScreeningRoomName($screeningRoom, $qb);
         }
 
-        if ($showtimeStartTime) {
+        if ($showtimeStartTime !== null) {
             $qb = $this->findByStartingFrom($showtimeStartTime, $qb);
         }
 
-        if ($showtimeEndTime) {
+        if ($showtimeEndTime !== null) {
             $qb = $this->findByStartingBefore($showtimeEndTime, $qb);
+        }
+
+        if ($date !== null) {
+            $qb = $this->findForDate($date, $qb);
         }
 
         if ($movieTitle) {
             $qb = $this->findByMovieTitle($movieTitle, $qb);
         }
 
-        if ($isPublished) {
-            $qb = $this->findPublished($isPublished, $qb);
+        if ($isPublished !== null) {
+            $this->findPublished($isPublished, $qb);
         }
 
         return $qb->getQuery()
             ->getResult();
+    }
+
+    public function findShowtimesByCinemaAndIsPublished(Cinema $cinema, bool $isPublished = false): array 
+    {
+        return $this->createQueryBuilder("s")
+                ->andWhere("cinema = :cinema")
+                ->andWhere("s.isPublished = :isPublished")
+                ->setParameter("isPublished", $isPublished)
+                ->setParameter("cinema", $cinema)
+                ->getQuery()
+                ->getResult();
     }
 
 
@@ -148,15 +164,22 @@ class ShowtimeRepository extends ServiceEntityRepository
     public function findByStartingFrom(string $startsAt, ?QueryBuilder $qb = null): QueryBuilder
     {
         return ($qb ?? $this->createQueryBuilder("s"))
-            ->andWhere("s.startsAt >= :startsAt")
+            ->andWhere("DATE(s.startsAt) >= :startsAt")
             ->setParameter("startsAt", $startsAt, Types::STRING);
     }
 
     public function findByStartingBefore(string $endsAt, ?QueryBuilder $qb = null): QueryBuilder
     {
         return ($qb ?? $this->createQueryBuilder("s"))
-            ->andWhere("s.endsAt <= :showtimeEndTime")
+            ->andWhere("DATE(s.endsAt) <= :showtimeEndTime")
             ->setParameter("showtimeEndTime", $endsAt, Types::STRING);
+    }
+
+    public function findForDate(string $date, ?QueryBuilder $qb = null): QueryBuilder 
+    {
+        return ($qb ?? $this->createQueryBuilder("s"))            
+            ->andWhere("DATE(s.startsAt) = :date")
+            ->setParameter("date", $date);
     }
 
     public function findByScreeningRoomName(ScreeningRoom $screeningRoom, ?QueryBuilder $qb = null): QueryBuilder
@@ -238,5 +261,25 @@ class ShowtimeRepository extends ServiceEntityRepository
             ->setParameter("cinema", $cinema)
             ->getQuery()
             ->getSingleColumnResult();
+    }
+
+    /**
+     * Find unpublished showtimes for a specific cinema on a given date.
+     * 
+     * @return Showtime[]
+     */
+    public function findUnpublishedShowtimesByDate(Cinema $cinema, string $date, bool $isPublished = false): array 
+    {
+
+        return $this->createQueryBuilder("s")
+            ->andWhere("s.cinema = :cinema")
+            ->andWhere("s.isPublished = :isPublished")
+            ->andWhere("DATE(s.startsAt) = :date")
+            ->setParameter("date", $date)
+            ->setParameter("isPublished", $isPublished)
+            ->setParameter("cinema", $cinema)
+            ->addOrderBy("s.startsAt", "ASC")
+            ->getQuery()
+            ->getResult();
     }
 }

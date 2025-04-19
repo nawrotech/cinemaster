@@ -4,23 +4,29 @@ import { dateTimeObjectConverter, timeDisplayConverter } from '../utils/showtime
 
 /* stimulusFetch: 'lazy' */
 export default class extends Controller {
-    static targets = ['dayAxis', "currentDate", "dateInput"]
+    static targets = ['dayAxis', 'currentDate', 'hour', 'showtime']
     static values = {
         showtimesUrl: String,
         showtimeEditUrl: String,
     }
 
-    showtimes = [];
-    showtimeElementClassName = "cinema-showtime-wrapper";
-    hourElements = Array.from(this.dayAxisTarget.children);
+    static classes = ["showtimeElement"]
 
+    showtimes = [];
+
+    getTodayDate() {
+        const today = new Date();
+        return today.toISOString().split('T')[0];
+    }
 
     connect() {
-       this.fetchShowtimes(this.dateInputTarget.value);
-       this.currentDateTarget.textContent = this.dateInputTarget.value;
+        const todayDate = this.getTodayDate();
+        this.fetchShowtimes(todayDate);
+        this.currentDateTarget.textContent = todayDate;
     }
 
     pickDate(event) {
+        this.clearShowtimeWrapperElements();
         const dateTime = event.currentTarget.value.split("T");
         const pickedDate = dateTime.at(0);
         this.currentDateTarget.textContent = pickedDate;
@@ -28,25 +34,32 @@ export default class extends Controller {
     }
 
     clearShowtimeWrapperElements() {
-        this.hourElements.forEach(el => {
-            const showtimeElements = el.querySelectorAll(`.${this.showtimeElementClassName}`);
-            showtimeElements.forEach(showtime => showtime.remove());
-        });
+        this.showtimeTargets.forEach(showtime => showtime.remove());
     }
 
     fetchShowtimes(date) {
         fetch(`${this.showtimesUrlValue}/${date}`)
-            .then(res => res.json())
+            .then(
+                res => {
+                    if (!res.ok) {
+                        throw TypeError();
+                    }
+                    return res.json()
+                })
             .then(data => {
                 this.clearShowtimeWrapperElements();
                 this.showtimes = data;
                 this.renderShowtimes();
+            })
+            .catch(error => {
+                throw error
             });
     }
 
 
     createScreeningRoomColumnElement(screeningRoomName, leftSpacing) {
         const screeningRoomShowtimesColumn = document.createElement("div");
+
         screeningRoomShowtimesColumn.textContent = screeningRoomName;
         screeningRoomShowtimesColumn.className = "screening-room-showtime-column";
         screeningRoomShowtimesColumn.style.setProperty("--leftSpacing", leftSpacing);
@@ -54,15 +67,17 @@ export default class extends Controller {
         return screeningRoomShowtimesColumn;
     }
 
-    createShowtimeWrapperElement(showtime, showtimeDateObject, leftSpacing) {
-        const showtimeWrapperElement = document.createElement("div");
-        showtimeWrapperElement.className = this.showtimeElementClassName;
+    createShowtimeElement(showtime, showtimeDateObject, leftSpacing) {
+        const showtimeElement = document.createElement("div");
+        showtimeElement.setAttribute('data-cinema-showtime-axis-target', 'showtime')
+        showtimeElement.classList.add(this.showtimeElementClass);
 
-        showtimeWrapperElement.style.setProperty("--leftSpacing", leftSpacing);
-        showtimeWrapperElement.style.setProperty("--showtimeDuration", `${showtime.durationInMinutes}px`);
-        showtimeWrapperElement.style.setProperty("--minutesPastHour", `${showtimeDateObject.minute}px`);
 
-        return showtimeWrapperElement;
+        showtimeElement.style.setProperty("--leftSpacing", leftSpacing);
+        showtimeElement.style.setProperty("--showtimeDuration", `${showtime.durationInMinutes}px`);
+        showtimeElement.style.setProperty("--minutesPastHour", `${showtimeDateObject.minute}px`);
+
+        return showtimeElement;
     }   
 
     createShowtimeDetailsElement(showtime) {
@@ -89,14 +104,16 @@ export default class extends Controller {
 
             this.showtimes[screeningRoomName].forEach(showtime => {
                 const showtimeDateObject = dateTimeObjectConverter(showtime.startsAt);
-                const hourEl = this.hourElements.find(el => Number(el.dataset.hour) === showtimeDateObject.hour);
+                const hourEl = this.hourTargets.find(el => Number(el.dataset.hour) === showtimeDateObject.hour);
                
-                const showtimeWrapperElement = this.createShowtimeWrapperElement(showtime, showtimeDateObject, leftSpacing);
+                const showtimeElement = this.createShowtimeElement(showtime, showtimeDateObject, leftSpacing);
                 const showtimeDetailsElement = this.createShowtimeDetailsElement(showtime);
                 
-                showtimeWrapperElement.appendChild(showtimeDetailsElement);
+                showtimeElement.appendChild(showtimeDetailsElement);
 
-                hourEl.appendChild(showtimeWrapperElement);
+                if (hourEl) {
+                    hourEl.appendChild(showtimeElement);
+                }
 
             });
       

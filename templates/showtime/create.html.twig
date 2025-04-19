@@ -32,7 +32,9 @@
                 {{ include("partials/showtime/_showtime_axis.html.twig", {
                     controllerName: "showtime-axis",
                     targetName: "dayAxis",
-                    className: "day-axis"
+                    className: "day-axis",
+                    open_hour: openHour,
+                    close_hour: closeHour
                 }) }}
         </div>
      

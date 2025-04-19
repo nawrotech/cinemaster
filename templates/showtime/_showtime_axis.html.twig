@@ -1,0 +1,19 @@
+<div {{ stimulus_target(controllerName, targetName) }} class="{{ className }}">
+
+    {% if close_hour == open_hour %}
+        {% set close_hour = close_hour - 1 %}
+    {% endif %}
+
+    {% set adjusted_close = close_hour < open_hour ? close_hour + 23 : close_hour - 1 %}
+
+    {% for hour in open_hour..adjusted_close %}
+        {% set display_hour = hour >= 24 ? hour - 24 : hour %}
+        <div
+            data-showtime-axis-target="hour"
+            {{ stimulus_target(controllerName, "hour") }}
+            data-hour="{{ display_hour }}"
+            class="axis-hour">
+            {{ display_hour ~ ":00" }}
+        </div>
+    {% endfor %}
+</div>

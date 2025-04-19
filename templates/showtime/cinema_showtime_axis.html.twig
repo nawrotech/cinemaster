@@ -1,28 +1,29 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Showtime Axis{% endblock %}
+{% block title %}Cinema showtime Axis{% endblock %}
 
 {% block body %}
-
 
     <div {{ stimulus_controller("cinema-showtime-axis", {
         showtimesUrl: path("app_showtime_scheduled_showtimes_in_cinema", {
             slug: app.current_route_parameters.slug,
         }),
+    }, {
+        "showtimeElement": "cinema-showtime-wrapper"
     }) }}>
         <input 
             {{ stimulus_action("cinema-showtime-axis", "pickDate" , "input") }} 
-            {{ stimulus_target("cinema-showtime-axis", "dateInput") }} 
             type="date"
-            value="{{"now"|date("Y-m-d")}}"
         >
 
         <div {{ stimulus_target("cinema-showtime-axis", "currentDate") }}></div>
-        {{ include("partials/showtime/_showtime_axis.html.twig", {
-            controllerName: "cinema-showtime-axis",
-            targetName: "dayAxis",
-            className: "cinema-day-axis"
-        }) }}
+            {{ include("partials/showtime/_showtime_axis.html.twig", {
+                controllerName: "cinema-showtime-axis",
+                targetName: "dayAxis",
+                className: "cinema-day-axis",
+                open_hour: cinema.openTime|date("H"),
+                close_hour: cinema.closeTime|date("H"),
+            }) }}
     </div>
  
 {% endblock %}

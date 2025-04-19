@@ -50,32 +50,14 @@
     cursor: grab;
 }
 
-/* .available-movies-screening-formats-input-fields {
-    height: 100px;
-    overflow-y: auto;
-
-
-}
-
-.image-container {
-    height: 428px;   
-    overflow: hidden;
-}
-
-.card-body {
-    height: 300px;
-}
- */
 
  .seat-position {
     font-size: 0.75rem;
  }
 
 
- /* week-axis */
-
-
- .day-axis {
+ /* screening-room day-axis */
+.day-axis {
     --size-multiplier: 1;
     border: 1px solid black;
     font-size: 1.25rem;
@@ -114,6 +96,7 @@
     font-size: 1.25rem;
     position: relative;
     margin-top: 2rem;
+    /* overflow: auto; */
 
     .axis-hour {
         height: calc(60px * var(--size-multiplier));
@@ -127,6 +110,9 @@
         top: -35px;
         left: var(--leftSpacing);
         border: 1px solid black;
+        inline-size: max-content;
+        font-size: 0.75rem;
+        width: 60px;
      }
 
 
@@ -134,20 +120,21 @@
         position: absolute;
         height: calc(var(--size-multiplier) * var(--showtimeDuration));
         top: calc(var(--size-multiplier) * var(--minutesPastHour));
-        width: 20px;
         left: var(--leftSpacing);
 
         color: black;
         border: 1px solid black;
-        background-color: orangered;
+        background-color: hotpink;
         z-index: 1;
+        width: 60px;
         isolation: isolate;
+   
 
         &:hover {
+            z-index: 100;
+
             .cinema-showtime-details {
                 display: block;
-                z-index: 100;
-
             }
         }
      }
@@ -156,13 +143,22 @@
         position: absolute;
         background-color: white;
         border: 2px solid black;
-        width: max-content;
+        inline-size: max-content;
         display: none;
 
+        /* Improve positioning - position it to the right of the showtime box */
+        left: 65px; /* just outside the showtime box */
+        top: 0;
+
+        /* Fix the stacking context */
+        z-index: 10;
+
+        /* Better aesthetics */
+        padding: 8px;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
      }
 
-
-     
  }
 
 
