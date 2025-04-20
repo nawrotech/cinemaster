@@ -4,70 +4,67 @@ namespace App\Controller;
 
 use App\Entity\Cinema;
 use App\Repository\CinemaRepository;
-use App\Repository\MovieRepository;
 use App\Repository\ShowtimeRepository;
-use App\Service\MovieDataMerger;
+use App\Service\MovieService;
+use App\Service\ShowtimeService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Constraints\Date;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class MainController extends AbstractController
 {
-    #[Route('/cinemas', name: 'app_main_cinemas')]
-    public function cinemas(CinemaRepository $cinemaRepository): Response {
-
-        $cinemas = $cinemaRepository->findAll();
+    #[Route('/', name: 'app_main_cinemas')]
+    public function cinemas(CinemaRepository $cinemaRepository): Response
+    {
 
         return $this->render("main/cinemas.html.twig", [
-            "cinemas" => $cinemas
+            "cinemas" => $cinemaRepository->findAll()
         ]);
-
     }
 
-    #[Route('/inky-emails', name: 'app_main_inky_emails')]
-    public function inkyEmails(): Response {
-
-
-        return $this->render("reset_password/email.html.twig");
-
-    }
-
-    
-
-    #[Route('/cinemas/{slug?}/showtimes', name: 'app_main_cinema_showtimes')]
+    #[Route('/cinemas/{slug?}/showtimes/{date?}', 
+    name: 'app_main_cinema_showtimes',
+    requirements: ["date" => "\d{4}-\d{2}-\d{2}"])]
     public function cinemaShowtimes(
-        Cinema $cinema, 
+        Cinema $cinema,
         ShowtimeRepository $showtimeRepository,
-        MovieRepository $movieRespository,
-        MovieDataMerger $movieDataMerger
-        ): Response {
+        ShowtimeService $showtimeService,
+        MovieService $movieService,
+        ValidatorInterface $validator,
+        ?string $date = null
+    ): Response {
 
-        
-        $movieIds = $showtimeRepository->findMovieIdsForPublishedShowtimes($cinema);
-        $movies = $movieRespository->findBy(["id" => $movieIds]);
-        $displayMovies = [];
-        foreach ($movies as $movie) {
-            $displayMovies[$movie->getId()] = $movieDataMerger->mergeWithApiData($movie);
+        $errors = $validator->validate($date, new Date());
+        if (count($errors) > 0) {
+            $this->addFlash('error', 'Invalid date format. Please use YYYY-MM-DD format.');
+            return $this->redirectToRoute('app_main_cinema_showtimes', [
+                'slug' => $cinema->getSlug(),
+                'date' => new \DateTimeImmutable('now')->format('Y-m-d')
+            ]);
         }
 
+        $date = $date ?? new \DateTimeImmutable('now')->format('Y-m-d');
 
-        $now = new \DateTimeImmutable();
-        $endOfTheDay = new \DateTimeImmutable("23:59:59");
-        $todayUpcomingShowtimes = [];
-        foreach ($movieIds as $movieId) {
-            $todayUpcomingShowtimes[$movieId] = $showtimeRepository
-                    ->findScheduledShowtimesForMovieBetweenDates($movieId, $now, $endOfTheDay);
-        }  
+        $movieIds = $showtimeRepository->findMovieIdsForPublishedShowtimes($cinema, $date);
+        if (empty($movieIds)) {
+            $this->addFlash('info', 'No movies are currently showing at this cinema.');
+            return $this->redirectToRoute('app_main_cinemas');
+        }
 
+        $displayMovies = $movieService->getEnrichedMoviesByIds($movieIds);
+
+        $todayUpcomingShowtimes = $showtimeService
+            ->getPublishedShowtimesGroupedByMovie($cinema, $movieIds, $date);
 
         return $this->render("main/cinema_showtimes.html.twig", [
             "cinema" => $cinema,
             "displayMovies" => $displayMovies,
-            "todayUpcomingShowtimes" => $todayUpcomingShowtimes
+            "todayUpcomingShowtimes" => $todayUpcomingShowtimes,
+            'date' => $date
         ]);
     }
 
     
-
-  
 }

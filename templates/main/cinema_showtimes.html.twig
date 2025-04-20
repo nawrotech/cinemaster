@@ -12,8 +12,8 @@
                 <p class="card-text text-truncate">{{ movie.overview }}</p>
             </div>
             <figure>
-                <figcaption>Today's shows</figcaption>
-                <ul class="list-group list-group-flush">
+                <figcaption>Date: {{ date }}</figcaption>
+                <ul class="list-group list-group-flush upcoming-showtimes-list">
                     {% for showtime  in todayUpcomingShowtimes[movie.id] %}
                         <li class="list-group-item">
                             <div class="details">
@@ -27,6 +27,7 @@
                             </div>
                         </li>
                     {% endfor %}
+       
                 </ul>
             </figure>
          
