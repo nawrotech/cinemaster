@@ -11,7 +11,9 @@
         slug: app.current_route_parameters.slug,
         screening_room_slug: app.current_route_parameters.screening_room_slug
     }),
-    showtimeStartsAt: startsAt
+    showtimeStartsAtDate: showtimeStartsAtDate
+}, {
+    'showtime': 'showtime'
 }) }}>
     <h2>Pick movie for the showtime in room {{ screeningRoom.name }}</h2>
     <div class="row">
@@ -22,6 +24,7 @@
                 {{ form_row(form.startsAt, {
                     "attr": {
                         "data-action": "input->showtime-axis#pickDate",
+                        'data-showtime-axis-target': 'date'
                     }
                 }) }}
 
@@ -29,7 +32,7 @@
         </div>
         <div class="col-6">
             <div {{ stimulus_target("showtime-axis", "currentDate") }}></div>
-                {{ include("partials/showtime/_showtime_axis.html.twig", {
+                {{ include("showtime/_showtime_axis.html.twig", {
                     controllerName: "showtime-axis",
                     targetName: "dayAxis",
                     className: "day-axis",

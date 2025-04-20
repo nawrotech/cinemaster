@@ -3,23 +3,34 @@ import { dateTimeObjectConverter, timeDisplayConverter } from '../utils/showtime
 
 /* stimulusFetch: 'lazy' */
 export default class extends Controller {
-    static targets = ['dayAxis', "currentDate"]
+    static targets = ['dayAxis', "currentDate", "showtime", "hour", 'date']
     static values = {
         showtimesUrl: String,
         showtimeEditUrl: String,
-        showtimeStartsAt: String
+        showtimeStartsAtDate: String
     }
+
+    static classes = ['showtime']
 
     showtimes = [];
-    showtimeElementClassName = "showtime";
-    hourElements = Array.from(this.dayAxisTarget.children);
-
 
     connect() {
-       this.fetchShowtimes(this.showtimeStartsAtValue);
-       this.currentDateTarget.textContent = this.showtimeStartsAtValue;
+        console.log(this.showtimeClass);
 
+        const date = this.extractDateFromDateLocalInput(this.dateTarget.value)  
+                        ?? this.showtimeStartsAtDateValue;
+        this.fetchShowtimes(date);
+        this.currentDateTarget.textContent = date;
     }
+
+    extractDateFromDateLocalInput(dateLocalValue) {
+        if (!dateLocalValue) {
+            return null;
+        }
+
+        const dateTime = dateLocalValue.split("T");
+        return dateTime.at(0);
+    }   
 
     pickDate(event) {
         const dateTime = event.currentTarget.value.split("T");
@@ -29,31 +40,40 @@ export default class extends Controller {
     }
 
     clearShowtimeElements() {
-        this.hourElements.forEach(el => {
-            const showtimeElements = el.querySelectorAll(`.${this.showtimeElementClassName}`);
-            showtimeElements.forEach(showtime => showtime.remove());
-        });
+        this.showtimeTargets.forEach(showtime => showtime.remove());
     }
 
     fetchShowtimes(date) {
         fetch(`${this.showtimesUrlValue}/${date}`)
-            .then(res => res.json())
+            .then(res =>  {
+                if (!res.ok) {
+                    throw new Error(`HTTP error ${res.status}: ${res.statusText}`);
+                }
+                return res.json()
+            })
             .then(data => {
                 this.clearShowtimeElements();
                 this.showtimes = data;
                 this.renderShowtimes();
-            });
+            })
+            .catch(error => {
+                console.error('Error fetching showtimes:', error);
+                this.showtimes = [];
+                return [];
+              });
     }
 
     renderShowtimes() {
         this.showtimes.forEach(showtime => {
 
             const showtimeDateObject = dateTimeObjectConverter(showtime.startsAt);
-            const hourEl = this.hourElements.find(el => Number(el.dataset.hour) === showtimeDateObject.hour);
+            const hourEl = this.hourTargets.find(el => Number(el.dataset.hour) === showtimeDateObject.hour);
 
-            const showtimeElement = this.createShowtimeElement(showtime);
-            hourEl.appendChild(showtimeElement);
-            
+            if (hourEl) {
+                const showtimeElement = this.createShowtimeElement(showtime);
+                hourEl.appendChild(showtimeElement);
+            }
+ 
         });
     }
 
@@ -62,13 +82,15 @@ export default class extends Controller {
         const showtimeDateObject = dateTimeObjectConverter(showtime.startsAt);
 
         const showtimeElement = document.createElement("div");
+        showtimeElement.setAttribute("data-showtime-axis-target", "showtime");
         showtimeElement.innerHTML = `
             <p class="m-0">${timeDisplayConverter(showtime.startsAt)} - ${timeDisplayConverter(showtime.endsAt)}</p>
             <h2>${showtime.movieTitle}</h2>
             <p class="m-0">Format: ${showtime.screeningFormat}</p>
             <a href="${this.showtimeEditUrlValue}/${showtime.id}">Edit</a>
         `;
-        showtimeElement.className = "showtime";
+
+        showtimeElement.classList.add(this.showtimeClass);
         showtimeElement.style.setProperty("--showtimeDuration", `${showtime.durationInMinutes}px`);
         showtimeElement.style.setProperty("--minutesPastHour", `${showtimeDateObject.minute}px`);
 
