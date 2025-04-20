@@ -29,8 +29,9 @@ class SameMoviePlayingInTwoRoomsAtTheSameTimeValidator  extends ConstraintValida
 
         $concurrentlyPlayingShowtime = $this->showtimeRepository
                                     ->findOverlappingForMovie(
-                                        $value->getCinema(),
                                         $value->getMovieScreeningFormat(), 
+                                        $value->getCinema(),
+                                        $value->getStartsAt()->format('Y-m-d'), 
                                         $value->getStartsAt(), 
                                         $value->getEndsAt(),
                                         $value?->getId() ?  $value : null

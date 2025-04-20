@@ -31,8 +31,9 @@ class OverlappingShowtimeInSameScreeningRoomValidator extends ConstraintValidato
 
         $overlappingShowtimes = $this->showtimeRepository
                                     ->findOverlappingForRoom(
-                                        $value->getCinema(),
                                         $value->getScreeningRoom(), 
+                                        $value->getCinema(),
+                                        $value->getStartsAt()->format('Y-m-d'), 
                                         $value->getStartsAt(), 
                                         $value->getEndsAt(),
                                         $value?->getId() ?  $value : null
@@ -41,7 +42,6 @@ class OverlappingShowtimeInSameScreeningRoomValidator extends ConstraintValidato
         if (empty($overlappingShowtimes)) {
             return;
         }
-
 
         $overlapsMessage = $this->formatOverlappingShowtimes($overlappingShowtimes);
         $this->context->buildViolation($constraint->message)

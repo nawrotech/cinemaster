@@ -7,6 +7,7 @@ use App\Entity\Showtime;
 use App\Repository\ShowtimeRepository;
 use App\Validator\OverlappingShowtimeInSameScreeningRoom;
 use App\Validator\SameMoviePlayingInTwoRoomsAtTheSameTime;
+use App\Validator\ShowtimeSchedule;
 use DateInterval;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -41,7 +42,7 @@ class ShowtimeType extends AbstractType
         $builder
             ->add("movieScreeningFormat", EntityType::class, [
                 'class' => MovieScreeningFormat::class,
-                "query_builder" => function (EntityRepository $er) use($screeningRoomVisualFormat): QueryBuilder {
+                "query_builder" => function (EntityRepository $er) use ($screeningRoomVisualFormat): QueryBuilder {
                     return $er->createQueryBuilder('msf')
                         ->innerJoin("msf.screeningFormat", "sf")
                         ->andWhere("sf.visualFormat = :screeningRoomVisualFormat")
@@ -49,9 +50,8 @@ class ShowtimeType extends AbstractType
                 },
                 "label" => "Select Movie",
                 "choice_label" => function (MovieScreeningFormat $movieScreeningFormat): string {
-                    return 
-                        $movieScreeningFormat->getDisplayMovieScreeningFormat()
-                    ;
+                    return
+                        $movieScreeningFormat->getDisplayMovieScreeningFormat();
                 },
             ])
             ->add('price', NumberType::class, [
@@ -77,7 +77,6 @@ class ShowtimeType extends AbstractType
                     $form = $event->getForm();
                     $showtime = $event->getData();
 
-
                     if ($form->isValid()) {
                         $showtimeDuration = $showtime->getDuration();
                         $endsAt = $showtime->getStartsAt()->add(new DateInterval("PT{$showtimeDuration}M"));
@@ -86,20 +85,21 @@ class ShowtimeType extends AbstractType
                     };
 
                     if ($showtime->getEndsAt()) {
-                        $overlappingViolations = $this->validator->validate($showtime, [
+                        $overlappingViolations = $this->validator->validate(
+                            $showtime,
+                            [
                                 new SameMoviePlayingInTwoRoomsAtTheSameTime(),
-                                new OverlappingShowtimeInSameScreeningRoom()
+                                new OverlappingShowtimeInSameScreeningRoom(),
+                                new ShowtimeSchedule()
                             ]
                         );
 
                         if (!empty($overlappingViolations)) {
-                            foreach($overlappingViolations as $violation) {
+                            foreach ($overlappingViolations as $violation) {
                                 $form->addError(new FormError($violation->getMessage()));
                             }
                         }
-          
                     }
-
                 }
 
             )

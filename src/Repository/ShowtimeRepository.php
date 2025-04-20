@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Cinema;
+use App\Entity\Movie;
 use App\Entity\MovieScreeningFormat;
 use App\Entity\ScreeningRoom;
 use App\Entity\Showtime;
@@ -24,15 +25,20 @@ class ShowtimeRepository extends ServiceEntityRepository
 
     public function findOverlapping(
         Cinema $cinema,
+        string $date,
         \DateTimeImmutable $startsAt,
         \DateTimeImmutable $endsAt,
         ?Showtime $excludeShowtime = null,
     ): QueryBuilder {
         $qb = $this->createQueryBuilder('s')
-            ->orWhere("(:startsAt >= s.startsAt AND :startsAt < s.endsAt)")
-            ->orWhere("(:endsAt > s.startsAt AND :endsAt <= s.endsAt)")
-            ->orWhere("(:startsAt <= s.startsAt AND :endsAt >= s.endsAt)")
+            ->andWhere('DATE(s.startsAt) = :date')
+            ->andWhere("(
+                (:startsAt >= s.startsAt AND :startsAt < s.endsAt) OR
+                (:endsAt > s.startsAt AND :endsAt <= s.endsAt) OR
+                (:startsAt <= s.startsAt AND :endsAt >= s.endsAt)
+            )")
             ->andWhere("s.cinema = :cinema")
+            ->setParameter('date', $date)
             ->setParameter('startsAt', $startsAt)
             ->setParameter('endsAt', $endsAt)
             ->setParameter('cinema', $cinema);
@@ -49,13 +55,14 @@ class ShowtimeRepository extends ServiceEntityRepository
      * @return Showtime[] returns showtimes overlapping in the same room
      */
     public function findOverlappingForRoom(
-        Cinema $cinema,
         ScreeningRoom $screeningRoom,
+        Cinema $cinema,
+        string $date,
         \DateTimeImmutable $startsAt,
         \DateTimeImmutable $endsAt,
         ?Showtime $excludeShowtime = null,  
     ): array {
-        return $this->findOverlapping($cinema, $startsAt, $endsAt, $excludeShowtime)
+        return $this->findOverlapping($cinema, $date, $startsAt, $endsAt, $excludeShowtime)
             ->andWhere('s.screeningRoom = :screeningRoom')
             ->setParameter("screeningRoom", $screeningRoom)
             ->getQuery()
@@ -66,13 +73,14 @@ class ShowtimeRepository extends ServiceEntityRepository
      * @return Showtime[] returns showtimes where samve movie was scheduled in different room
      */
     public function findOverlappingForMovie(
-        Cinema $cinema,
         MovieScreeningFormat $movieScreeningFormat,
+        Cinema $cinema,
+        string $date,
         \DateTimeImmutable $startsAt,
         \DateTimeImmutable $endsAt,
         ?Showtime $excludeShowtime = null,
     ): array {
-        return $this->findOverlapping($cinema, $startsAt, $endsAt, $excludeShowtime)
+        return $this->findOverlapping($cinema, $date, $startsAt, $endsAt, $excludeShowtime)
             ->andWhere('s.movieScreeningFormat = :movieScreeningFormat')
             ->setParameter("movieScreeningFormat", $movieScreeningFormat)
             ->getQuery()
@@ -91,13 +99,15 @@ class ShowtimeRepository extends ServiceEntityRepository
         ?string $movieTitle = null,
         ?bool $isPublished = null,
         bool $includeScreeningRoomName = false,
-        ?string $date = null
+        ?string $date = null,
+        ?array $movieIds = null
     ): array {
 
         $qb = $this->createQueryBuilder('s')
             ->addOrderBy("s.startsAt", "ASC")
             ->andWhere("s.cinema = :cinema")
-            ->setParameter("cinema", $cinema);
+            ->setParameter("cinema", $cinema)
+            ;
 
         if ($includeScreeningRoomName) {
             $qb->addSelect("sr.name AS screeningRoomName")
@@ -125,7 +135,11 @@ class ShowtimeRepository extends ServiceEntityRepository
         }
 
         if ($isPublished !== null) {
-            $this->findPublished($isPublished, $qb);
+            $qb = $this->findPublished($isPublished, $qb);
+        }
+
+        if ($movieIds !== null) {
+            $qb = $this->findByMovieIds($movieIds, $qb);
         }
 
         return $qb->getQuery()
@@ -159,6 +173,15 @@ class ShowtimeRepository extends ServiceEntityRepository
             ->innerJoin("mf.movie", "m")
             ->andWhere("m.title LIKE :movieTitle")
             ->setParameter("movieTitle", "%" . $movieTitle . "%");
+    }
+
+    public function findByMovieIds($movieIds, ?QueryBuilder $qb = null): QueryBuilder
+    {
+        return ($qb ?? $this->createQueryBuilder("s"))
+            ->innerJoin("s.movieScreeningFormat", "mf")
+            ->innerJoin("mf.movie", "m")
+            ->andWhere("m.id IN (:movieIds)")
+            ->setParameter("movieIds", $movieIds);
     }
 
     public function findByStartingFrom(string $startsAt, ?QueryBuilder $qb = null): QueryBuilder
@@ -207,7 +230,7 @@ class ShowtimeRepository extends ServiceEntityRepository
         ;
     }
 
-    public function findMovieIdsForPublishedShowtimes(Cinema $cinema, bool $isPublished = true)
+    public function findMovieIdsForPublishedShowtimes(Cinema $cinema, string $date, bool $isPublished = true)
     {
         return $this->createQueryBuilder("s")
             ->innerJoin("s.movieScreeningFormat", "mf")
@@ -217,6 +240,8 @@ class ShowtimeRepository extends ServiceEntityRepository
             ->distinct()
             ->andWhere("s.isPublished = :isPublished")
             ->andWhere("sr.cinema = :cinema")
+            ->andWhere('DATE(s.startsAt) = :date')
+            ->setParameter('date', $date)
             ->setParameter("cinema", $cinema)
             ->setParameter("isPublished", $isPublished)
             ->getQuery()
@@ -225,31 +250,7 @@ class ShowtimeRepository extends ServiceEntityRepository
     }
 
 
-    /**
-     * @return Showtime[]
-     */
-    public function findScheduledShowtimesForMovieBetweenDates(
-        int $movieId,
-        \DateTimeImmutable $startDate,
-        \DateTimeImmutable $endDate,
-        bool $isPublished = true
-    ): array {
-        return $this->createQueryBuilder("s")
-            ->innerJoin("s.movieScreeningFormat", "msf")
-            ->innerJoin("msf.movie", "m")
-            ->addSelect("msf")
-            ->andWhere("s.isPublished = :isPublished")
-            ->andWhere("m.id = :id")
-            ->andWhere("s.startsAt > :startDate")
-            ->andWhere("s.endsAt < :endDate")
-            ->setParameter("startDate", $startDate)
-            ->setParameter("endDate", $endDate)
-            ->setParameter("id", $movieId)
-            ->setParameter("isPublished", $isPublished)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
+
 
     public function isScheduledShowtimeForMovie(Cinema $cinema): array
     {
