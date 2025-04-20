@@ -17,7 +17,7 @@
         >
 
         <div {{ stimulus_target("cinema-showtime-axis", "currentDate") }}></div>
-            {{ include("partials/showtime/_showtime_axis.html.twig", {
+            {{ include("showtime/_showtime_axis.html.twig", {
                 controllerName: "cinema-showtime-axis",
                 targetName: "dayAxis",
                 className: "cinema-day-axis",

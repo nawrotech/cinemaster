@@ -117,13 +117,14 @@ class ShowtimeRepository extends ServiceEntityRepository
         if ($screeningRoom !== null) {
             $qb = $this->findByScreeningRoomName($screeningRoom, $qb);
         }
-
-        if ($showtimeStartTime !== null) {
-            $qb = $this->findByStartingFrom($showtimeStartTime, $qb);
+        if (!empty($startDate)) {
+            $qb->andWhere('DATE(s.startsAt) >= :startDate')
+               ->setParameter('startDate', $startDate);
         }
-
-        if ($showtimeEndTime !== null) {
-            $qb = $this->findByStartingBefore($showtimeEndTime, $qb);
+        
+        if (!empty($endDate)) {
+            $qb->andWhere('DATE(s.startsAt) <= :endDate')
+               ->setParameter('endDate', $endDate);
         }
 
         if ($date !== null) {

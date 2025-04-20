@@ -32,6 +32,7 @@
                         slug: showtime.screeningRoom.cinema.slug,
                         showtime_id: showtime.id}) 
                     }}">
+                        <input type="hidden" name="token" value="{{ csrf_token('publish_showtime') }}">
                         <button class="btn btn-success">Publish Show</button>
                     </form>
                 {% endif %}
