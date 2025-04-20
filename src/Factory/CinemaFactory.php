@@ -3,6 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\Cinema;
+use DateTime;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
@@ -15,9 +16,7 @@ final class CinemaFactory extends PersistentProxyObjectFactory
      *
      * @todo inject services if required
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public static function class(): string
     {
@@ -43,6 +42,8 @@ final class CinemaFactory extends PersistentProxyObjectFactory
             'postalCode' => self::faker()->numberBetween(9999, 99999),
             'streetName' => self::faker()->streetName(),
             'updatedAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
+            "openTime" => \DateTimeImmutable::createFromMutable(new DateTime("20:00:00")),
+            "closeTime" => \DateTimeImmutable::createFromMutable(new DateTime("04:00:00")),
         ];
     }
 

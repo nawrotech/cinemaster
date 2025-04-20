@@ -33,7 +33,7 @@ final class VisualFormatFactory extends PersistentProxyObjectFactory
     {
         return [
             'cinema' => CinemaFactory::random(),
-            'name' => self::faker()->randomElement(["3D", "4K Ultra HD", "IMAX", "2D Digital Projection", "4K HDR"]),
+            'name' => self::faker()->unique()->randomElement(["3D", "2D", "4K"]),
         ];
     }
 

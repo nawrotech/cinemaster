@@ -33,12 +33,14 @@ final class ScreeningRoomFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            // 'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
+            'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
             // 'updatedAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
-            // 'slug' => self::faker()->text(100),
-            // 'status' => self::faker()->text(100),
+            'slug' => self::faker()->text(100),
+            'status' => self::faker()->text(100),
             'name' => self::faker()->unique()->word(),
-         
+            "maintenanceTimeInMinutes" => self::faker()->numberBetween(5, 20),
+            'screeningRoomSetup' => ScreeningRoomSetupFactory::random()
+
         ];
     }
 
@@ -48,8 +50,6 @@ final class ScreeningRoomFactory extends PersistentProxyObjectFactory
         return self::createMany($count, function () {
             $cinema = CinemaFactory::random();
             assert($cinema instanceof Cinema);
-
-
 
             return [
                 "cinema" => $cinema,

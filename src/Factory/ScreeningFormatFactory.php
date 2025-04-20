@@ -34,8 +34,8 @@ final class ScreeningFormatFactory extends PersistentProxyObjectFactory
     {
         return [
             'cinema' => CinemaFactory::random(),
-            'languagePresentation' => LanguagePresentation::DUBBING,
-            'visualFormat' => VisualFormatFactory::new(),
+            'languagePresentation' => self::faker()->randomElement(LanguagePresentation::cases()),
+            'visualFormat' => VisualFormatFactory::random(),
         ];
     }
 
