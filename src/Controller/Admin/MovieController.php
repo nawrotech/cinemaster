@@ -35,6 +35,7 @@ class MovieController extends AbstractController
         #[MapQueryParameter()] string $q = "",
         #[MapQueryParameter()] int $page = 1,
     ): Response {
+
         $pagerfanta = $pagerfantaFactory->createTmdbPagerfanta($q, $page);
 
         $storedTmdbIds = $movieRepository->findTmdbIdsForCinema($cinema);

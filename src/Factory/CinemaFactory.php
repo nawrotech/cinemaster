@@ -44,6 +44,7 @@ final class CinemaFactory extends PersistentProxyObjectFactory
             'updatedAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
             "openTime" => \DateTimeImmutable::createFromMutable(new DateTime("20:00:00")),
             "closeTime" => \DateTimeImmutable::createFromMutable(new DateTime("04:00:00")),
+            'owner' => UserFactory::random(),
         ];
     }
 

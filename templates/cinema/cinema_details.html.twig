@@ -1,115 +1,110 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Cinema {{cinema.name }}{% endblock %}
+{% block title %}Cinema
+	{{cinema.name }}
+{% endblock %}
 
 {% block body %}
 
-        
-<div class="container-sm">
-    <h1 class="mb-4">Cinema {{ cinema.name }}</h1>
-        <aside>
-            <h2 class="mb-4">Cinema settings</h2>
-            <div class="row mb-4">
-                <div class="col-4">
-                    <h3>Visual formats</h3>
-                    <ul>
-                        {% for visualFormat in visualFormats %}
-                            <li>{{ visualFormat.name }}</li>
-                        {% endfor %}
-                    </ul>
-                    <a class="link" href="{{ path("app_cinema_add_visual_formats", {slug: cinema.slug}) }}">Edit</a>
-                </div>
-                <div class="col-4">                    
-                    <h3>Screening room setups</h3>
-                    <ul>
-                        {% for screeningRoomSetup in screeningRoomSetups %}
-                                <li>{{ screeningRoomSetup.displaySetup }}</li>
-                        {% endfor %}
-                    </ul>
-                    <a class="link" href="{{ path("app_cinema_add_screening_room_setups", {slug: cinema.slug}) }}">Edit</a>
-                </div>
-                <div class="col-4">
-                    <h3>Screening formats</h3>
-                    <ul>
-                        {% for screeningFormat in screeningFormats %}
-                                <li>{{ screeningFormat.displayScreeningFormat }}</li>
-                        {% endfor %}
-                    </ul>
-                    <a class="link" href="{{ path("app_cinema_add_screening_formats", {slug: cinema.slug}) }}">Add more</a>
-                </div>
-            </div>
-        </aside>
-
-        
-        <div>
-            <h2>Rooms:</h2>
-            <ul>
-                {% for screeningRoom in screeningRooms %}
-                   
+	<div class="container-sm">
+		<h1 class="mb-4">Cinema
+			{{ cinema.name }}
+		</h1>
+		<p>Opening hours: {{ cinema.openTime|date("G:i") }} - {{ cinema.closeTime|date("G:i") }}</p>
+		<aside>
+			<h2 class="mb-4">Cinema settings</h2>
+			<div class="row mb-4">
+				<div class="col-4">
+					<h3>Visual formats</h3>
+					<ul>
+						{% for visualFormat in visualFormats %}
+							<li>{{ visualFormat.name }}</li>
+						{% endfor %}
+					</ul>
+					<a class="link" href="{{ path("app_cinema_add_visual_formats", {slug: cinema.slug}) }}">Edit</a>
+				</div>
+				<div class="col-4">
+					<h3>Screening room setups</h3>
+					<ul>
+						{% for screeningRoomSetup in screeningRoomSetups %}
+							<li>{{ screeningRoomSetup.displaySetup }}</li>
+						{% endfor %}
+					</ul>
+					<a class="link" href="{{ path("app_cinema_add_screening_room_setups", {slug: cinema.slug}) }}">Edit</a>
+				</div>
+				<div class="col-4">
+					<h3>Screening formats</h3>
+					<ul>
+						{% for screeningFormat in screeningFormats %}
+							<li>{{ screeningFormat.displayScreeningFormat }}</li>
+						{% endfor %}
+					</ul>
+					<a class="link" href="{{ path("app_cinema_add_screening_formats", {slug: cinema.slug}) }}">Add more</a>
+				</div>
+			</div>
+		</aside>
 
 
-                    <li class="mb-2">
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                              {{ screeningRoom.name }}
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                              <li><a class="dropdown-item" href="{{path("app_screening_room_edit",
-                                {screening_room_slug: screeningRoom.slug,
-                                    slug: cinema.slug}
-                                )}}">Edit seats</a></li>
-                              <li>
-                                {% set screeningRoomVisualFormatName = screeningRoom.screeningRoomSetup.visualFormat.name %}
+		<div class="mb-4">
+			<h2>Rooms:</h2>
+			<ul>
+				{% for screeningRoom in screeningRooms %}
+					<li class="mb-2">
+						<div class="dropdown">
+							<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+								{{ screeningRoom.name }}
+							</button>
+							<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+								<li>
+									<a class="dropdown-item" href="{{path("app_screening_room_edit", {screening_room_slug: screeningRoom.slug, slug: cinema.slug} )}}">Edit seats</a>
+								</li>
+								<li>
+									{% set screeningRoomVisualFormatName = screeningRoom.screeningRoomSetup.visualFormat.name %}
 
-                                {% if screeningRoomVisualFormatName in movieVisualFormats  %}
-                                    <a class="dropdown-item" 
-                                        href="{{path("app_showtime_create",
-                                            {
-                                                screening_room_slug: screeningRoom.slug,
-                                                slug: cinema.slug
-                                            }
-                                        )}}">Schedule Showtime</a>
-                                {% endif %}
-                                
-                                </li>
-                                <li>
-                                    <form action="{{ path("app_screening_room_delete", {id: screeningRoom.id, slug: cinema.slug}) }}" method="DELETE">
-                                        <button class="dropdown-item">Delete</button>
+									{% if screeningRoomVisualFormatName in movieVisualFormats  %}
+										<a class="dropdown-item" href="{{path("app_showtime_create", { screening_room_slug: screeningRoom.slug, slug: cinema.slug } )}}">Schedule Showtime</a>
+									{% endif %}
+								</li>
+								{# <li>
+									<form action="{{ path("app_screening_room_delete", {id: screeningRoom.id, slug: cinema.slug}) }}" method="DELETE">
+										<button class="dropdown-item">Delete</button>
 
-                                        <input type="hidden" name="token" value="{{ csrf_token('delete-screening-room-' ~ screeningRoom.id) }}">
-                                    </form>
-                                </li>
-                            </ul>
-                          </div>
-                    </li>
-                {% endfor %}
-            </ul>
+										<input type="hidden" name="token" value="{{ csrf_token('delete-screening-room-' ~ screeningRoom.id) }}">
+									</form>
+								</li> #}
+							</ul>
+						</div>
+					</li>
+				{% endfor %}
+			</ul>
 
-            {% if cinema.screeningRoomSetups is not empty %}     
-                <a class="link d-block" href="{{path("app_screening_room_create", {slug: cinema.slug})}}">
-                    Create screening room
-                </a>
-            {% endif %}
- 
+			{% if cinema.screeningRoomSetups is not empty %}
+				<a class="link d-block" href="{{path("app_screening_room_create", {slug: cinema.slug})}}">
+					Create screening room
+				</a>
+			{% endif %}
+
+		</div>
+
+		<div class="mb-4">
+			<h2>Movies</h2>
+			<a class="link d-block" href="{{ path("app_movie_select_movies", {slug: cinema.slug}) }}">
+				Add movies
+			</a>
+
+			<a class="link d-block" href="{{ path("app_movie_available_movies", {slug: cinema.slug}) }}">Show cinema's movies</a>
+		</div>
+
+        <div class="showtimes">
+            <h2>Showtimes</h2>
+
+            <a class="btn btn-success" href="{{ path("app_showtime_showtime_axis", {slug: cinema.slug }) }}">Show Scheduled showtimes in cinema</a>
+
+			<a class="btn btn-secondary" href="{{ path("app_showtime_scheduled_room", {slug: cinema.slug}) }}" >Show Scheduled showtimes in room</a>
         </div>
 
-        <div class="">
-            <h2>Movies</h2>
-            <a class="link d-block" href="{{ path("app_movie_select_movies", {slug: cinema.slug}) }}">
-                Add movies
-            </a>
 
-            <a class="link d-block" href="{{ path("app_movie_available_movies", {slug: cinema.slug}) }}">Show cinema's movies</a>
+	</d>
 
-        </div>
-        
 
-      
-
-        <a class="btn btn-success" href="{{ path("app_showtime_showtime_axis", {slug: cinema.slug }) }}">Show Scheduled showtimes</a>
-    </d>
- 
-
-</div>
-
-{% endblock %}
+</div>{% endblock %}

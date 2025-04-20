@@ -17,8 +17,9 @@
         {% block navigation %}
             {{ include("partials/_navigation.html.twig") }}
         {% endblock %}
+        
         <div class="container-md"> 
-            {% for label, messages in app.flashes(['success', 'warning', "danger"]) %}
+            {% for label, messages in app.flashes(['success', 'warning', "danger", 'info']) %}
                 {% for message in messages %}
                     <div class="alert alert-{{ label }}">
                         {{ message }}
@@ -26,10 +27,7 @@
                 {% endfor %}
             {% endfor %}
 
-           
-           
             {% block body %}{% endblock %}
-
         </div>
 
         {% block footer %}

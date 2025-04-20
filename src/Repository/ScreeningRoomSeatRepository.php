@@ -11,7 +11,7 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<ScreeningRoomSeat>
  */
-class ScreeningRoomSeatRepository extends ServiceEntityRepository 
+class ScreeningRoomSeatRepository extends ServiceEntityRepository
 {
     public function __construct(
         ManagerRegistry $registry,
@@ -34,18 +34,18 @@ class ScreeningRoomSeatRepository extends ServiceEntityRepository
             ->addOrderBy("s.rowNum", "ASC")
             ->getQuery()
             ->getResult();
-     
+
         return array_map("intval", array_column($result, "rowNum"));
     }
 
     /**
-    * @return ScreeningRoomSeat[]
-    */
+     * @return ScreeningRoomSeat[]
+     */
     public function findSeatsInRow(
         ScreeningRoom $screeningRoom,
-        int $rowNum, 
-        ?Showtime $showtime = null): array
-    {
+        int $rowNum,
+        ?Showtime $showtime = null
+    ): array {
         return $this->createQueryBuilder('srs')
             ->innerJoin("srs.screeningRoom", "sr")
             ->innerJoin("srs.seat", "s")
@@ -55,8 +55,7 @@ class ScreeningRoomSeatRepository extends ServiceEntityRepository
             ->setParameter("rowNum", $rowNum)
             ->setParameter("screeningRoom", $screeningRoom)
             ->getQuery()
-            ->getResult();         
-        ;
+            ->getResult();;
     }
 
     // SUPER USELESS
@@ -73,16 +72,17 @@ class ScreeningRoomSeatRepository extends ServiceEntityRepository
     //         ->getOneOrNullResult();
     // }
 
-    public function findSeatsByScreeningRoom(ScreeningRoom $screeningRoom)  {
+    public function findSeatsByScreeningRoom(ScreeningRoom $screeningRoom)
+    {
         return $this->createQueryBuilder('srs')
-                ->addSelect("s")
-                ->innerJoin("srs.seat", "s")
-                ->andWhere("srs.screeningRoom = :screeningRoom")
-                ->setParameter("screeningRoom", $screeningRoom)
-                ->addOrderBy("s.rowNum", "ASC")
-                ->addOrderBy("s.seatNumInRow", "ASC")
-                ->getQuery()
-                ->getResult();
+            ->addSelect("s")
+            ->innerJoin("srs.seat", "s")
+            ->andWhere("srs.screeningRoom = :screeningRoom")
+            ->setParameter("screeningRoom", $screeningRoom)
+            ->addOrderBy("s.rowNum", "ASC")
+            ->addOrderBy("s.seatNumInRow", "ASC")
+            ->getQuery()
+            ->getResult();
     }
 
     public function findSeatsInRange(

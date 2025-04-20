@@ -32,9 +32,9 @@ final class MovieScreeningFormatFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'cinema' => CinemaFactory::new(),
-            'movie' => MovieFactory::new(),
-            'screeningFormat' => ScreeningFormatFactory::new(),
+            'cinema' => CinemaFactory::random(),
+            'movie' => MovieFactory::random(),
+            'screeningFormat' => ScreeningFormatFactory::random(),
         ];
     }
 

@@ -20,9 +20,9 @@ class ScreeningFormatRepository extends ServiceEntityRepository
 
 
     /**
-    * @return ScreeningFormat[] Returns an array of ScreeningFormat objects
-    */
-    public function findByCinemaAndActiveStatus(Cinema $cinema, bool $isActive = null): array
+     * @return ScreeningFormat[] Returns an array of ScreeningFormat objects
+     */
+    public function findByCinemaAndActiveStatus(Cinema $cinema, ?bool $isActive = null): array
     {
         $qb = $this->createQueryBuilder('sf')
             ->andWhere('sf.cinema = :cinema')
@@ -35,7 +35,8 @@ class ScreeningFormatRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public static function activeScreeningFormatCriteria(?bool $isActive): Criteria {
+    public static function activeScreeningFormatCriteria(?bool $isActive): Criteria
+    {
         $criteria = Criteria::create();
 
         if ($isActive !== null) {
@@ -44,7 +45,7 @@ class ScreeningFormatRepository extends ServiceEntityRepository
 
         return $criteria;
     }
-    
+
     public function findByIds(array $screeningFormatIds): array
     {
         return $this->createQueryBuilder('sf')
@@ -54,25 +55,23 @@ class ScreeningFormatRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
-    
+
     public function findScreeningFormatsBySearchedTermForCinema(
-        Cinema $cinema, 
+        Cinema $cinema,
         string $screeningFormatTerm,
-        bool $isActive = true): array
-    {
+        bool $isActive = true
+    ): array {
         return $this->createQueryBuilder('sf')
-                        ->innerJoin("sf.visualFormat", "vf")
-                        ->andWhere("sf.languagePresentation LIKE :screeningFormatTerm
+            ->innerJoin("sf.visualFormat", "vf")
+            ->andWhere("sf.languagePresentation LIKE :screeningFormatTerm
                         OR
                         vf.name LIKE :screeningFormatTerm")
-                        ->andWhere("sf.cinema = :cinema")
-                        ->setParameter("cinema", $cinema)
-                        ->setParameter("screeningFormatTerm", "%$screeningFormatTerm%")
-                        ->addCriteria($this->activeScreeningFormatCriteria($isActive))
-                        ->getQuery()
-                        ->getResult()
+            ->andWhere("sf.cinema = :cinema")
+            ->setParameter("cinema", $cinema)
+            ->setParameter("screeningFormatTerm", "%$screeningFormatTerm%")
+            ->addCriteria($this->activeScreeningFormatCriteria($isActive))
+            ->getQuery()
+            ->getResult()
         ;
     }
-
-  
 }

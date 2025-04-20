@@ -8,7 +8,6 @@ use App\Form\CinemaScreeningRoomSetupCollectionType;
 use App\Form\CinemaType;
 use App\Form\CinemaVisualFormatCollectionType;
 use App\Repository\CinemaRepository;
-use App\Repository\MovieRepository;
 use App\Repository\MovieScreeningFormatRepository;
 use App\Repository\ScreeningFormatRepository;
 use App\Repository\ScreeningRoomRepository;
@@ -77,7 +76,6 @@ class CinemaController extends AbstractController
         Request $request,
         Cinema $cinema,
     ): Response {
-
 
         $form = $this->createForm(CinemaVisualFormatCollectionType::class, $cinema);
         $form->handleRequest($request);
@@ -191,7 +189,6 @@ class CinemaController extends AbstractController
         $screeningRoomSetups = $screeningRoomSetupRepository->findByCinemaAndActiveStatus($cinema, true);
         $screeningFormats = $screeningFormatRepository->findByCinemaAndActiveStatus($cinema, true);
         $screeningRooms = $screeningRoomRepository->findByCinemaAndActiveStatus($cinema, true);
-
         $movieVisualFormats = $movieScreeningFormatRepository->findMovieScreeningFormatsForCinema($cinema);
 
         return $this->render("cinema/cinema_details.html.twig", [

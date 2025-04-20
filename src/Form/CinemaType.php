@@ -70,7 +70,6 @@ class CinemaType extends AbstractType
                 'input'  => 'datetime_immutable',
                 'widget' => 'choice',
             ])
-          
             ->add("streetName")
             ->add("buildingNumber")
             ->add("postalCode")

@@ -32,8 +32,9 @@ final class MovieFactory extends PersistentProxyObjectFactory
     {
         return [
             'title' => self::faker()->unique->word(),
-            'description' => self::faker()->text(),
+            'overview' => self::faker()->text(),
             'durationInMinutes' => self::faker()->numberBetween(90, 180),
+            // 'releaseDate' => self::faker()->dateTimeBetween('-1 year', 'now'),
             // "posterPath" => self::faker()
         ];
     }

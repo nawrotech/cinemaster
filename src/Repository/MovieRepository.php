@@ -19,17 +19,17 @@ class MovieRepository extends ServiceEntityRepository
     }
 
     /**
-    * @return Movie[]|\Doctrine\ORM\QueryBuilder 
-    */
+     * @return Movie[]|\Doctrine\ORM\QueryBuilder 
+     */
     public function findBySearchTerm(Cinema $cinema, ?string $searchTerm = null, $returnQueryBuilder = false): array|QueryBuilder
     {
         $queryBuilder = $this->createQueryBuilder('m');
-          
+
         if ($searchTerm) {
             $queryBuilder = $queryBuilder->andWhere('m.title LIKE :searchTerm')
-                                        ->andWhere("m.cinema = :cinema")
-                                        ->setParameter('searchTerm', "%$searchTerm%")
-                                        ->setParameter("cinema", $cinema);
+                ->andWhere("m.cinema = :cinema")
+                ->setParameter('searchTerm', "%$searchTerm%")
+                ->setParameter("cinema", $cinema);
         }
 
         if ($returnQueryBuilder) {
@@ -37,31 +37,32 @@ class MovieRepository extends ServiceEntityRepository
         }
 
         return $queryBuilder->getQuery()
-                            ->getResult();
+            ->getResult();
     }
 
     /**
-    * @return int[] returns array of tmdbIds for cinema
-    */
-    public function findTmdbIdsForCinema(Cinema $cinema): array {
+     * @return int[] returns array of tmdbIds for cinema
+     */
+    public function findTmdbIdsForCinema(Cinema $cinema): array
+    {
         return $this->createQueryBuilder('m')
-                    ->select("m.tmdbId")
-                    ->where("m.cinema = :cinema")
-                    ->setParameter("cinema", $cinema)
-                    ->getQuery()
-                    ->getSingleColumnResult();
+            ->select("m.tmdbId")
+            ->where("m.cinema = :cinema")
+            ->setParameter("cinema", $cinema)
+            ->getQuery()
+            ->getSingleColumnResult();
     }
 
     /**
-    * @return Movie[] 
-    */
-    public function findDistinctMovie(Cinema $cinema): array {
+     * @return Movie[] 
+     */
+    public function findDistinctMovie(Cinema $cinema): array
+    {
         return $this->createQueryBuilder('m')
-                    ->innerJoin("m.movieScreeningFormats", "msf")
-                    ->andWhere("m.cinema = :cinema")
-                    ->setParameter("cinema", $cinema)
-                    ->getQuery()
-                    ->getSingleColumnResult();
+            ->innerJoin("m.movieScreeningFormats", "msf")
+            ->andWhere("m.cinema = :cinema")
+            ->setParameter("cinema", $cinema)
+            ->getQuery()
+            ->getResult();
     }
-
 }
