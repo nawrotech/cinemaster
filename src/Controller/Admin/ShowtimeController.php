@@ -16,8 +16,6 @@ use App\Repository\ScreeningRoomSeatRepository;
 use App\Repository\ShowtimeRepository;
 use App\Service\ShowtimeService;
 use Doctrine\ORM\EntityManagerInterface;
-use Pagerfanta\Doctrine\ORM\QueryAdapter;
-use Pagerfanta\Pagerfanta;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -167,14 +165,23 @@ class ShowtimeController extends AbstractController
 
     }
 
-    #[Route('/showtimes/delete/{id}', name: "app_showtime_delete", methods: ["DELETE"])]
+    #[Route('/showtimes/delete/{id?}', name: "app_showtime_delete", methods: ["DELETE"])]
     public function delete(
         Showtime $showtime,
-        ReservationSeatRepository $reservationSeatRepository
+        ReservationSeatRepository $reservationSeatRepository,
+        Request $request
     ): Response {
 
         if ($showtime->getReservations()->count() > 0) {
-            $this->addFlash("danger", "Showtime has reservations and cannot be deleted, please unpublish the showtime first");
+            $message = "Showtime has reservations and cannot be deleted, please unpublish the showtime first";
+            if ($request->isXmlHttpRequest()) {
+                return $this->json([
+                    'status' => 'error',
+                    'message' => $message
+                ], Response::HTTP_BAD_REQUEST);
+            }
+            
+            $this->addFlash("danger", $message);
             return $this->redirectToRoute("app_showtime_scheduled_room", [
                 "slug" => $showtime->getCinema()->getSlug()
             ]);
@@ -188,6 +195,13 @@ class ShowtimeController extends AbstractController
             $em->remove($showtime);
             $em->flush();
         });
+
+        if ($request->isXmlHttpRequest()) {
+            return $this->json([
+                'status' => 'success',
+                'message' => 'Showtime deleted successfully'
+            ]);
+        }
 
         $this->addFlash("info", "Showtime deleted successfully");
         return $this->redirectToRoute("app_showtime_scheduled_room", [

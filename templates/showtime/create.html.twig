@@ -11,6 +11,9 @@
         slug: app.current_route_parameters.slug,
         screening_room_slug: app.current_route_parameters.screening_room_slug
     }),
+    showtimeDeleteUrl: path("app_showtime_delete", {
+        slug: app.current_route_parameters.slug,
+    }),
     showtimeStartsAtDate: showtimeStartsAtDate
 }, {
     'showtime': 'showtime'
