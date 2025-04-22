@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Reservation;
+use App\Entity\Showtime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -17,17 +18,16 @@ class ReservationRepository extends ServiceEntityRepository
     }
 
 
-    public function findReservationByShowtime($value): array
-       {
-           return $this->createQueryBuilder('r')
-               ->andWhere('r.exampleField = :val')
-               ->setParameter('val', $value)
-               ->orderBy('r.id', 'ASC')
-               ->setMaxResults(10)
-               ->getQuery()
-               ->getResult()
-           ;
-       }
+    public function hasReservations(Showtime $showtime): bool
+    {
+        return $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->andWhere('r.showtime = :showtime')
+            ->setParameter('showtime', $showtime)
+            ->getQuery()
+            ->getSingleScalarResult() > 0
+        ;
+    }
 
 
 }

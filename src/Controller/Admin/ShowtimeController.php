@@ -9,9 +9,11 @@ use App\Entity\ReservationSeat;
 use App\Entity\ScreeningRoom;
 use App\Entity\Showtime;
 use App\Form\ShowtimeType;
+use App\Repository\ReservationRepository;
 use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSeatRepository;
 use App\Repository\ShowtimeRepository;
+use App\Service\ShowtimeService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -79,8 +81,8 @@ class ShowtimeController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        $showtimeStartsAtDate = (new \DateTime($showtimeStarting))->format("Y-m-d") // on successful submission
-                ?? new \DateTimeImmutable()->format("Y-m-d"); // on creation
+        $showtimeStartsAtDate = (new \DateTime($showtimeStarting))->format("Y-m-d") 
+                ?? new \DateTimeImmutable()->format("Y-m-d"); 
 
         $showtimes = $showtimeRepository->findBy(["cinema" => $cinema]);
 
@@ -120,30 +122,32 @@ class ShowtimeController extends AbstractController
         Cinema $cinema,
         #[MapEntity(mapping: ["showtime_id" => "id"])]
         ShowTime $showtime,
-        ScreeningRoomSeatRepository $screeningRoomSeatRepository,
+        Request $request,
+        ReservationRepository $reservationRepository,
+        ShowtimeService $showtimeService
     ): Response {
 
-        $showtimeRoomSeats = $screeningRoomSeatRepository->findBy(
-            ["screeningRoom" => $showtime->getScreeningRoom()]
-        );
+        if ($request->request->get("published") === "0" &&
+            !$reservationRepository->hasReservations($showtime)) {
+            $showtime->setPublished(false);
+            $this->em->flush();
+            $this->addFlash("success", "Show has been successfully unpublished");
+            return $this->redirectToRoute("app_showtime_scheduled_room", [
+                "slug" => $cinema->getSlug()
+            ]);
+        } elseif ($request->request->get("published") === "1") {
+            $showtimeService->publishShowtime($showtime);
+            $this->addFlash("success", "Show has been successfully published");
+            return $this->redirectToRoute("app_showtime_scheduled_room", [
+                "slug" => $cinema->getSlug()
+            ]);
+        } else {
+            $this->addFlash("danger", "Show has reservations and cannot be unpublished");
+            return $this->redirectToRoute("app_showtime_scheduled_room", [
+                "slug" => $cinema->getSlug()
+            ]);
+        }
 
-        $this->em->wrapInTransaction(function ($em) use ($showtime, $showtimeRoomSeats) {
-            foreach ($showtimeRoomSeats as $showtimeRoomSeat) {
-                $reservationSeat = new ReservationSeat();
-                $reservationSeat->setShowtime($showtime);
-                $reservationSeat->setSeat($showtimeRoomSeat);
-                $reservationSeat->setStatus($showtimeRoomSeat->getStatus());
-                $em->persist($reservationSeat);
-            }
-            $showtime->setPublished(true);
-            $em->flush();
-        });
-
-        $this->addFlash("success", "Show has been successfully published");
-
-        return $this->redirectToRoute("app_showtime_scheduled_room", [
-            "slug" => $cinema->getSlug()
-        ]);
     }
 
     #[Route("/showtimes/publish/by-date/{date}",
@@ -207,10 +211,6 @@ class ShowtimeController extends AbstractController
             "slug" => $cinema->getSlug()
         ]);
     }
-
-
-    
-
 
     #[Route("/showtimes/{date?}",
         name: "app_showtime_scheduled_showtimes_in_cinema",
