@@ -51,8 +51,9 @@ class ShowtimeController extends AbstractController
                 $scheduledShowtimeFilterDto?->showtimeStartTime,
                 $scheduledShowtimeFilterDto?->showtimeEndTime,
                 $scheduledShowtimeFilterDto?->movieTitle,
+                
             ),
-            "availableRoomNames" => $screeningRoomRepository->findDistinctRoomNames($cinema)
+            "availableRoomNames" => $screeningRoomRepository->findDistinctRoomNames($cinema),
         ]);
     }
 

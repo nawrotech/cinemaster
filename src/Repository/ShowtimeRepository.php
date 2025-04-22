@@ -100,7 +100,7 @@ class ShowtimeRepository extends ServiceEntityRepository
         ?bool $isPublished = null,
         bool $includeScreeningRoomName = false,
         ?string $date = null,
-        ?array $movieIds = null
+        ?array $movieIds = null,
     ): array {
 
         $qb = $this->createQueryBuilder('s')
@@ -117,14 +117,14 @@ class ShowtimeRepository extends ServiceEntityRepository
         if ($screeningRoom !== null) {
             $qb = $this->findByScreeningRoomName($screeningRoom, $qb);
         }
-        if (!empty($startDate)) {
-            $qb->andWhere('DATE(s.startsAt) >= :startDate')
-               ->setParameter('startDate', $startDate);
+        if (!empty($showtimeStartTime)) {
+            $qb->andWhere('s.startsAt >= :startDate')
+               ->setParameter('startDate', $showtimeStartTime);
         }
         
-        if (!empty($endDate)) {
-            $qb->andWhere('DATE(s.startsAt) <= :endDate')
-               ->setParameter('endDate', $endDate);
+        if (!empty($showtimeEndTime)) {
+            $qb->andWhere('s.startsAt <= :endDate')
+               ->setParameter('endDate', $showtimeEndTime);
         }
 
         if ($date !== null) {
@@ -146,6 +146,7 @@ class ShowtimeRepository extends ServiceEntityRepository
         return $qb->getQuery()
             ->getResult();
     }
+
 
     public function findShowtimesByCinemaAndIsPublished(Cinema $cinema, bool $isPublished = false): array 
     {

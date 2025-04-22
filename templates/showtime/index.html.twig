@@ -38,7 +38,7 @@
                     </form>
                 {% endif %}
                 
-                {% if showtime.published %}
+                {% if showtime.published and showtime.reservations is empty %}
                     <form method="POST" action="{{ path("app_showtime_publish", {
                         slug: showtime.screeningRoom.cinema.slug,
                         showtime_id: showtime.id}) 

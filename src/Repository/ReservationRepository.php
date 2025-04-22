@@ -21,12 +21,12 @@ class ReservationRepository extends ServiceEntityRepository
     public function hasReservations(Showtime $showtime): bool
     {
         return $this->createQueryBuilder('r')
-            ->select('COUNT(r.id)')
-            ->andWhere('r.showtime = :showtime')
+            ->select('1')
+            ->where('r.showtime = :showtime')
             ->setParameter('showtime', $showtime)
+            ->setMaxResults(1)
             ->getQuery()
-            ->getSingleScalarResult() > 0
-        ;
+            ->getOneOrNullResult() !== null;
     }
 
 
