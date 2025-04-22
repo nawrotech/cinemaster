@@ -63,9 +63,9 @@ class ScreeningFormatRepository extends ServiceEntityRepository
     ): array {
         return $this->createQueryBuilder('sf')
             ->innerJoin("sf.visualFormat", "vf")
-            ->andWhere("sf.languagePresentation LIKE :screeningFormatTerm
+            ->andWhere("LOWER(sf.languagePresentation) LIKE LOWER(:screeningFormatTerm)
                         OR
-                        vf.name LIKE :screeningFormatTerm")
+                        LOWER(vf.name) LIKE LOWER(:screeningFormatTerm)")
             ->andWhere("sf.cinema = :cinema")
             ->setParameter("cinema", $cinema)
             ->setParameter("screeningFormatTerm", "%$screeningFormatTerm%")

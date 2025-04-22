@@ -26,7 +26,7 @@ class MovieRepository extends ServiceEntityRepository
         $queryBuilder = $this->createQueryBuilder('m');
 
         if ($searchTerm) {
-            $queryBuilder = $queryBuilder->andWhere('m.title LIKE :searchTerm')
+            $queryBuilder = $queryBuilder->andWhere('LOWER(m.title) LIKE LOWER(:searchTerm)')
                 ->andWhere("m.cinema = :cinema")
                 ->setParameter('searchTerm', "%$searchTerm%")
                 ->setParameter("cinema", $cinema);
