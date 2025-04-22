@@ -11,6 +11,7 @@
 			{{ cinema.name }}
 		</h1>
 		<p>Opening hours: {{ cinema.openTime|date("G:i") }} - {{ cinema.closeTime|date("G:i") }}</p>
+		<a target="_blank" href="{{ path("app_main_cinema_showtimes", {slug: cinema.slug}) }}">User view</a>
 		<aside>
 			<h2 class="mb-4">Cinema settings</h2>
 			<div class="row mb-4">

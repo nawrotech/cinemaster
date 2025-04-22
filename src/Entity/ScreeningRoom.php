@@ -7,14 +7,12 @@ use App\Repository\ScreeningRoomRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[UniqueEntity(
     fields: ['name', 'cinema'],
     message: "Screening room with that name is already taken",
 )]
-#[HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: ScreeningRoomRepository::class)]
 class ScreeningRoom implements SlugInterface
 {

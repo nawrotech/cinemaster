@@ -2,20 +2,17 @@
 
 namespace App\Entity;
 
+use App\Contract\SlugInterface;
 use App\Repository\ShowtimeRepository;
-use App\Traits\SlugTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
-use Doctrine\ORM\Mapping\PrePersist;
-use Doctrine\ORM\Mapping\PreUpdate;
+use Symfony\Component\Uid\Ulid;
 
-#[HasLifecycleCallbacks]
+
 #[ORM\Entity(repositoryClass: ShowtimeRepository::class)]
-class Showtime
+class Showtime implements SlugInterface
 {
-    use SlugTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -71,33 +68,22 @@ class Showtime
     #[ORM\ManyToMany(targetEntity: VisualFormat::class)]
     private Collection $supportedVisualFormats;
 
+    #[ORM\Column(length: 26, unique: true)]
+    private ?string $ulid = null;
+
+
     public function __construct()
     {
         $this->reservationSeats = new ArrayCollection();
         $this->reservations = new ArrayCollection();
         $this->supportedVisualFormats = new ArrayCollection();
-        
+        $this->ulid = new Ulid();
     }
 
-    public function displaySlug() {
-        return "{$this->movieScreeningFormat->getDisplayMovieScreeningFormat()} - {$this->startsAt->format("Y-m-d H:i:s")}";
-    }    
-
-    #[PrePersist]
-    public function createSlug(): static
+    public function __toString(): string
     {
-        $this->slug = $this->generateSlug($this->displaySlug());
-        return $this;
+        return "{$this->ulid} {$this->movieScreeningFormat->getDisplayScreeningFormat()}";
     }
-
-    #[PreUpdate]
-    public function updateSlug(): static
-    {
-        $this->slug = $this->generateSlug($this->displaySlug());
-        return $this;
-    }
-
-  
 
     public function getId(): ?int
     {
@@ -306,6 +292,18 @@ class Showtime
     public function removeSupportedVisualFormat(VisualFormat $supportedVisualFormat): static
     {
         $this->supportedVisualFormats->removeElement($supportedVisualFormat);
+
+        return $this;
+    }
+
+    public function getUlid(): ?string
+    {
+        return $this->ulid;
+    }
+
+    public function setUlid(string $ulid): static
+    {
+        $this->ulid = $ulid;
 
         return $this;
     }

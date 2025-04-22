@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Contract\MovieInterface;
+use App\Contract\SlugInterface;
 use App\Repository\MovieRepository;
 use App\Service\UploaderHelper;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -17,7 +18,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
     message: "Movie of that title already exists",
 )]
 #[ORM\Entity(repositoryClass: MovieRepository::class)]
-class Movie implements MovieInterface
+class Movie implements MovieInterface, SlugInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -32,6 +33,9 @@ class Movie implements MovieInterface
 
     #[ORM\Column(nullable: true)]
     private ?int $durationInMinutes = null;
+
+    #[ORM\Column(length: 200, nullable: true)]
+    private ?string $slug = null;
 
     /**
      * @var Collection<int, MovieScreeningFormat>
@@ -58,10 +62,16 @@ class Movie implements MovieInterface
     #[ORM\OneToMany(targetEntity: MovieReference::class, mappedBy: 'movie')]
     private Collection $movieReferences;
 
+
     public function __construct()
     {
         $this->movieScreeningFormats = new ArrayCollection();
         $this->movieReferences = new ArrayCollection();
+    }
+
+    public function __toString(): string
+    {
+        return $this->title;
     }
 
     public function getId(): ?int
@@ -200,4 +210,16 @@ class Movie implements MovieInterface
         return $this->movieReferences;
     }
 
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static  
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
 }

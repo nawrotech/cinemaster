@@ -4,6 +4,7 @@
 
 {% block body %}
     <h1>Screening room name: {{ room.name }}</h1>   
+    <p><strong>Setup: </strong> {{ room.screeningRoomSetup.displaySetup }}</p>
     <div class="row">
         <div class="col-10">
             {% for groupedSeat in groupedSeats %}

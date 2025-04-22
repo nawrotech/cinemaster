@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 class MovieDetailsDto
 {
     private ?int $id = null;
+    private ?string $slug = null;
     private ?string $title = null;
     private ?string $overview = null;
     private ?string $posterPath = null;
@@ -20,6 +21,7 @@ class MovieDetailsDto
     {
         $dto = new self();
         $dto->id = $movie->getId();
+        $dto->slug = $movie->getSlug();
         $dto->title = $movie->getTitle() ?? ($apiData ? $apiData->getTitle() : null);
         $dto->overview = $movie->getOverview() ?? ($apiData ? $apiData->getOverview() : null);
         $dto->posterPath = $movie->getPosterPath() ?? ($apiData ? $apiData->getPosterPath() : null);
@@ -43,6 +45,11 @@ class MovieDetailsDto
     public function getOverview(): ?string
     {
         return $this->overview;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
     }
 
     public function getPosterPath(): ?string

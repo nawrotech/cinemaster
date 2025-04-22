@@ -91,6 +91,11 @@ class MovieScreeningFormat
                                     {$this->screeningFormat->getLanguagePresentation()->value}";
     }
 
+    public function getDisplayScreeningFormat() {
+        return "{$this->movie->getTitle()} {$this->screeningFormat->getVisualFormat()->getName()} {$this->screeningFormat->getLanguagePresentation()->value}";
+                
+    }
+
     public function getCinema(): ?Cinema
     {
         return $this->cinema;

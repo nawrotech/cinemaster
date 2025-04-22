@@ -11,7 +11,6 @@ use App\Service\CartService;
 use App\Service\Mailer;
 use App\Service\ReservationSeatService;
 use App\Service\ReservationService;
-use App\Service\SeatService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,7 +25,6 @@ class ReservationController extends AbstractController
 {
     #[Route('/{showtime_slug}', name: 'app_reservation_reserve_showtime')]
     public function reserveShowtime(
-        ReservationSeatRepository $reservationSeatRepository,
         ReservationService $reservationService,
         ReservationSeatService $reservationSeatService,
         Request $request,

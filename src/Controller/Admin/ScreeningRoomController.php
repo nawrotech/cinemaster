@@ -192,7 +192,6 @@ class ScreeningRoomController extends AbstractController
             "room" => $screeningRoom,
             "form" => $form,
             "cinema" => $cinema,
-            "seatTypes" => ScreeningRoomSeatType::getValuesArray(),
             "groupedSeats" => $groupedSeats
         ]);
     }

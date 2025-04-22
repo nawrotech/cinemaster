@@ -8,14 +8,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[UniqueEntity(
     fields: ["name"],
     message: "Name of this room is alredy taken",
 )]
-#[HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: CinemaRepository::class)]
 class Cinema implements SlugInterface
 {

@@ -167,7 +167,11 @@ class MovieController extends AbstractController
     ): Response {
 
         $this->em->wrapInTransaction(function (EntityManagerInterface $em) use ($tmdbApiService, $movie, $uploaderHelper): void {
-            $tmdbApiService->deleteMovie($movie->getTmdbId());
+           
+            if ($movie->getTmdbId()) {
+                $tmdbApiService->deleteMovie($movie->getTmdbId());
+            }
+            
             foreach ($movie->getMovieReferences() as $movieReference) {
                 $uploaderHelper->deleteFile($movieReference->getFilePath());
                 $movieReference->setMovie(null);

@@ -36,7 +36,6 @@ class SeatRowType extends AbstractType
                 'placeholder' => 'Choose a seat type for the entire row',
                 'required' => true,
             ])
-            ->add("available", CheckboxType::class)
             ->add("firstSeatInRow", IntegerType::class, [
                 "data" => 1
             ])
