@@ -1,0 +1,7 @@
+<form method="DELETE" action="{{ path("app_showtime_delete", {
+    slug: showtime.screeningRoom.cinema.slug,
+    id: showtime.id}) 
+}}">
+    <input type="hidden" name="token" value="{{ csrf_token('delete_showtime') }}">
+    <button class="btn btn-danger">Delete Show</button>
+</form>

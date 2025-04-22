@@ -16,8 +16,11 @@
                 <p>End time: {{ showtime.endsAt|date("F jS \\a\\t g:ia")  }}</p>
                 <p>Status: {{ showtime.published ? "Published" : "Unpublished"}}</p>
 
+                
                 {% if not showtime.published %}
-                    <a class="btn btn-secondary" 
+                <div class="row g-2">
+                    <div class="col-4">
+                        <a class="btn btn-secondary w-100" 
                         href="{{ path("app_showtime_create",
                         {
                             slug: showtime.screeningRoom.cinema.slug,
@@ -25,17 +28,25 @@
                             showtime_id: showtime.id,
                             startsAt: showtime.startsAt|date("Y-m-d")
                         }) }}">Edit</a>
-                {% endif %}
-                
-                {% if not showtime.published %}
-                    <form method="POST" action="{{ path("app_showtime_publish", {
-                        slug: showtime.screeningRoom.cinema.slug,
-                        showtime_id: showtime.id}) 
-                    }}">
-                        <input type="hidden" name="token" value="{{ csrf_token('publish_showtime') }}">
-                        <input type="hidden" name="published" value="1">
-                        <button class="btn btn-success">Publish Show</button>
-                    </form>
+                    </div>
+                    
+                    <div class="col-4">
+                        <form method="POST" 
+                              action="{{ path("app_showtime_publish", {
+                                slug: showtime.screeningRoom.cinema.slug,
+                                showtime_id: showtime.id}) 
+                            }}">
+                            <input type="hidden" name="token" value="{{ csrf_token('publish_showtime') }}">
+                            <input type="hidden" name="published" value="1">
+                            <button class="btn btn-success w-100">Publish</button>
+                        </form>
+                    </div>
+                    
+                    <div class="col-4">
+                        {{ include("showtime/_showtime_delete_modal.html.twig") }}
+                    </div>
+                </div>
+                  
                 {% endif %}
                 
                 {% if showtime.published and showtime.reservations is empty %}
@@ -48,8 +59,7 @@
                         <button class="btn btn-success">Unpublish Show</button>
                     </form>
                 {% endif %}
-                
-              
+            
             </div>
         {% endfor %}
     </div>

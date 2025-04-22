@@ -10,6 +10,7 @@ use App\Entity\ScreeningRoom;
 use App\Entity\Showtime;
 use App\Form\ShowtimeType;
 use App\Repository\ReservationRepository;
+use App\Repository\ReservationSeatRepository;
 use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSeatRepository;
 use App\Repository\ShowtimeRepository;
@@ -124,12 +125,11 @@ class ShowtimeController extends AbstractController
         #[MapEntity(mapping: ["showtime_id" => "id"])]
         ShowTime $showtime,
         Request $request,
-        ReservationRepository $reservationRepository,
         ShowtimeService $showtimeService
     ): Response {
 
         if ($request->request->get("published") === "0" &&
-            !$reservationRepository->hasReservations($showtime)) {
+            $showtime->getReservations()->count() === 0) {
             $showtime->setPublished(false);
             $this->em->flush();
             $this->addFlash("success", "Show has been successfully unpublished");
@@ -150,6 +150,35 @@ class ShowtimeController extends AbstractController
         }
 
     }
+
+    #[Route('/showtimes/delete/{id}', name: "app_showtime_delete", methods: ["DELETE"])]
+    public function delete(
+        Showtime $showtime,
+        ReservationSeatRepository $reservationSeatRepository
+    ): Response {
+
+        if ($showtime->getReservations()->count() > 0) {
+            $this->addFlash("danger", "Showtime has reservations and cannot be deleted, please unpublish the showtime first");
+            return $this->redirectToRoute("app_showtime_scheduled_room", [
+                "slug" => $showtime->getCinema()->getSlug()
+            ]);
+        }
+
+        $reservationSeats = $reservationSeatRepository->findBy(["showtime" => $showtime]);    
+        $this->em->wrapInTransaction(function ($em) use ($showtime, $reservationSeats) {
+            foreach ($reservationSeats as $reservationSeat) {
+                $em->remove($reservationSeat);
+            }
+            $em->remove($showtime);
+            $em->flush();
+        });
+
+        $this->addFlash("info", "Showtime deleted successfully");
+        return $this->redirectToRoute("app_showtime_scheduled_room", [
+            "slug" => $showtime->getCinema()->getSlug()
+        ]);
+    }
+
 
     #[Route("/showtimes/publish/by-date/{date}",
      name: "app_showtime_publish_for_date", 
@@ -212,6 +241,9 @@ class ShowtimeController extends AbstractController
             "slug" => $cinema->getSlug()
         ]);
     }
+
+
+    
 
     #[Route("/showtimes/{date?}",
         name: "app_showtime_scheduled_showtimes_in_cinema",
