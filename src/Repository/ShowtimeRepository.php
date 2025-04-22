@@ -3,11 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Cinema;
-use App\Entity\Movie;
 use App\Entity\MovieScreeningFormat;
 use App\Entity\ScreeningRoom;
 use App\Entity\Showtime;
-use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\QueryBuilder;
@@ -18,6 +16,8 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ShowtimeRepository extends ServiceEntityRepository
 {
+
+    public const MAX_PER_PAGE = 1;
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Showtime::class);
@@ -89,7 +89,7 @@ class ShowtimeRepository extends ServiceEntityRepository
 
 
     /**
-     * @return Showtime[] returns filtered showtimes
+     * @return Showtime[]|QueryBuilder returns filtered showtimes or query builder
      */
     public function findFiltered(
         Cinema $cinema,
@@ -101,7 +101,8 @@ class ShowtimeRepository extends ServiceEntityRepository
         bool $includeScreeningRoomName = false,
         ?string $date = null,
         ?array $movieIds = null,
-    ): array {
+        bool $returnQueryBuilder = false,
+    ): array | QueryBuilder {
 
         $qb = $this->createQueryBuilder('s')
             ->addOrderBy("s.startsAt", "ASC")
@@ -141,6 +142,10 @@ class ShowtimeRepository extends ServiceEntityRepository
 
         if ($movieIds !== null) {
             $qb = $this->findByMovieIds($movieIds, $qb);
+        }
+
+        if ($returnQueryBuilder) {
+            return $qb;
         }
 
         return $qb->getQuery()

@@ -4,8 +4,11 @@ namespace App\Factory;
 
 use App\Adapter\TmdbAdapter;
 use App\Entity\Movie;
+use App\Repository\ShowtimeRepository;
 use App\Service\MovieDataMerger;
+use Doctrine\ORM\QueryBuilder;
 use Pagerfanta\Adapter\ArrayAdapter;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 use Pagerfanta\PagerfantaInterface;
 
@@ -44,6 +47,17 @@ class PagerfantaFactory
         $pagerfanta = new Pagerfanta($adapter);
 
         $pagerfanta->setMaxPerPage(12);
+        $pagerfanta->setCurrentPage($page);
+
+        return $pagerfanta;
+    }
+
+    public function createShowtimesPagerfanta(QueryBuilder $showtimes, int $page): PagerfantaInterface
+    {
+        $adapter = new QueryAdapter($showtimes);
+        $pagerfanta = new Pagerfanta($adapter);
+
+        $pagerfanta->setMaxPerPage(ShowtimeRepository::MAX_PER_PAGE);
         $pagerfanta->setCurrentPage($page);
 
         return $pagerfanta;

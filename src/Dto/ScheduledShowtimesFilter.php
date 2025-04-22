@@ -25,5 +25,8 @@ class ScheduledShowtimesFilter
 
         #[Assert\Choice(choices: [self::PUBLICATION_ALL, self::PUBLICATION_PUBLISHED, self::PUBLICATION_UNPUBLISHED])]
         public readonly string $published = self::PUBLICATION_ALL,
+
+        #[Assert\Positive]
+        public readonly int $page = 1,
     ) {}
 }

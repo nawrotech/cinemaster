@@ -8,6 +8,7 @@ use App\Entity\Cinema;
 use App\Entity\ReservationSeat;
 use App\Entity\ScreeningRoom;
 use App\Entity\Showtime;
+use App\Factory\PagerfantaFactory;
 use App\Form\ShowtimeType;
 use App\Repository\ReservationSeatRepository;
 use App\Repository\ScreeningRoomRepository;
@@ -15,6 +16,8 @@ use App\Repository\ScreeningRoomSeatRepository;
 use App\Repository\ShowtimeRepository;
 use App\Service\ShowtimeService;
 use Doctrine\ORM\EntityManagerInterface;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
+use Pagerfanta\Pagerfanta;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,6 +39,7 @@ class ShowtimeController extends AbstractController
     #[Route("/showtimes", name: "app_showtime_scheduled_room")]
     public function index(
         Cinema $cinema,
+        PagerfantaFactory $pagerfantaFactory,
         ShowtimeRepository $showtimeRepository,
         ScreeningRoomRepository $screeningRoomRepository,
         #[MapQueryString] ?ScheduledShowtimesFilter $scheduledShowtimeFilterDto
@@ -50,17 +54,22 @@ class ShowtimeController extends AbstractController
             default => null, 
         };
 
-        $showtimes = $showtimeRepository->findFiltered(
+        $showtimesQueryBuilder = $showtimeRepository->findFiltered(
             cinema: $cinema,
             screeningRoom: $screeningRoom,
             showtimeStartTime: $scheduledShowtimeFilterDto?->showtimeStartTime,
             showtimeEndTime: $scheduledShowtimeFilterDto?->showtimeEndTime,
             movieTitle: $scheduledShowtimeFilterDto?->movieTitle,
             isPublished: $isPublished,
-        );          
+            returnQueryBuilder: true
+        );     
+
+        $pager = $pagerfantaFactory->createShowtimesPagerfanta(
+                                        $showtimesQueryBuilder, 
+                                        $scheduledShowtimeFilterDto?->page);
 
         return $this->render('showtime/index.html.twig', [
-            "showtimes" => $showtimes,  
+            "showtimes" => $pager,  
             "availableRoomNames" => $screeningRoomRepository->findDistinctRoomNames($cinema),
         ]);
     }
