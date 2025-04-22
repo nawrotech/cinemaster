@@ -66,7 +66,7 @@ class ShowtimeController extends AbstractController
 
         $pager = $pagerfantaFactory->createShowtimesPagerfanta(
                                         $showtimesQueryBuilder, 
-                                        $scheduledShowtimeFilterDto?->page);
+                                        $scheduledShowtimeFilterDto?->page ?? 1);
 
         return $this->render('showtime/index.html.twig', [
             "showtimes" => $pager,  

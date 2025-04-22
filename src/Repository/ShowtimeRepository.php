@@ -17,7 +17,7 @@ use Doctrine\Persistence\ManagerRegistry;
 class ShowtimeRepository extends ServiceEntityRepository
 {
 
-    public const MAX_PER_PAGE = 1;
+    public const MAX_PER_PAGE = 20;
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Showtime::class);

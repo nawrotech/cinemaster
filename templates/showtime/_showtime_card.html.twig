@@ -1,0 +1,22 @@
+<div class="card h-100">
+    <div class="card-body">
+        <h5 class="card-title">{{ showtime.movieScreeningFormat.movie.title }}</h5>
+        <p class="card-text">
+            <strong>Format:</strong> {{ showtime.movieScreeningFormat.displayMovieScreeningFormat }}<br>
+            <strong>Screening room:</strong> {{ showtime.screeningRoom.name }}<br>
+            <strong>Start time:</strong> {{ showtime.startsAt|date("F jS \\a\\t g:ia") }}<br>
+            <strong>End time:</strong> {{ showtime.endsAt|date("F jS \\a\\t g:ia") }}<br>
+            <strong>Status:</strong> <span class="badge {{ showtime.published ? 'bg-success' : 'bg-warning' }}">{{ showtime.published ? "Published" : "Unpublished"}}</span>
+        </p>
+    </div>
+    
+    <div class="card-footer">
+        {% if not showtime.published %}
+           {{ include("showtime/_showtime_action_buttons.html.twig") }}
+        {% endif %}
+        
+        {% if showtime.published and showtime.reservations is empty %}
+            {{ include("showtime/_showtime_unpublish_button.html.twig") }}
+        {% endif %}
+    </div>
+</div>

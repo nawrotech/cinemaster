@@ -1,59 +1,70 @@
-<form>
-    <select name="screeningRoomName">
-        <option value="">All rooms</option>
-        {% for roomName in availableRoomNames %}
-            <option 
-                {{ roomName == app.request.get("screeningRoomName") ? "selected" : null }}
-                value="{{ roomName }}">{{ roomName }}</option>
-        {% endfor %}
-    </select>
-
-    <div class="mb-3">
-        <label class="form-label d-block">Publication Status:</label>
-        
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="published" id="published_all" 
-                   value="{{ constant('App\\Dto\\ScheduledShowtimesFilter::PUBLICATION_ALL') }}" 
-                   {{ app.request.get('published') == '' or app.request.get('published') is null ? 'checked' : '' }}>
-            <label class="form-check-label" for="published_all">All Showtimes</label>
+<form class="m-4">
+    <div class="row align-items-center gy-2 gx-5">
+        <div class="col-6 col-lg-2 align-self-start">
+            <select name="screeningRoomName" class="form-select">
+                <option value="">All rooms</option>
+                {% for roomName in availableRoomNames %}
+                <option 
+                    {{ roomName == app.request.get("screeningRoomName") ? "selected" : null }}
+                    value="{{ roomName }}">{{ roomName }}</option>
+                {% endfor %}
+            </select>
         </div>
-        
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="published" id="published_yes" 
-                   value="{{ constant('App\\Dto\\ScheduledShowtimesFilter::PUBLICATION_PUBLISHED') }}" 
-                   {{ app.request.get('published') == '1' ? 'checked' : '' }}>
-            <label class="form-check-label" for="published_yes">Published</label>
+    
+        <div class="col-6 col-lg-2">
+            <label class="form-label d-block">Publication Status:</label>
+            
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="published" id="published_all" 
+                        value="{{ constant('App\\Dto\\ScheduledShowtimesFilter::PUBLICATION_ALL') }}" 
+                        {{ app.request.get('published') == '' or app.request.get('published') is null ? 'checked' : '' }}>
+                <label class="form-check-label" for="published_all">All Showtimes</label>
+            </div>
+            
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="published" id="published_yes" 
+                        value="{{ constant('App\\Dto\\ScheduledShowtimesFilter::PUBLICATION_PUBLISHED') }}" 
+                        {{ app.request.get('published') == '1' ? 'checked' : '' }}>
+                <label class="form-check-label" for="published_yes">Published</label>
+            </div>
+            
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="published" id="published_no" 
+                        value="{{ constant('App\\Dto\\ScheduledShowtimesFilter::PUBLICATION_UNPUBLISHED') }}" 
+                        {{ app.request.get('published') == '0' ? 'checked' : '' }}>
+                <label class="form-check-label" for="published_no">Unpublished</label>
+            </div>
         </div>
-        
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="published" id="published_no" 
-                   value="{{ constant('App\\Dto\\ScheduledShowtimesFilter::PUBLICATION_UNPUBLISHED') }}" 
-                   {{ app.request.get('published') == '0' ? 'checked' : '' }}>
-            <label class="form-check-label" for="published_no">Unpublished</label>
-        </div>
-    </div>
 
-    <label>
-        Start time:
-        <input
-        id="showtimeStartTime"
-        type="date"
-        name="showtimeStartTime"
-        value="{{ app.request.get("showtimeStartTime") }}"
-        />
-    </label>
-
-    <label>
-        End time:
-        <input 
-            id="showtimeEndTime"
-            type="date" 
-            name="showtimeEndTime"
-            value="{{ app.request.get("showtimeEndTime") }}"
+        <label class="col-6 col-lg-2">
+            Start time:
+            <input
+            id="showtimeStartTime"
+            type="date"
+            name="showtimeStartTime"
+            value="{{ app.request.get("showtimeStartTime") }}"
+            class="form-control"
             />
-    </label>
-      
+        </label>
+    
+        <label class="col-6 col-lg-2">
+            End time:
+            <input 
+                id="showtimeEndTime"
+                type="date" 
+                name="showtimeEndTime"
+                value="{{ app.request.get("showtimeEndTime") }}"
+                class="form-control"
+                />
+        </label>
+          
+        <label class="col-6 col-lg-2">
+            Movie title:
+            <input class="form-control" type="text" name="movieTitle" value="{{ app.request.get("movieTitle") }}">
+        </label>
+        <button class="btn btn-primary col-6 col-lg-2 align-self-end">Apply filters</button>
+    </div>
+    
 
-    <input type="text" name="movieTitle" value="{{ app.request.get("movieTitle") }}">
-    <button>Apply filters</button>
+
 </form>

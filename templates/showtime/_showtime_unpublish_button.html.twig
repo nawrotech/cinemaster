@@ -1,0 +1,8 @@
+<form method="POST" action="{{ path("app_showtime_publish", {
+    slug: showtime.screeningRoom.cinema.slug,
+    showtime_id: showtime.id}) 
+}}">
+    <input type="hidden" name="token" value="{{ csrf_token('publish_showtime') }}">
+    <input type="hidden" name="published" value="0">
+    <button class="btn btn-danger w-100">Unpublish Showtime</button>
+</form>
