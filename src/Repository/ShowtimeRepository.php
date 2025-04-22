@@ -173,7 +173,7 @@ class ShowtimeRepository extends ServiceEntityRepository
         return ($qb ?? $this->createQueryBuilder("s"))
             ->innerJoin("s.movieScreeningFormat", "mf")
             ->innerJoin("mf.movie", "m")
-            ->andWhere("m.title LIKE :movieTitle")
+            ->andWhere("LOWER(m.title) LIKE LOWER(:movieTitle)")
             ->setParameter("movieTitle", "%" . $movieTitle . "%");
     }
 

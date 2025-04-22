@@ -9,7 +9,6 @@ use App\Entity\ReservationSeat;
 use App\Entity\ScreeningRoom;
 use App\Entity\Showtime;
 use App\Form\ShowtimeType;
-use App\Repository\ReservationRepository;
 use App\Repository\ReservationSeatRepository;
 use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSeatRepository;
@@ -45,15 +44,23 @@ class ShowtimeController extends AbstractController
         $screeningRoom = $screeningRoomRepository->findOneBy(
             ["name" => $scheduledShowtimeFilterDto?->screeningRoomName]);
 
+        $isPublished = match ($scheduledShowtimeFilterDto?->published) {
+            '1' => true,
+            '0' => false,
+            default => null, 
+        };
+
+        $showtimes = $showtimeRepository->findFiltered(
+            cinema: $cinema,
+            screeningRoom: $screeningRoom,
+            showtimeStartTime: $scheduledShowtimeFilterDto?->showtimeStartTime,
+            showtimeEndTime: $scheduledShowtimeFilterDto?->showtimeEndTime,
+            movieTitle: $scheduledShowtimeFilterDto?->movieTitle,
+            isPublished: $isPublished,
+        );          
+
         return $this->render('showtime/index.html.twig', [
-            "showtimes" => $showtimeRepository->findFiltered(
-                $cinema,
-                $screeningRoom,
-                $scheduledShowtimeFilterDto?->showtimeStartTime,
-                $scheduledShowtimeFilterDto?->showtimeEndTime,
-                $scheduledShowtimeFilterDto?->movieTitle,
-                
-            ),
+            "showtimes" => $showtimes,  
             "availableRoomNames" => $screeningRoomRepository->findDistinctRoomNames($cinema),
         ]);
     }
