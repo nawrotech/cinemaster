@@ -42,7 +42,7 @@
             id="showtimeStartTime"
             type="date"
             name="showtimeStartTime"
-            value="{{ app.request.get("showtimeStartTime") }}"
+            value="{{ app.request.get("showtimeStartTime") ?? showtimeStartTime }}"
             class="form-control"
             />
         </label>

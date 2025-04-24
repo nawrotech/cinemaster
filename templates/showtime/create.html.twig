@@ -21,7 +21,16 @@
     'error': 'bg-danger text-white',
     'toast': 'rounded shadow-sm p-2 fs-6'
 }) }}>
-    <h2>Pick movie for the showtime in room {{ screeningRoom.name }}</h2>
+    <h2 class="h2">Room: {{ screeningRoom.name }}</h2>
+
+    <div class="d-flex justify-content-between align-items-center">
+        <p><strong>Setup: </strong>{{ screeningRoom.screeningRoomSetup.displaySetup }}</p>
+        <a href="{{ path('app_showtime_scheduled_room', {
+            slug: app.current_route_parameters.slug,
+            screeningRoomName: screeningRoom.name
+        }) }}">Manage showtimes</a>
+    </div>
+    
     <div class="row">
         <div class="col-6">
             {{ form_start(form) }}

@@ -125,7 +125,6 @@ class Movie implements MovieInterface, SlugInterface
     public function removeMovieScreeningFormat(MovieScreeningFormat $movieScreeningFormat): static
     {
         if ($this->movieScreeningFormats->removeElement($movieScreeningFormat)) {
-            // set the owning side to null (unless already changed)
             if ($movieScreeningFormat->getMovie() === $this) {
                 $movieScreeningFormat->setMovie(null);
             }

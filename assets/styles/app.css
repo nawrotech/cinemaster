@@ -1,6 +1,3 @@
-/* body {
-    background-color: blue;
-} */
 .seat {
     background-color: red;
     border: 3px solid black;
@@ -107,12 +104,16 @@
 
     .screening-room-showtime-column {
         position: absolute;
-        top: -35px;
+        top: -38px;
         left: var(--leftSpacing);
         border: 1px solid black;
-        inline-size: max-content;
         font-size: 0.75rem;
-        width: 60px;
+        inline-size: 60px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
      }
 
 
@@ -146,14 +147,12 @@
         inline-size: max-content;
         display: none;
 
-        /* Improve positioning - position it to the right of the showtime box */
-        left: 65px; /* just outside the showtime box */
+        
+        left: 65px; 
         top: 0;
 
-        /* Fix the stacking context */
         z-index: 10;
 
-        /* Better aesthetics */
         padding: 8px;
         border-radius: 4px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);

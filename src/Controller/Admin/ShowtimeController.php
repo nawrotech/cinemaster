@@ -52,6 +52,9 @@ class ShowtimeController extends AbstractController
             default => null, 
         };
 
+        $showtimeStartTime = $scheduledShowtimeFilterDto?->showtimeStartTime 
+            ?? new \DateTimeImmutable('now')->format('Y-m-d');
+
         $showtimeEndTime = $scheduledShowtimeFilterDto?->showtimeEndTime 
             ? "{$scheduledShowtimeFilterDto->showtimeEndTime} 23:59:59"
             : null;
@@ -59,7 +62,7 @@ class ShowtimeController extends AbstractController
         $showtimesQueryBuilder = $showtimeRepository->findFiltered(
             cinema: $cinema,
             screeningRoom: $screeningRoom,
-            showtimeStartTime: $scheduledShowtimeFilterDto?->showtimeStartTime,
+            showtimeStartTime: $showtimeStartTime,
             showtimeEndTime: $showtimeEndTime,
             movieTitle: $scheduledShowtimeFilterDto?->movieTitle,
             isPublished: $isPublished,
@@ -73,6 +76,7 @@ class ShowtimeController extends AbstractController
         return $this->render('showtime/index.html.twig', [
             "showtimes" => $pager,  
             "availableRoomNames" => $screeningRoomRepository->findDistinctRoomNames($cinema),
+            "showtimeStartTime" => $showtimeStartTime,
         ]);
     }
 
@@ -86,6 +90,14 @@ class ShowtimeController extends AbstractController
         #[MapQueryParameter()] ?string $showtimeStarting = null,
         #[MapEntity(mapping: ["showtime_id" => "id"])] ?ShowTime $showtime = null,
     ): Response {
+
+        if ($showtime && $showtime->isPublished()) {
+            $this->addFlash("danger", "Showtime is already published and cannot be edited");
+            return $this->redirectToRoute("app_showtime_create", [
+                "slug" => $cinema->getSlug(),
+                "screening_room_slug" => $screeningRoom->getSlug()
+            ]);
+        }
 
         if (!$showtime) {
             $showtime = new Showtime();
