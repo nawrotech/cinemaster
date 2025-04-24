@@ -6,22 +6,21 @@ use App\Entity\Cinema;
 use App\Entity\Movie;
 use App\Repository\CinemaRepository;
 use App\Repository\ShowtimeRepository;
+use App\Service\MovieDataMerger;
 use App\Service\MovieService;
 use App\Service\ShowtimeService;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Validator\Constraints\Date;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+
 
 class MainController extends AbstractController
 {
     #[Route('/', name: 'app_main_cinemas')]
     public function cinemas(CinemaRepository $cinemaRepository): Response
     {
-
         return $this->render("main/cinemas.html.twig", [
             "cinemas" => $cinemaRepository->findAll()
         ]);
@@ -31,19 +30,11 @@ class MainController extends AbstractController
     name: 'app_main_cinema_showtimes')]
     public function cinemaShowtimes(
         Cinema $cinema,
-        ShowtimeRepository $showtimeRepository,
         ShowtimeService $showtimeService,
         MovieService $movieService,
-        ValidatorInterface $validator,
-        #[MapQueryParameter()] ?string $date = null
     ): Response {
 
-        $errors = $validator->validate($date, new Date());
-        $date = (($date === null || count($errors) > 0) ?
-                 new \DateTimeImmutable('now')->format('Y-m-d') : 
-                 new \DateTimeImmutable($date)->format('Y-m-d'));
-
-        $movieIds = $showtimeRepository->findMovieIdsForPublishedShowtimes($cinema, $date);
+        $movieIds = $showtimeService->getMovieIdsForPublishedShowtimes($cinema);
         if (empty($movieIds)) {
             $this->addFlash('info', 'No movies are currently showing at this cinema.');
             return $this->redirectToRoute('app_main_cinemas');
@@ -52,25 +43,35 @@ class MainController extends AbstractController
         $displayMovies = $movieService->getEnrichedMoviesByIds($movieIds);
 
         $todayUpcomingShowtimes = $showtimeService
-            ->getPublishedShowtimesGroupedByMovie($cinema, $movieIds, $date);
+            ->getPublishedShowtimesGroupedByMovie($cinema, $movieIds);
 
+        
         return $this->render("main/cinema_showtimes.html.twig", [
             "cinema" => $cinema,
             "displayMovies" => $displayMovies,
             "todayUpcomingShowtimes" => $todayUpcomingShowtimes,
-            'date' => $date
         ]);
     }
 
-    #[Route('/cinemas/{slug?}/showtimes/{movie_slug}', 
-    name: 'app_main_cinema_showtime_details')]
+    #[Route('/cinemas/{slug?}/showtimes/{movie_slug}', name: 'app_main_cinema_showtime_details')]
     public function cinemaShowtimeDetails(
         #[MapEntity(mapping: ["slug" => "slug"])] Cinema $cinema,
-        #[MapEntity(mapping: ["movie_slug" => "slug"])] Movie $movie
+        #[MapEntity(mapping: ["movie_slug" => "slug"])] Movie $movie,
+        ShowtimeService $showtimeService,
+        MovieDataMerger $movieDataMerger
     ): Response {
+
+        $showtimesGroupedByDate = $showtimeService->getPublishedShowtimesGroupedByMovieAndDate(
+            $cinema, 
+            $movie, 
+        );
+
+        $movie = $movieDataMerger->mergeWithApiData($movie);
+
         return $this->render("main/cinema_showtime_details.html.twig", [
             "cinema" => $cinema,
-            "movie" => $movie
+            "movie" => $movie,
+            "showtimesGroupedByDate" => $showtimesGroupedByDate
         ]);
     }
 

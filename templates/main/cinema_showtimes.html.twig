@@ -3,46 +3,57 @@
 {% block title %}Cinema {{ cinema.slug }} - showtimes{% endblock %}
 
 {% block body %}
-
-<form>
-    <input type="date" name="date" id="date" value="{{ date }}">
-    <button type="submit">Search</button>
-</form>
-    <div class="row">
-    {% for movie in displayMovies %}
-    
+<div class="container py-4">
+    <div class="row mb-4">
         <div class="col">
-            <div class="card" style="width: 18rem;">
-                <img src="{{ movie.posterPath }}" class="card-img-top" alt="...">
-                <div class="card-body">
-                <h5 class="card-title">{{ movie.title }}</h5>
-                <p class="card-text text-truncate">{{ movie.overview }}</p>
-            </div>
-                <ul class="list-group list-group-flush upcoming-showtimes-list">
-                    {% for showtime  in todayUpcomingShowtimes[movie.id] %}
-                        <li class="list-group-item">
-                            <div class="details">
-                                <p>Hours: {{ showtime.startsAt|date("H:i") }} -  {{ showtime.endsAt|date("H:i") }} </p>
-                                <p>Format: {{ showtime.movieScreeningFormat.screeningFormat.displayScreeningFormat }}</p>
-                                <p>Room: {{ showtime.screeningRoom.name }}</p>
-                                <a class="btn btn-sm btn-primary" href="{{ path("app_reservation_reserve_showtime", {
-                                    showtime_slug: showtime.slug, 
-                                    slug: showtime.cinema.slug
-                                }) }}">Make reservation</a>
-                              
-                            </div>
-                        </li>
-
-                    {% endfor %}
-       
-                </ul>
-         
-                <a href="{{ path('app_main_cinema_showtime_details', {
-                    slug: cinema.slug,
-                    movie_slug: movie.slug
-            }) }}" class="card-link">More premieres</a>
-            </div>
+            <h2 class="mb-4">Showtimes at {{ cinema.name }}</h2>
+            
         </div>
-    {% endfor %}
     </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        {% for movie in displayMovies %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="position-relative">
+                        <img src="{{ movie.posterPath }}" class="card-img-top" alt="{{ movie.title }} poster">
+                        <span class="badge bg-dark position-absolute bottom-0 end-0 m-2">{{ movie.durationInMinutes }} min</span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ movie.title }}</h5>
+                        <p class="card-text text-truncate">{{ movie.overview }}</p>
+                    </div>
+                    <div class="card-body p-0">
+                        <h6 class="card-subtitle m-3 text-muted">Today's showtimes</h6>
+                        <ul class="list-group list-group-flush upcoming-showtimes-list">
+                            {% for showtime in todayUpcomingShowtimes[movie.id] %}
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="fw-bold">{{ showtime.startsAt|date("H:i") }} - {{ showtime.endsAt|date("H:i") }}</div>
+                                            <div class="small text-muted">{{ showtime.movieScreeningFormat.screeningFormat.displayScreeningFormat }} | Room {{ showtime.screeningRoom.name }}</div>
+                                        </div>
+                                        <a class="btn btn-sm btn-primary" href="{{ path("app_reservation_reserve_showtime", {
+                                            showtime_slug: showtime.slug, 
+                                            slug: showtime.cinema.slug
+                                        }) }}">Book</a>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                            {% if todayUpcomingShowtimes[movie.id]|length == 0 %}
+                                <li class="list-group-item text-center text-muted">No showtimes available today</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    <div class="card-footer bg-white border-top-0">
+                        <a href="{{ path('app_main_cinema_showtime_details', {
+                            slug: cinema.slug,
+                            movie_slug: movie.slug
+                        }) }}" class="btn btn-outline-secondary w-100">View all showtimes</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

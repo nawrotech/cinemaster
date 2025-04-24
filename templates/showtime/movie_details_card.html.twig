@@ -1,0 +1,33 @@
+<div class="card mb-5 border-0 shadow bg-dark text-white overflow-hidden">
+    <div class="row g-0">
+        <!-- Movie Poster -->
+        <div class="col-md-4 col-lg-3">
+            <div class="position-relative h-100">
+                <img src="{{ movie.posterPath }}" alt="{{ movie.title }}" class="img-fluid w-100 h-100 object-fit-cover rounded-start" style="min-height: 400px;">
+                <div class="position-absolute bottom-0 start-0 m-3 p-2 bg-dark bg-opacity-75 rounded">
+                    <i class="bi bi-clock me-1"></i> 
+                    {% set hours = (movie.durationInMinutes / 60)|round(0, 'floor') %}
+                    {% set minutes = movie.durationInMinutes % 60 %}
+                    {{ hours }}h {{ minutes }}min
+                </div>
+            </div>
+        </div>
+        
+        <!-- Movie Info -->
+        <div class="col-md-8 col-lg-9">
+            <div class="card-body h-100 d-flex flex-column justify-content-between bg-opacity-75" style="background: linear-gradient(90deg, rgba(33,37,41,0.95) 0%, rgba(33,37,41,0.8) 100%);">
+                <div>
+                    <h1 class="display-4 fw-bold mb-2">{{ movie.title }}</h1>
+                    <div class="mb-3">
+                        <span class="badge bg-primary me-2">{{ movie.releaseDate|date('Y') }}</span>
+                        <span class="badge bg-secondary">Cinema: {{ cinema.name }}</span>
+                    </div>
+                    <p class="lead mb-4">{{ movie.overview }}</p>
+                </div>
+                <p class="text-light mb-0">
+                    <i class="bi bi-calendar-event me-1"></i> Release date: {{ movie.releaseDate|date('d M Y') }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

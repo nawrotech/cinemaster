@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Cinema;
+use App\Entity\Movie;
 use App\Entity\MovieScreeningFormat;
 use App\Entity\ScreeningRoom;
 use App\Entity\Showtime;
@@ -93,15 +94,16 @@ class ShowtimeRepository extends ServiceEntityRepository
     public function findFiltered(
         Cinema $cinema,
         ?ScreeningRoom $screeningRoom = null,
-        ?string $showtimeStartTime = null,
-        ?string $showtimeEndTime = null,
+        string|\DateTimeImmutable|null $showtimeStartTime = null,
+        string|\DateTimeImmutable|null $showtimeEndTime = null,
         ?string $movieTitle = null,
         ?bool $isPublished = null,
         bool $includeScreeningRoomName = false,
         ?string $date = null,
         ?array $movieIds = null,
         bool $returnQueryBuilder = false,
-    ): array | QueryBuilder {
+        ?Movie $movie = null,
+    ): array|QueryBuilder {
 
         $qb = $this->createQueryBuilder('s')
             ->addOrderBy("s.startsAt", "ASC")
@@ -117,6 +119,7 @@ class ShowtimeRepository extends ServiceEntityRepository
         if ($screeningRoom !== null) {
             $qb = $this->findByScreeningRoomName($screeningRoom, $qb);
         }
+
         if (!empty($showtimeStartTime)) {
             $qb->andWhere('s.startsAt >= :startDate')
                ->setParameter('startDate', $showtimeStartTime);
@@ -143,9 +146,14 @@ class ShowtimeRepository extends ServiceEntityRepository
             $qb = $this->findByMovieIds($movieIds, $qb);
         }
 
+        if ($movie !== null) {
+            $qb = $this->findByMovie($movie, $qb);
+        }
+
         if ($returnQueryBuilder) {
             return $qb;
         }
+
 
         return $qb->getQuery()
             ->getResult();
@@ -163,6 +171,14 @@ class ShowtimeRepository extends ServiceEntityRepository
                 ->getResult();
     }
 
+
+    public function findByMovie(Movie $movie, ?QueryBuilder $qb = null): QueryBuilder
+    {
+        return ($qb ?? $this->createQueryBuilder("s"))
+            ->innerJoin("s.movieScreeningFormat", "mf")
+            ->andWhere("mf.movie = :movie")
+            ->setParameter("movie", $movie);
+    }
 
 
     public function findPublished(bool $isPublished, ?QueryBuilder $qb = null): QueryBuilder
@@ -190,14 +206,14 @@ class ShowtimeRepository extends ServiceEntityRepository
             ->setParameter("movieIds", $movieIds);
     }
 
-    public function findByStartingFrom(string $startsAt, ?QueryBuilder $qb = null): QueryBuilder
+    public function findByStartingFrom(string|\DateTimeImmutable $startsAt, ?QueryBuilder $qb = null): QueryBuilder
     {
         return ($qb ?? $this->createQueryBuilder("s"))
             ->andWhere("s.startsAt >= :startsAt")
             ->setParameter("startsAt", $startsAt);
     }
 
-    public function findByStartingBefore(string $endsAt, ?QueryBuilder $qb = null): QueryBuilder
+    public function findByStartingBefore(string|\DateTimeImmutable $endsAt, ?QueryBuilder $qb = null): QueryBuilder
     {
         return ($qb ?? $this->createQueryBuilder("s"))
             ->andWhere("s.startsAt <= :endsAt")
@@ -236,7 +252,7 @@ class ShowtimeRepository extends ServiceEntityRepository
         ;
     }
 
-    public function findMovieIdsForPublishedShowtimes(Cinema $cinema, string $date, bool $isPublished = true)
+    public function findMovieIdsForPublishedShowtimes(Cinema $cinema, \DateTimeImmutable $showtimeStartTime, \DateTimeImmutable $showtimeEndTime, bool $isPublished = true)
     {
         return $this->createQueryBuilder("s")
             ->innerJoin("s.movieScreeningFormat", "mf")
@@ -246,10 +262,12 @@ class ShowtimeRepository extends ServiceEntityRepository
             ->distinct()
             ->andWhere("s.isPublished = :isPublished")
             ->andWhere("sr.cinema = :cinema")
-            ->andWhere('DATE(s.startsAt) = :date')
-            ->setParameter('date', $date)
+            ->andWhere("s.startsAt >= :showtimeStartTime")
+            ->andWhere("s.startsAt <= :showtimeEndTime")
             ->setParameter("cinema", $cinema)
             ->setParameter("isPublished", $isPublished)
+            ->setParameter("showtimeStartTime", $showtimeStartTime)
+            ->setParameter("showtimeEndTime", $showtimeEndTime)
             ->getQuery()
             ->getSingleColumnResult()
         ;
@@ -270,6 +288,32 @@ class ShowtimeRepository extends ServiceEntityRepository
             ->getSingleColumnResult();
     }
 
+
+    public function findShowtimesInRangeForMovie(
+        Cinema $cinema, 
+        Movie $movie, 
+        \DateTimeImmutable $startDate, 
+        \DateTimeImmutable $endDate, 
+    ) {
+        $qb = $this->createQueryBuilder("s")
+            ->select("s.id, s.startsAt, s.endsAt, s.slug, sr.name as screeningRoomName, vf.name as visualFormatName, sf.languagePresentation")
+            ->innerJoin("s.movieScreeningFormat", "msf")
+            ->innerJoin("msf.movie", "m")
+            ->innerJoin("msf.screeningFormat", "sf")
+            ->innerJoin("sf.visualFormat", "vf")
+            ->innerJoin("s.screeningRoom", "sr")
+            ->andWhere("s.cinema = :cinema")
+            ->addOrderBy("s.startsAt", "ASC")
+            ->setParameter("cinema", $cinema);
+
+        $qb = $this->findByStartingFrom($startDate, $qb);
+        $qb = $this->findByStartingBefore($endDate, $qb);
+        $qb = $this->findByMovie($movie, $qb);
+        $qb = $this->findPublished(true, $qb);
+
+        return $qb->getQuery()->getResult();
+    }
+    
     /**
      * Find unpublished showtimes for a specific cinema on a given date.
      * 
@@ -289,4 +333,6 @@ class ShowtimeRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    
 }

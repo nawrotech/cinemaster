@@ -174,3 +174,17 @@
     block-size: 120px;
     overflow: auto;
 }
+
+.format-badge {
+    display: inline-flex;
+}
+
+.format-badge .badge.rounded-start {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.format-badge .badge.rounded-end {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
