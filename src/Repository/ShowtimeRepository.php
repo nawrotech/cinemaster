@@ -7,7 +7,6 @@ use App\Entity\MovieScreeningFormat;
 use App\Entity\ScreeningRoom;
 use App\Entity\Showtime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -194,15 +193,15 @@ class ShowtimeRepository extends ServiceEntityRepository
     public function findByStartingFrom(string $startsAt, ?QueryBuilder $qb = null): QueryBuilder
     {
         return ($qb ?? $this->createQueryBuilder("s"))
-            ->andWhere("DATE(s.startsAt) >= :startsAt")
-            ->setParameter("startsAt", $startsAt, Types::STRING);
+            ->andWhere("s.startsAt >= :startsAt")
+            ->setParameter("startsAt", $startsAt);
     }
 
     public function findByStartingBefore(string $endsAt, ?QueryBuilder $qb = null): QueryBuilder
     {
         return ($qb ?? $this->createQueryBuilder("s"))
-            ->andWhere("DATE(s.endsAt) <= :showtimeEndTime")
-            ->setParameter("showtimeEndTime", $endsAt, Types::STRING);
+            ->andWhere("s.startsAt <= :endsAt")
+            ->setParameter("endsAt", $endsAt);
     }
 
     public function findForDate(string $date, ?QueryBuilder $qb = null): QueryBuilder 

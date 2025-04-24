@@ -1,5 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 import { dateTimeObjectConverter, timeDisplayConverter } from '../utils/showtime-utils.js';
+import Toastify  from 'toastify-js';
+
 
 /* stimulusFetch: 'lazy' */
 export default class extends Controller {
@@ -11,7 +13,7 @@ export default class extends Controller {
         showtimeStartsAtDate: String,
     }
 
-    static classes = ['showtime']
+    static classes = ['showtime', 'success', 'error', 'toast']
 
     showtimes = [];
 
@@ -26,14 +28,19 @@ export default class extends Controller {
         if (!dateLocalValue) {
             return null;
         }
-
-        const dateTime = dateLocalValue.split("T");
-        return dateTime.at(0);
+        return this.extractDateFromDateLocalInput(dateLocalValue);
     }   
 
+    extractDateFromDateLocalInput(dateLocalValue) {
+        if (!dateLocalValue) {
+            return null;
+        }
+        const dateTime = dateLocalValue.split("T");
+        return dateTime.at(0);
+    }
+
     pickDate(event) {
-        const dateTime = event.currentTarget.value.split("T");
-        const pickedDate = dateTime.at(0);
+        const pickedDate = this.extractDateFromDateLocalInput(event.currentTarget.value);
         this.currentDateTarget.textContent = pickedDate;
         this.fetchShowtimes(pickedDate);
     }
@@ -43,28 +50,44 @@ export default class extends Controller {
     }
 
     fetchShowtimes(date) {
-        fetch(`${this.showtimesUrlValue}/${date}`)
-            .then(res =>  {
-                if (!res.ok) {
-                    throw new Error(`HTTP error ${res.status}: ${res.statusText}`);
-                }
-                return res.json()
-            })
-            .then(data => {
-                this.clearShowtimeElements();
-                this.showtimes = data;
-                this.renderShowtimes();
-            })
-            .catch(error => {
-                console.error('Error fetching showtimes:', error);
-                this.showtimes = [];
-                return [];
-              });
+        fetch(`${this.showtimesUrlValue}/${date}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(async response => {
+            let data;
+
+            try {
+                data = await response.json(); 
+            } catch (e) {
+                data = { message: response.statusText || `HTTP Error ${response.status}` };
+            }
+           
+            if (!response.ok || data.status === 'error') {
+                throw new Error(data.message || `Request failed with status ${response.status}`);
+            }
+            return data;
+        })
+        .then(data => {
+            this.clearShowtimeElements();
+            this.showtimes = data;
+            
+            if (Array.isArray(data) && data.length === 0) {
+                return;
+            }
+            
+            this.renderShowtimes();
+        })
+        .catch(error => {
+            this.showtimes = [];
+        
+        });
     }
 
     renderShowtimes() {
         this.showtimes.forEach(showtime => {
-
             const showtimeDateObject = dateTimeObjectConverter(showtime.startsAt);
             const hourEl = this.hourTargets.find(el => Number(el.dataset.hour) === showtimeDateObject.hour);
 
@@ -72,11 +95,8 @@ export default class extends Controller {
                 const showtimeElement = this.createShowtimeElement(showtime);
                 hourEl.appendChild(showtimeElement);
             }
- 
         });
     }
-
-
 
     createShowtimeElement(showtime) {
         const showtimeDateObject = dateTimeObjectConverter(showtime.startsAt);
@@ -91,7 +111,10 @@ export default class extends Controller {
             <a class="link-primary fs-6" href="${this.showtimeEditUrlValue}/${showtime.id}">Edit</a>
             <button class="btn btn-link fs-6 text-danger" 
                     data-showtime-axis-id-param="${showtime.id}"
-                    data-action="showtime-axis#deleteShowtime">Delete</button>
+                    data-action="showtime-axis#deleteShowtime"
+                    >
+                    Delete
+            </button>
         `;
 
         showtimeElement.classList.add(this.showtimeClass);
@@ -101,8 +124,9 @@ export default class extends Controller {
         return showtimeElement;
     }
 
+
     deleteShowtime(event) {
-        event.preventDefault();
+      event.preventDefault();
         const showtimeId = event.params.id;
         const showtimeElement = this.showtimeTargets.find(el => Number(el.dataset.showtimeId) === showtimeId);
 
@@ -123,39 +147,41 @@ export default class extends Controller {
             try {
                 data = await response.json(); 
             } catch (e) {
-               data = { message: response.message || `HTTP Error ${response.status}` };
+               data = { message: response.statusText || `HTTP Error ${response.status}` };
             }
            
-            if (!response.ok) {
+            if (!response.ok || data.status === 'error') {
                 throw new Error(data.message || `Request failed with status ${response.status}`);
             }
             return data;
         })
-        .then(data => {
+        .then(() => {
             if (showtimeElement) {
                 showtimeElement.remove();
             }
-            
-            const successMessage = document.createElement('div');
-            successMessage.classList.add('alert', 'alert-success', 'position-fixed', 'top-0', 'start-50', 'translate-middle-x');
-            successMessage.textContent = data.message;
-            document.body.appendChild(successMessage);
-            
-            setTimeout(() => {
-                successMessage.remove();
-            }, 3000);
+            this.displayToast('Showtime successfully deleted', 'success');
         })
         .catch(error => {
-            const errorMessage = document.createElement('div');
-            errorMessage.classList.add('alert', 'alert-danger', 'position-fixed', 'top-0', 'start-50', 'translate-middle-x');
-            errorMessage.textContent = error.message || 'An error occurred while deleting the showtime';
-            document.body.appendChild(errorMessage);
-            
-            setTimeout(() => {
-                errorMessage.remove();
-            }, 3000);
+            this.displayToast(error.message || 'An error occurred while deleting the showtime', 'error');
         });
     }
 
-  
+    displayToast(message, type = 'success') {
+        const bootstrapClasses = {
+            success: this.successClass,
+            error: this.errorClass,
+        };
+
+        Toastify({
+            text: message,
+            duration: 2500,
+            gravity: 'top',
+            position: 'center',
+            style: {
+                background: 'none',
+            },
+            className: `${bootstrapClasses[type]} ${this.toastClass}`,
+        }).showToast();
+    }
+
 }

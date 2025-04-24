@@ -52,11 +52,15 @@ class ShowtimeController extends AbstractController
             default => null, 
         };
 
+        $showtimeEndTime = $scheduledShowtimeFilterDto?->showtimeEndTime 
+            ? "{$scheduledShowtimeFilterDto->showtimeEndTime} 23:59:59"
+            : null;
+
         $showtimesQueryBuilder = $showtimeRepository->findFiltered(
             cinema: $cinema,
             screeningRoom: $screeningRoom,
             showtimeStartTime: $scheduledShowtimeFilterDto?->showtimeStartTime,
-            showtimeEndTime: $scheduledShowtimeFilterDto?->showtimeEndTime,
+            showtimeEndTime: $showtimeEndTime,
             movieTitle: $scheduledShowtimeFilterDto?->movieTitle,
             isPublished: $isPublished,
             returnQueryBuilder: true
@@ -172,7 +176,7 @@ class ShowtimeController extends AbstractController
         Request $request
     ): Response {
 
-        if ($showtime->getReservations()->count() > 0) {
+        if ($showtime->getReservations()->count() > 0 || $showtime->isPublished()) {
             $message = "Showtime has reservations and cannot be deleted, please unpublish the showtime first";
             if ($request->isXmlHttpRequest()) {
                 return $this->json([

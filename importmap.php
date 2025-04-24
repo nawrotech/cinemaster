@@ -47,5 +47,11 @@ return [
     'stimulus-autocomplete' => [
         'version' => '3.1.0',
     ],
-
+    'toastify-js' => [
+        'version' => '1.12.0',
+    ],
+    'toastify-js/src/toastify.min.css' => [
+        'version' => '1.12.0',
+        'type' => 'css',
+    ],
 ];

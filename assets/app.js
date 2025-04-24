@@ -6,8 +6,10 @@ import './bootstrap.js';
  * which should already be in your base.html.twig.
  */
 
-
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap";
 import './styles/app.css';
+
+import 'toastify-js/src/toastify.min.css';
+
+
