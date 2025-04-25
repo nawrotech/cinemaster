@@ -26,7 +26,7 @@
                     <div class="card-body p-0">
                         <h6 class="card-subtitle m-3 text-muted">Today's showtimes</h6>
                         <ul class="list-group list-group-flush upcoming-showtimes-list">
-                            {% for showtime in todayUpcomingShowtimes[movie.id] %}
+                            {% for showtime in todayUpcomingShowtimes[movie.id]|default([]) %}
                                 <li class="list-group-item">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
@@ -40,7 +40,7 @@
                                     </div>
                                 </li>
                             {% endfor %}
-                            {% if todayUpcomingShowtimes[movie.id]|length == 0 %}
+                            {% if todayUpcomingShowtimes[movie.id]|default([])|length == 0 %}
                                 <li class="list-group-item text-center text-muted">No showtimes available today</li>
                             {% endif %}
                         </ul>

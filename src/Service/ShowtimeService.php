@@ -10,18 +10,19 @@ use App\Repository\ScreeningRoomSeatRepository;
 use App\Repository\ShowtimeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class ShowtimeService 
+class ShowtimeService
 {
 
     public function __construct(
         private ShowtimeRepository $showtimeRepository,
         private ScreeningRoomSeatRepository $screeningRoomSeatRepository,
         private EntityManagerInterface $em,
+        private ValidatorInterface $validator,
         #[Autowire('%timezone_offset_hours%')] private int $timezoneOffsetHours
-        )
-    {
-    }
+    ) {}
+
     /**
      * Retrieves published showtimes by date and groups them by movie ID
      * @param array $movieIds Array of movie IDs to filter by
@@ -31,25 +32,15 @@ class ShowtimeService
         Cinema $cinema,
         array $movieIds,
         ?\DateTimeImmutable $startDate = null,
-        ?\DateTimeImmutable $endDate = null
-    ) 
-    {
+    ) {
         $startDate ??= new \DateTimeImmutable('now')->modify("+{$this->timezoneOffsetHours} hours");
-        $endDate ??= new \DateTimeImmutable('now')->setTime(23, 59, 59);
 
-
-        if ($endDate < $startDate) {
-            throw new \InvalidArgumentException('End date cannot be before start date');
-        }
-
-        $showtimes = $this->showtimeRepository
-                                    ->findFiltered($cinema, 
-                                        showtimeStartTime: $startDate, 
-                                        showtimeEndTime: $endDate,
-                                        isPublished: true,
-                                        movieIds: $movieIds
-                                    );
-
+        $showtimes = $this->showtimeRepository->findPublishedShowtimesForDate(
+            $cinema,
+            $movieIds,
+            $cinema->getOpenTime()->format('H'),
+            $startDate
+        );
 
         return array_reduce(
             $showtimes,
@@ -62,29 +53,49 @@ class ShowtimeService
         );
     }
 
+    public function getMovieIdsForPublishedShowtimes(
+        Cinema $cinema,
+        ?\DateTimeImmutable $startDate = null,
+        ?\DateTimeImmutable $endDate = null,
+    ) {
+
+        $startDate ??= new \DateTimeImmutable('now')->modify("+{$this->timezoneOffsetHours} hours");
+        $endDate ??= new \DateTimeImmutable('+7 days')->format('Y-m-d');
+
+        $movieIds = $this->showtimeRepository
+                    ->findMovieIdsForPublishedShowtimes(
+                        $cinema, 
+                        $startDate, 
+                        $endDate,
+                        $cinema->getOpenTime()->format("H"));
+
+        return $movieIds;
+    }
+
     public function getPublishedShowtimesGroupedByMovieAndDate(
-        Cinema $cinema, 
+        Cinema $cinema,
         Movie $movie,
         ?\DateTimeImmutable $startDate = null,
         ?\DateTimeImmutable $endDate = null,
-        
-        ) {
+
+    ) {
 
         if ($endDate < $startDate) {
             throw new \InvalidArgumentException('End date cannot be before start date');
         }
-    
+
         $startDate ??= new \DateTimeImmutable('now')->modify("+{$this->timezoneOffsetHours} hours");
         $endDate ??= new \DateTimeImmutable('+7 days')->setTime(23, 59, 59);
 
-        $showtimes = $this->showtimeRepository->findShowtimesInRangeForMovie(
-            $cinema, 
-            $movie, 
-            $startDate, 
+        $showtimes = $this->showtimeRepository->findUpcomingShowtimesForTheMovie(
+            $cinema,
+            $movie,
+            $cinema->getOpenTime()->format("H"),
+            $startDate,
             $endDate
         );
 
-        return array_reduce(    
+        return array_reduce(
             $showtimes,
             function ($grouped, $showtime) {
                 $grouped[$showtime['startsAt']->format('Y-m-d')][] = $showtime;
@@ -94,25 +105,9 @@ class ShowtimeService
         );
     }
 
-    public function getMovieIdsForPublishedShowtimes(
-        Cinema $cinema,
-        ?\DateTimeImmutable $startDate = null,
-        ?\DateTimeImmutable $endDate = null
-    ) {
 
-        if ($endDate < $startDate) {
-            throw new \InvalidArgumentException('End date cannot be before start date');
-        }
-        
-        $startDate ??= new \DateTimeImmutable('now')->modify("+{$this->timezoneOffsetHours} hours");
-        $endDate ??= new \DateTimeImmutable('+7 days')->setTime(23, 59, 59);
 
-        $movieIds = $this->showtimeRepository->findMovieIdsForPublishedShowtimes($cinema, $startDate, $endDate);
-
-        return $movieIds;
-    }   
-
-    public function publishShowtime(Showtime $showtime) 
+    public function publishShowtime(Showtime $showtime)
     {
         $showtimeRoomSeats = $this->screeningRoomSeatRepository->findBy(
             ["screeningRoom" => $showtime->getScreeningRoom()]
@@ -129,6 +124,4 @@ class ShowtimeService
             $em->flush();
         });
     }
-
-
 }

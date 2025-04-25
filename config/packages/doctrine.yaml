@@ -26,7 +26,7 @@ doctrine:
         dql:
             datetime_functions:
                 date: DoctrineExtensions\Query\Postgresql\Date
-
+                hour: DoctrineExtensions\Query\Postgresql\Hour
         controller_resolver:
             auto_mapping: true
         

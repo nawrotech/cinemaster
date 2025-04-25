@@ -42,8 +42,8 @@ final class CinemaFactory extends PersistentProxyObjectFactory
             'postalCode' => self::faker()->numberBetween(9999, 99999),
             'streetName' => self::faker()->streetName(),
             'updatedAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
-            "openTime" => \DateTimeImmutable::createFromMutable(new DateTime("20:00:00")),
-            "closeTime" => \DateTimeImmutable::createFromMutable(new DateTime("04:00:00")),
+            "openTime" => \DateTimeImmutable::createFromMutable(new DateTime("06:00:00")),
+            "closeTime" => \DateTimeImmutable::createFromMutable(new DateTime("03:00:00")),
             'owner' => UserFactory::random(),
         ];
     }

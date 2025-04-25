@@ -5,13 +5,12 @@ namespace App\Controller;
 use App\Entity\Cinema;
 use App\Entity\Movie;
 use App\Repository\CinemaRepository;
-use App\Repository\ShowtimeRepository;
 use App\Service\MovieDataMerger;
 use App\Service\MovieService;
 use App\Service\ShowtimeService;
+use DateTimeImmutable;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -26,8 +25,10 @@ class MainController extends AbstractController
         ]);
     }
 
-    #[Route('/cinemas/{slug?}/showtimes', 
-    name: 'app_main_cinema_showtimes')]
+    #[Route(
+        '/cinemas/{slug?}/showtimes',
+        name: 'app_main_cinema_showtimes'
+    )]
     public function cinemaShowtimes(
         Cinema $cinema,
         ShowtimeService $showtimeService,
@@ -45,7 +46,6 @@ class MainController extends AbstractController
         $todayUpcomingShowtimes = $showtimeService
             ->getPublishedShowtimesGroupedByMovie($cinema, $movieIds);
 
-        
         return $this->render("main/cinema_showtimes.html.twig", [
             "cinema" => $cinema,
             "displayMovies" => $displayMovies,
@@ -62,8 +62,8 @@ class MainController extends AbstractController
     ): Response {
 
         $showtimesGroupedByDate = $showtimeService->getPublishedShowtimesGroupedByMovieAndDate(
-            $cinema, 
-            $movie, 
+            $cinema,
+            $movie,
         );
 
         $movie = $movieDataMerger->mergeWithApiData($movie);
@@ -74,6 +74,4 @@ class MainController extends AbstractController
             "showtimesGroupedByDate" => $showtimesGroupedByDate
         ]);
     }
-
-    
 }

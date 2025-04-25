@@ -145,8 +145,6 @@ class ShowtimeController extends AbstractController
         ]);
     }
 
-
-
     #[IsCsrfTokenValid('publish_showtime', tokenKey: 'token')]
     #[Route("/showtimes/publish/by-showtime-id/{showtime_id?}", name: "app_showtime_publish", methods: ["POST"])]
     public function publish(
@@ -158,27 +156,34 @@ class ShowtimeController extends AbstractController
         ShowtimeService $showtimeService
     ): Response {
 
+        $queryParams = array_filter([
+            'screeningRoomName' => $request->query->get('screeningRoomName'),
+            'showtimeStartTime' => $request->query->get('showtimeStartTime'),
+            'showtimeEndTime' => $request->query->get('showtimeEndTime'),
+            'movieTitle' => $request->query->get('movieTitle'),
+            'published' => $request->query->get('published'),
+            'page' => $request->query->get('page'),
+        ]);
+        
+        $redirectParams = array_merge(['slug' => $cinema->getSlug()], $queryParams);
+
         if ($request->request->get("published") === "0" &&
             $showtime->getReservations()->count() === 0) {
             $showtime->setPublished(false);
             $this->em->flush();
             $this->addFlash("success", "Show has been successfully unpublished");
-            return $this->redirectToRoute("app_showtime_scheduled_room", [
-                "slug" => $cinema->getSlug()
-            ]);
+            
+            return $this->redirectToRoute("app_showtime_scheduled_room", $redirectParams);
         } elseif ($request->request->get("published") === "1") {
             $showtimeService->publishShowtime($showtime);
             $this->addFlash("success", "Show has been successfully published");
-            return $this->redirectToRoute("app_showtime_scheduled_room", [
-                "slug" => $cinema->getSlug()
-            ]);
+            
+            return $this->redirectToRoute("app_showtime_scheduled_room", $redirectParams);
         } else {
             $this->addFlash("danger", "Show has reservations and cannot be unpublished");
-            return $this->redirectToRoute("app_showtime_scheduled_room", [
-                "slug" => $cinema->getSlug()
-            ]);
+            
+            return $this->redirectToRoute("app_showtime_scheduled_room", $redirectParams);
         }
-
     }
 
     #[Route('/showtimes/delete/{id?}', name: "app_showtime_delete", methods: ["DELETE"])]
@@ -224,7 +229,6 @@ class ShowtimeController extends AbstractController
             "slug" => $showtime->getCinema()->getSlug()
         ]);
     }
-
 
     #[Route("/showtimes/publish/by-date/{date}",
      name: "app_showtime_publish_for_date", 
@@ -287,9 +291,6 @@ class ShowtimeController extends AbstractController
             "slug" => $cinema->getSlug()
         ]);
     }
-
-
-    
 
     #[Route("/showtimes/{date?}",
         name: "app_showtime_scheduled_showtimes_in_cinema",
