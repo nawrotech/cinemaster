@@ -7,7 +7,6 @@ use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToDeleteFile;
 use League\Flysystem\UnableToReadFile;
 use League\Flysystem\UnableToRetrieveMetadata;
-use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\HttpFoundation\File\File;
@@ -24,7 +23,6 @@ class UploaderHelper {
         private Packages $packages,
         private LoggerInterface $logger,
         private FilesystemOperator $remoteStorage,
-        private CacheManager $cacheManager
     )
     {
     }    
@@ -85,7 +83,6 @@ class UploaderHelper {
         $profileImageFilename =  $this->uploadFile($file, self::MOVIE_IMAGE);
 
         if ($existingFilePath) {
-            $this->cacheManager->remove($existingFilePath, "squared_thumbnail_small");
             $this->deleteFile($existingFilePath);
         }
         

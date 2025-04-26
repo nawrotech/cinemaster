@@ -8,7 +8,6 @@ use App\Repository\CinemaRepository;
 use App\Service\MovieDataMerger;
 use App\Service\MovieService;
 use App\Service\ShowtimeService;
-use DateTimeImmutable;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,6 +28,7 @@ class MainController extends AbstractController
         '/cinemas/{slug?}/showtimes',
         name: 'app_main_cinema_showtimes'
     )]
+    
     public function cinemaShowtimes(
         Cinema $cinema,
         ShowtimeService $showtimeService,

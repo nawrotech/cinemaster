@@ -75,28 +75,19 @@ class MovieReferenceController extends AbstractController
         );        
     }
 
-    #[IsGranted("ROLE_ADMIN")]
     #[Route("movie/{id}/references", name: "movie_references_list")]
-    public function getMovieReferences(Movie $movie) {
-
+    public function getMovieReferences(Movie $movie) 
+    {
         return $this->json($movie->getMovieReferences(), 200, [], ["groups" => ["main"]]);
     }
 
-    #[IsGranted("ROLE_ADMIN")]
     #[Route("movie/references/{id}/download", name: "movie_reference_download")]
     public function downloadMovieReference(
             MovieReference $movieReference, 
             S3Client $s3Client, 
             #[Autowire(env: "AWS_S3_BUCKET")]
-            string $s3BucketName): Response  {
-        // $movie = $movieReference->getMovie();
-        // here logic if reference holds info about the creator
-        // using costum voter for this purpose
-        // in reality router takes care for evaluating if the user
-        // fulfilled requirements like being creator or being the admin
-        
-        // $s3Client->getCommand()
-        // immediate download
+            string $s3BucketName): Response  
+    {
 
         $disposition = HeaderUtils::makeDisposition(
             HeaderUtils::DISPOSITION_ATTACHMENT,
@@ -115,23 +106,8 @@ class MovieReferenceController extends AbstractController
 
         return new RedirectResponse((string) $request->getUri());
   
-        // document display in browser 
-        // for local env
-        // $response = new StreamedResponse(function() use($uploaderHelper, $movieReference) {
-        //     $outputStream = fopen("php://output", "wb");
-        //     $fileStream = $uploaderHelper->readStream($movieReference->getFilePath());
-            
-        //     stream_copy_to_stream($fileStream, $outputStream);
-        // });
-        // $response->headers->set("Content-Type", $movieReference->getMimeType());
-
-     
-        // $response->headers->set("Content-Disposition", $disposition);
-        
-        // return $response;
     }
 
-    #[IsGranted("ROLE_ADMIN")]
     #[Route("movie/references/{id}", name: "movie_reference_delete", methods: ["DELETE"])]
     public function deleteMovieReference(MovieReference $movieReference, UploaderHelper $uploaderHelper, EntityManagerInterface $em) {
 
@@ -143,13 +119,9 @@ class MovieReferenceController extends AbstractController
     }
 
 
-    #[IsGranted("ROLE_ADMIN")]
     #[Route("movie/references/{id}", name: "movie_reference_update", methods: ["PUT"])]
-    public function updateMovieReference(MovieReference $movieReference, UploaderHelper $uploaderHelper, EntityManagerInterface $em, SerializerInterface $serializer, Request $request, ValidatorInterface $validator) {
-        
-        // $movie = $movieReference->getMovie();
-        // $this->denyAccessUnlessGranted("");
-
+    public function updateMovieReference(MovieReference $movieReference, UploaderHelper $uploaderHelper, EntityManagerInterface $em, SerializerInterface $serializer, Request $request, ValidatorInterface $validator) 
+    {
         $serializer->deserialize(
             $request->getContent(),
             MovieReference::class,
@@ -159,16 +131,6 @@ class MovieReferenceController extends AbstractController
                 "groups" => ["input"]
             ]
         );
-
-        // $violations = $validator->validate($movieReference, [
-        //     new Length(max: 100),
-        //     new NotBlank()
-        // ]);
-
-        // if ($violations->count() > 0) {
-        //     return $this->json($violations, 400);
-        // }
-
 
         $em->flush();
 
@@ -182,7 +144,6 @@ class MovieReferenceController extends AbstractController
         );   
     }
 
-    #[IsGranted("ROLE_ADMIN")]
     #[Route("movie/{id}/references/reorder", name: "movie_reference_reorder", methods: ["POST"])]
     public function reorderMovieReferences(Movie $movie, Request $request, EntityManagerInterface $em) {
         
