@@ -278,7 +278,7 @@ class ShowtimeRepository extends ServiceEntityRepository
             ->andWhere("s.isPublished = :isPublished")
             ->andWhere("sr.cinema = :cinema")
             ->andWhere('DATE(s.startsAt) < :endsAt')
-            ->andWhere("s.startsAt > :startsFrom OR HOUR(s.startsAt) < :openHour")
+            ->andWhere("(s.startsAt > :startsFrom OR (DATE(s.startsAt) = DATE(:startsFrom) AND HOUR(s.startsAt) < :openHour))")
             ->setParameter('openHour', $cinemaOpenHour, Types::INTEGER)
             ->setParameter("startsFrom", $startsFrom)
             ->setParameter("cinema", $cinema)

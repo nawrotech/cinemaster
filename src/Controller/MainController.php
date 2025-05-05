@@ -24,11 +24,7 @@ class MainController extends AbstractController
         ]);
     }
 
-    #[Route(
-        '/cinemas/{slug?}/showtimes',
-        name: 'app_main_cinema_showtimes'
-    )]
-    
+    #[Route('/cinemas/{slug?}/showtimes', name: 'app_main_cinema_showtimes')]
     public function cinemaShowtimes(
         Cinema $cinema,
         ShowtimeService $showtimeService,
@@ -36,6 +32,7 @@ class MainController extends AbstractController
     ): Response {
 
         $movieIds = $showtimeService->getMovieIdsForPublishedShowtimes($cinema);
+
         if (empty($movieIds)) {
             $this->addFlash('info', 'No movies are currently showing at this cinema.');
             return $this->redirectToRoute('app_main_cinemas');

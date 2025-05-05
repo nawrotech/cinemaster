@@ -34,6 +34,7 @@ class ShowtimeService
         ?\DateTimeImmutable $startDate = null,
     ) {
         $startDate ??= new \DateTimeImmutable('now')->modify("+{$this->timezoneOffsetHours} hours");
+        $cinemaOpenHour = (int)$cinema->getOpenTime()->format('H');
 
         $showtimes = $this->showtimeRepository->findPublishedShowtimesForDate(
             $cinema,
@@ -42,7 +43,7 @@ class ShowtimeService
             $startDate
         );
 
-        return array_reduce(
+        $groupedShowtimes = array_reduce(
             $showtimes,
             function ($grouped, $showtime) {
                 $movieId = $showtime->getMovieScreeningFormat()->getMovie()->getId();
@@ -51,6 +52,22 @@ class ShowtimeService
             },
             []
         );
+
+        foreach ($groupedShowtimes as $movieId => $movieShowtimes) {
+            usort($movieShowtimes, function($a, $b) use ($cinemaOpenHour) {
+                $hourA = (int)$a->getStartsAt()->format('H');
+                $hourB = (int)$b->getStartsAt()->format('H');
+                
+                $orderA = $hourA < $cinemaOpenHour ? $hourA + 24 : $hourA;
+                $orderB = $hourB < $cinemaOpenHour ? $hourB + 24 : $hourB;
+                
+                return $orderA <=> $orderB;
+            });
+            
+            $groupedShowtimes[$movieId] = $movieShowtimes;
+        }
+    
+        return $groupedShowtimes;
     }
 
     public function getMovieIdsForPublishedShowtimes(
@@ -59,15 +76,16 @@ class ShowtimeService
         ?\DateTimeImmutable $endDate = null,
     ) {
 
-        $startDate ??= new \DateTimeImmutable('now')->modify("+{$this->timezoneOffsetHours} hours");
+        $startDate ??= new \DateTimeImmutable()->modify("+{$this->timezoneOffsetHours} hours");
         $endDate ??= new \DateTimeImmutable('+7 days')->format('Y-m-d');
 
         $movieIds = $this->showtimeRepository
-                    ->findMovieIdsForPublishedShowtimes(
-                        $cinema, 
-                        $startDate, 
-                        $endDate,
-                        $cinema->getOpenTime()->format("H"));
+            ->findMovieIdsForPublishedShowtimes(
+                $cinema,
+                $startDate,
+                $endDate,
+                $cinema->getOpenTime()->format("H")
+            );
 
         return $movieIds;
     }
@@ -104,7 +122,6 @@ class ShowtimeService
             []
         );
     }
-
 
 
     public function publishShowtime(Showtime $showtime)
