@@ -6,11 +6,21 @@ use App\Repository\VisualFormatRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 
 #[ORM\Entity(repositoryClass: VisualFormatRepository::class)]
-// #[UniqueEntity(fields: ['name'], message: 'This visual format already exists for this cinema.')]
+#[UniqueEntity(
+    fields: ['name', 'cinema'],
+    message: 'This visual format already exists for this cinema.',
+    repositoryMethod: 'findActiveByCinema'
+)]
+#[ORM\UniqueConstraint(
+    name: "unique_active_visual_format",
+    columns: ["name", "cinema_id", "active"],
+    options: ["where" => "(active = true)"]
+)]
 class VisualFormat
 {
     #[ORM\Id]
@@ -19,6 +29,8 @@ class VisualFormat
     private ?int $id = null;
 
     #[ORM\Column(length: 40)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 40, minMessage: 'Name must be at least {{ limit }} characters', maxMessage: 'Name cannot be longer than {{ limit }} characters')]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'visualFormats')]

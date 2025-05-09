@@ -2,7 +2,7 @@
 
 {% block body %}
        
-{{ form_start(form) }}
+{{ form_start(form, {attr: {'novalidate': 'novalidate'}}) }}
     <div class="mb-4">
         {{ include("partials/_dynamic_collection_type.html.twig", {
             collectionType: form.screeningRoomSetups,

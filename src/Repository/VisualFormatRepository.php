@@ -6,6 +6,7 @@ use App\Entity\Cinema;
 use App\Entity\VisualFormat;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -23,16 +24,55 @@ class VisualFormatRepository extends ServiceEntityRepository
     */
     public function findByCinemaAndActiveStatus(Cinema $cinema, ?bool $isActive = null): array
     {
-        $qb = $this->createQueryBuilder('v')
-            ->andWhere('v.cinema = :cinema')
-            ->setParameter('cinema', $cinema);
+        $qb = $this->findByCinema($cinema);
 
         if ($isActive !== null) {
-            $qb->addCriteria(self::activeVisualFormatsConstraint($isActive));
+            $qb = $this->findByActiveStatus($isActive, $qb);
         }
 
         return $qb->getQuery()->getResult();
     }
+
+    public function findActiveByCinema(array $fieldValues)
+    {
+        $name = $fieldValues['name'] ?? null;
+        $cinema = $fieldValues['cinema'] ?? null;
+        
+        if (!$name || !$cinema) {
+            return null;
+        }
+
+        $qb = $this->findByCinema($cinema);
+
+        $qb = $this->findByActiveStatus(true, $qb);
+
+        $qb = $this->findByName($name, $qb);
+
+        return $qb->getQuery()->getResult();
+    }
+
+
+    public function findByCinema(Cinema $cinema, ?QueryBuilder $qb = null): QueryBuilder {
+        return ($qb ?? $this->createQueryBuilder("v"))
+                ->andWhere('v.cinema = :cinema')
+                ->setParameter('cinema', $cinema);
+    }
+
+    public function findByActiveStatus(bool $isActive, ?QueryBuilder $qb = null): QueryBuilder {
+        return ($qb ?? $this->createQueryBuilder("v"))
+                ->andWhere('v.active = :active')
+                ->setParameter('active', $isActive);
+    }
+
+    public function findByName(string $name, ?QueryBuilder $qb = null): QueryBuilder {
+        return ($qb ?? $this->createQueryBuilder("v"))
+                ->andWhere('v.name = :name')
+                ->setParameter('name', $name);
+    }
+
+
+
+    
 
 
     public static function activeVisualFormatsConstraint(bool $isActive = true): Criteria 

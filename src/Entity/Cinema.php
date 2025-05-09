@@ -465,6 +465,7 @@ class Cinema implements SlugInterface
     public function getScreeningRoomSetups(): Collection
     {
         return $this->screeningRoomSetups;
+        // ->matching(ScreeningRoomSetupRepository::activeVisualFormatsConstraint());
     }
 
     public function addScreeningRoomSetup(ScreeningRoomSetup $screeningRoomSetup): static

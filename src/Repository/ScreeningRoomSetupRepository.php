@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Cinema;
 use App\Entity\ScreeningRoomSetup;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -35,6 +36,15 @@ class ScreeningRoomSetupRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public static function activeVisualFormatsConstraint(bool $isActive = true): Criteria
+    {
+        $expressionBuilder = Criteria::expr();
+
+        $criteria = Criteria::create();
+        return $criteria->where($expressionBuilder->eq('isActive', $isActive));
+    }
+
 
     public function hasActiveSetupForCinema(Cinema $cinema): bool
     {
