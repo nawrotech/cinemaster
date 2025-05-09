@@ -7,6 +7,7 @@ use App\Repository\ScreeningFormatRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 
+
 #[ORM\Entity(repositoryClass: ScreeningFormatRepository::class)]
 class ScreeningFormat
 {
@@ -81,7 +82,8 @@ class ScreeningFormat
         return $this;
     }
 
-    public function getDisplayScreeningFormat() {
+    public function getDisplayScreeningFormat()
+    {
 
         return "{$this->getVisualFormat()->getName()} {$this->getLanguagePresentation()->value}";
     }
@@ -97,5 +99,4 @@ class ScreeningFormat
 
         return $this;
     }
-
 }

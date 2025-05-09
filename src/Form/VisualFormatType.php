@@ -10,6 +10,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class VisualFormatType extends AbstractType
 {
@@ -34,6 +36,10 @@ class VisualFormatType extends AbstractType
                 "attr" => [
                     "placeholder" => "eg. IMAX, 3D",
                 ],
+                'constraints' => [
+                    new NotBlank(),
+                    new Length(min: 2, max: 40, minMessage: 'Name must be at least {{ limit }} characters', maxMessage: 'Name cannot be longer than {{ limit }} characters')
+                ]
             ])
             ->add("remove", RemoveButtonType::class)
       

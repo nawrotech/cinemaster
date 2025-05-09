@@ -39,7 +39,7 @@ class CinemaType extends AbstractType
                     "attr" => [
                         "placeholder" => "e.g. 6"
                     ],
-                    "label" => "What is the total number of rows in the largest screening room at your cinema?",
+                    "label" => "How many rows are there in the largest screening room at your cinema?",
                     "constraints" => [
                         new NotBlank(),
                         new GreaterThan(1),
@@ -54,14 +54,14 @@ class CinemaType extends AbstractType
                     "attr" => [
                         "placeholder" => "e.g. 6"
                     ],
-                    "label" => "How many seats are there in the longest row of your cinema?",
+                    "label" => "How many seats are in the longest row at your cinema?",
                     "constraints" => [
                         new NotBlank(),
                         new GreaterThan(1),
 
                     ]
                 ]
-            )  
+            )
             ->add("openTime", TimeType::class, [
                 'input'  => 'datetime_immutable',
                 'widget' => 'choice',

@@ -185,7 +185,7 @@ class CinemaController extends AbstractController
         MovieScreeningFormatRepository $movieScreeningFormatRepository
     ) {
 
-        $visualFormats = $visualFormatRepository->findByCinemaAndActiveStatus($cinema, true);
+        // $visualFormats = $visualFormatRepository->findByCinemaAndActiveStatus($cinema, true);
         $screeningRoomSetups = $screeningRoomSetupRepository->findByCinemaAndActiveStatus($cinema, true);
         $screeningFormats = $screeningFormatRepository->findByCinemaAndActiveStatus($cinema, true);
         $screeningRooms = $screeningRoomRepository->findByCinemaAndActiveStatus($cinema, true);
@@ -193,7 +193,7 @@ class CinemaController extends AbstractController
 
         return $this->render("cinema/cinema_details.html.twig", [
             "cinema" => $cinema,
-            "visualFormats" => $visualFormats,
+            // "visualFormats" => $visualFormats,
             "screeningRoomSetups" => $screeningRoomSetups,
             "screeningFormats" => $screeningFormats,
             "screeningRooms" => $screeningRooms,

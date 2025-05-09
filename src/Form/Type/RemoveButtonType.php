@@ -26,9 +26,9 @@ class RemoveButtonType extends AbstractType
             
         ]);
     }
-
-    public function getParent(): string
+  public function getParent(): string
     {
         return ButtonType::class;
     }
+  
 }

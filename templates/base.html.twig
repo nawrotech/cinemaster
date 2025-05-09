@@ -18,7 +18,7 @@
             {{ include("partials/_navigation.html.twig") }}
         {% endblock %}
         
-        <div class="container-md"> 
+        <div class="container-md py-4"> 
             {% for label, messages in app.flashes(['success', 'warning', "danger", 'info']) %}
                 {% for message in messages %}
                     <div class="alert alert-{{ label }}">

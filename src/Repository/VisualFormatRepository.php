@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Cinema;
 use App\Entity\VisualFormat;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -17,21 +18,29 @@ class VisualFormatRepository extends ServiceEntityRepository
         parent::__construct($registry, VisualFormat::class);
     }
 
-       /**
-        * @return VisualFormat[] Returns an array of VisualFormat objects
-        */
-       public function findByCinemaAndActiveStatus(Cinema $cinema, ?bool $isActive = null): array
-       {
-           $qb = $this->createQueryBuilder('v')
-               ->andWhere('v.cinema = :cinema')
-               ->setParameter('cinema', $cinema);
+    /**
+    * @return VisualFormat[] Returns an array of VisualFormat objects
+    */
+    public function findByCinemaAndActiveStatus(Cinema $cinema, ?bool $isActive = null): array
+    {
+        $qb = $this->createQueryBuilder('v')
+            ->andWhere('v.cinema = :cinema')
+            ->setParameter('cinema', $cinema);
 
-           if ($isActive !== null) {
-                $qb->andWhere('v.active = :active')
-                    ->setParameter('active', $isActive);
-           }
+        if ($isActive !== null) {
+            $qb->addCriteria(self::activeVisualFormatsConstraint($isActive));
+        }
 
-           return $qb->getQuery()->getResult();
-       }
+        return $qb->getQuery()->getResult();
+    }
+
+
+    public static function activeVisualFormatsConstraint(bool $isActive = true): Criteria 
+    {
+        $expressionBuilder = Criteria::expr();
+
+        $criteria = Criteria::create();
+        return $criteria->where($expressionBuilder->eq('active', $isActive));
+    }
 
 }

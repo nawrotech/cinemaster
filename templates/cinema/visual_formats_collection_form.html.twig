@@ -3,11 +3,15 @@
 
 {% block body %}
 
-{{ form_start(form) }}
-    {{ include("partials/_dynamic_collection_type.html.twig", {
-        collectionType: form.visualFormats,
-        addButtonText: "Add visual format"
-    }) }}
+{{ form_start(form, {
+    attr: {'novalidate': 'novalidate'}
+}) }}
+    <div class="my-2">
+        {{ include("partials/_dynamic_collection_type.html.twig", {
+            collectionType: form.visualFormats,
+            addButtonText: "Add visual format"
+        }) }}
+    </div>
 {{ form_end(form) }}
    
 

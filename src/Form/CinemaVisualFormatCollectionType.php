@@ -11,7 +11,6 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-
 class CinemaVisualFormatCollectionType extends AbstractType
 {
 
@@ -21,21 +20,28 @@ class CinemaVisualFormatCollectionType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+    
         /** @var Cinema $cinema */
         $cinema = $options['data'];
-        $activeVisualFormats = $this->visualFormatRepository
-                        ->findByCinemaAndActiveStatus($cinema, true);
+
+        if ($cinema->getVisualFormats()->isEmpty()) {
+            $visualFormat = new VisualFormat();
+            $visualFormat->setCinema($cinema);
+            $cinema->addVisualFormat($visualFormat);
+        }
+
 
         $builder
             ->add('visualFormats', CollectionType::class, [
-                "data" => $activeVisualFormats ?: [new VisualFormat()],
                 "entry_type" => VisualFormatType::class,
                 "label" => false,
-                "entry_options" => ["label" => false],
+                "entry_options" => [
+                    "label" => false,
+                ],
                 "allow_add" => true,
                 "allow_delete" => true,
                 "by_reference" => false,
-                "prototype" => true,
+                "prototype" => true,  
             ])   
             ->add("addScreeningRoomSetups", SubmitType::class, [
                 "attr" => [

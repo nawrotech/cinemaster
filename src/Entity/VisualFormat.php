@@ -7,7 +7,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+
 #[ORM\Entity(repositoryClass: VisualFormatRepository::class)]
+// #[UniqueEntity(fields: ['name'], message: 'This visual format already exists for this cinema.')]
 class VisualFormat
 {
     #[ORM\Id]
@@ -88,6 +90,4 @@ class VisualFormat
 
         return $this;
     }
-
-
 }
