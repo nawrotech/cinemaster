@@ -3,10 +3,12 @@
 {% block body %}
        
 {{ form_start(form) }}
-    {{ include("partials/_dynamic_collection_type.html.twig", {
-        collectionType: form.screeningFormats,
-        addButtonText: "Add Screening Format"
-    }) }}
+    <div class="mb-4">
+        {{ include("partials/_dynamic_collection_type.html.twig", {
+            collectionType: form.screeningFormats,
+            addButtonText: "Add Screening Format"
+        }) }}
+    </div>
 {{ form_end(form) }}
    
 

@@ -7,7 +7,6 @@ use App\Repository\CinemaRepository;
 use App\Repository\VisualFormatRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -15,27 +14,40 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[UniqueEntity(
     fields: ["name"],
-    message: "Name of this room is alredy taken",
+    message: "Name of this cinema is already taken",
+    groups: ['cinema']
 )]
 #[ORM\Entity(repositoryClass: CinemaRepository::class)]
 class Cinema implements SlugInterface
 {
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\Column(length: 50, unique: true)]
+    #[Assert\NotBlank(message: "Cinema name is required", groups: ['cinema'])]
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: "Cinema name must be at least {{ limit }} characters long",
+        maxMessage: "Cinema name cannot be longer than {{ limit }} characters",
+        groups: ['cinema'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 100, unique: true)]
     private ?string $slug = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank(message: "Maximum number of rows is required", groups: ['cinema'])]
+    #[Assert\Positive(message: "Maximum rows must be a positive number",  groups: ['cinema'])]
+    #[Assert\LessThanOrEqual(value: 20, message: "Maximum rows cannot exceed {{ compared_value }}",  groups: ['cinema'])]
     private ?int $maxRows = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank(message: "Maximum seats per row is required", groups: ['cinema'])]
+    #[Assert\Positive(message: "Maximum seats per row must be a positive number", groups: ['cinema'])]
+    #[Assert\LessThanOrEqual(value: 30, message: "Maximum seats per row cannot exceed {{ compared_value }}",  groups: ['cinema'])]
     private ?int $maxSeatsPerRow = null;
 
     #[ORM\Column]
@@ -50,7 +62,6 @@ class Cinema implements SlugInterface
     #[ORM\OneToMany(targetEntity: ScreeningRoom::class, mappedBy: 'cinema')]
     private Collection $screeningRooms;
 
-
     /**
      * @var Collection<int, Showtime>
      */
@@ -58,50 +69,99 @@ class Cinema implements SlugInterface
     private Collection $showtimes;
 
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank(message: "Street name is required",  groups: ['cinema'])]
+    #[Assert\Length(
+        min: 3,
+        max: 50,
+        minMessage: "Street name must be at least {{ limit }} characters long",
+        maxMessage: "Street name cannot be longer than {{ limit }} characters",
+        groups: ['cinema'])]
     private ?string $streetName = null;
 
     #[ORM\Column(length: 10)]
+    #[Assert\NotBlank(message: "Building number is required",  groups: ['cinema'])]
+    #[Assert\Length(
+        max: 10,
+        maxMessage: "Building number cannot be longer than {{ limit }} characters",
+        groups: ['cinema'])]
     private ?string $buildingNumber = null;
 
     #[ORM\Column(length: 6)]
+    #[Assert\NotBlank(message: "Postal code is required", groups: ['cinema'])]
+    #[Assert\Length(
+        min: 5,
+        max: 6,
+        minMessage: "Postal code must be at least {{ limit }} characters long",
+        maxMessage: "Postal code cannot be longer than {{ limit }} characters",
+        groups: ['cinema'])]
+    #[Assert\Regex(
+        pattern: '/^\d{2}-\d{3}$/',
+        message: "Postal code must be in format XX-XXX",
+        groups: ['cinema'])]
     private ?string $postalCode = null;
 
     #[ORM\Column(length: 25)]
+    #[Assert\NotBlank(message: "City is required",  groups: ['cinema'])]
+    #[Assert\Length(
+        min: 2,
+        max: 25,
+        minMessage: "City name must be at least {{ limit }} characters long",
+        maxMessage: "City name cannot be longer than {{ limit }} characters",
+        groups: ['cinema'])]
     private ?string $city = null;
 
     #[ORM\Column(length: 30)]
+    #[Assert\NotBlank(message: "District is required",  groups: ['cinema'])]
+    #[Assert\Length(
+        min: 2,
+        max: 30,
+        minMessage: "District name must be at least {{ limit }} characters long",
+        maxMessage: "District name cannot be longer than {{ limit }} characters",
+        groups: ['cinema'])]
     private ?string $district = null;
 
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank(message: "Country is required",  groups: ['cinema'])]
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: "Country name must be at least {{ limit }} characters long",
+        maxMessage: "Country name cannot be longer than {{ limit }} characters",
+        groups: ['cinema'])]
+    #[Assert\Country(message: "This is not a valid country",  groups: ['cinema'])]
     private ?string $country = null;
 
     #[ORM\ManyToOne(inversedBy: 'cinemas')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: "Cinema owner is required",  groups: ['cinema'])]
     private ?User $owner = null;
 
     /**
      * @var Collection<int, VisualFormat>
      */
     #[ORM\OneToMany(targetEntity: VisualFormat::class, mappedBy: 'cinema', cascade: ["persist"])]
-    #[Assert\Valid()]
+    #[Assert\Valid(groups: ['visual_formats'])]
     private Collection $visualFormats;
 
     /**
      * @var Collection<int, ScreeningRoomSetup>
      */
     #[ORM\OneToMany(targetEntity: ScreeningRoomSetup::class, mappedBy: 'cinema', cascade: ["persist"])]
+    #[Assert\Valid()]
     private Collection $screeningRoomSetups;
 
     /**
      * @var Collection<int, ScreeningFormat>
      */
     #[ORM\OneToMany(targetEntity: ScreeningFormat::class, mappedBy: 'cinema', cascade: ["persist"])]
+    #[Assert\Valid()]
     private Collection $screeningFormats;
 
     /**
      * @var Collection<int, MovieScreeningFormat>
      */
     #[ORM\OneToMany(targetEntity: MovieScreeningFormat::class, mappedBy: 'cinema')]
+    #[Assert\Valid()]
     private Collection $movieScreeningFormats;
 
     /**
@@ -111,9 +171,16 @@ class Cinema implements SlugInterface
     private Collection $movies;
 
     #[ORM\Column(type: Types::TIME_IMMUTABLE)]
+    #[Assert\NotNull(message: "Opening time is required")]
     private ?\DateTimeImmutable $openTime = null;
 
     #[ORM\Column(type: Types::TIME_IMMUTABLE)]
+    #[Assert\NotNull(message: "Closing time is required", groups: ['cinema'])]
+    #[Assert\Expression(
+        "this.getOpenTime() != this.getCloseTime()",
+        message: "Closing time must be different than opening time",
+        groups: ['cinema']
+    )]
     private ?\DateTimeImmutable $closeTime = null;
 
     public function __toString()
@@ -363,10 +430,10 @@ class Cinema implements SlugInterface
 
     /**
      * @return Collection<int, VisualFormat>
+     * @phpstan-return \Doctrine\Common\Collections\Collection<int, VisualFormat>
      */
     public function getVisualFormats(): Collection
     {
-
         return $this->visualFormats
             ->matching(VisualFormatRepository::activeVisualFormatsConstraint());
     }

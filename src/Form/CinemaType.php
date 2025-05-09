@@ -10,8 +10,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TimeType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\GreaterThan;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 class CinemaType extends AbstractType
 {
@@ -19,49 +17,26 @@ class CinemaType extends AbstractType
     {
 
         $builder
-            ->add(
-                "name",
-                TextType::class,
-                [
+            ->add("name", TextType::class, [
                     "label" => "Enter cinema name",
                     "attr" => [
                         "placeholder" => "Enter cinema name"
                     ],
-                    "constraints" => [
-                        new NotBlank()
-                    ]
                 ]
             )
-            ->add(
-                "maxRows",
-                NumberType::class,
-                [
+            ->add("maxRows", NumberType::class, [
                     "attr" => [
                         "placeholder" => "e.g. 6"
                     ],
                     "label" => "How many rows are there in the largest screening room at your cinema?",
-                    "constraints" => [
-                        new NotBlank(),
-                        new GreaterThan(1),
-                    ],
-
                 ]
             )
-            ->add(
-                "maxSeatsPerRow",
-                NumberType::class,
-                [
+            ->add("maxSeatsPerRow", NumberType::class, [
                     "attr" => [
                         "placeholder" => "e.g. 6"
                     ],
                     "label" => "How many seats are in the longest row at your cinema?",
-                    "constraints" => [
-                        new NotBlank(),
-                        new GreaterThan(1),
-
-                    ]
-                ]
-            )
+                ])
             ->add("openTime", TimeType::class, [
                 'input'  => 'datetime_immutable',
                 'widget' => 'choice',
@@ -93,6 +68,7 @@ class CinemaType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Cinema::class,
+            'validation_groups' => ['cinema'] 
         ]);
     }
 }

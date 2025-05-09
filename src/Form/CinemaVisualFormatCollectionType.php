@@ -30,7 +30,6 @@ class CinemaVisualFormatCollectionType extends AbstractType
             $cinema->addVisualFormat($visualFormat);
         }
 
-
         $builder
             ->add('visualFormats', CollectionType::class, [
                 "entry_type" => VisualFormatType::class,
