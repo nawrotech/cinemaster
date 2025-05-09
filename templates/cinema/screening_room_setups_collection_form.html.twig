@@ -2,8 +2,9 @@
 
 {% block body %}
        
-{{ form_start(form, {attr: {'novalidate': 'novalidate'}}) }}
+{{ form_start(form}) }}
     <div class="mb-4">
+        {{ form_label(form.screeningRoomSetups) }}
         {{ include("partials/_dynamic_collection_type.html.twig", {
             collectionType: form.screeningRoomSetups,
             addButtonText: "Add Screening Room Setup",
@@ -11,6 +12,7 @@
         }) }}
     </div>
 {{ form_end(form) }}
+
    
 
 {% endblock %}

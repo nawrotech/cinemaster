@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250508125538 extends AbstractMigration
+final class Version20250509130512 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -21,7 +21,7 @@ final class Version20250508125538 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            DROP INDEX uniq_a187a35d5e237e06
+            CREATE UNIQUE INDEX unique_active_screening_room_setup ON screening_room_setup (sound_format, visual_format_id, cinema_id, is_active) WHERE (is_active = true)
         SQL);
     }
 
@@ -29,7 +29,7 @@ final class Version20250508125538 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            CREATE UNIQUE INDEX uniq_a187a35d5e237e06 ON visual_format (name)
+            DROP INDEX unique_active_screening_room_setup
         SQL);
     }
 }

@@ -13,9 +13,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\NotNull;
 
 class ScreeningRoomSetupType extends AbstractType
 {
@@ -51,22 +48,11 @@ class ScreeningRoomSetupType extends AbstractType
                     ]);
                 }
             })
-            ->add('soundFormat', TextType::class, [
-                'constraints' => [
-                    new NotBlank(),
-                    new Length(min: 2,max: 50)
-                ],
-            ])
+            ->add('soundFormat', TextType::class)
             ->add('visualFormat', EntityType::class, [
                 'class' => VisualFormat::class,
                 "choices" => $this->visualFormatRepository->findByCinemaAndActiveStatus($cinema, true),
                 'choice_label' => 'name',
-                "attr" => [
-                    "readonly" => true
-                ],
-                'constraints' => [
-                    new NotNull()
-                ]
             ])
             ->add("remove", RemoveButtonType::class)
         ;

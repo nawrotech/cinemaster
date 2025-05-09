@@ -3,9 +3,7 @@
 
 {% block body %}
 
-{{ form_start(form, {
-    attr: {'novalidate': 'novalidate'}
-}) }}
+{{ form_start(form) }}
     <div class="mb-4">
         {{ include("partials/_dynamic_collection_type.html.twig", {
             collectionType: form.visualFormats,

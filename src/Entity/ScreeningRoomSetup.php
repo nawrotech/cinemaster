@@ -6,8 +6,20 @@ use App\Repository\ScreeningRoomSetupRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ScreeningRoomSetupRepository::class)]
+#[ORM\UniqueConstraint(
+    name: "unique_active_screening_room_setup",
+    columns: ["sound_format", "visual_format_id", "cinema_id", "is_active"],
+    options: ["where" => "(is_active = true)"]
+)]
+#[UniqueEntity(
+    fields: ['soundFormat', 'visualFormat', 'cinema'],
+    message: 'This screening room setup already exists for this cinema.',
+    repositoryMethod: 'findActiveByCinema'
+)]
 class ScreeningRoomSetup
 {
     #[ORM\Id]
@@ -16,10 +28,13 @@ class ScreeningRoomSetup
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank()]
+    #[Assert\Length(min: 2, max: 50)]
     private ?string $soundFormat = null;
 
     #[ORM\ManyToOne(inversedBy: 'screeningRoomSetups')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull()]
     private ?VisualFormat $visualFormat = null;
 
     #[ORM\ManyToOne(inversedBy: 'screeningRoomSetups')]

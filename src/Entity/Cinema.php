@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Contract\SlugInterface;
 use App\Repository\CinemaRepository;
+use App\Repository\ScreeningRoomSetupRepository;
 use App\Repository\VisualFormatRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -147,7 +148,7 @@ class Cinema implements SlugInterface
      * @var Collection<int, ScreeningRoomSetup>
      */
     #[ORM\OneToMany(targetEntity: ScreeningRoomSetup::class, mappedBy: 'cinema', cascade: ["persist"])]
-    #[Assert\Valid()]
+    #[Assert\Valid(groups: ['visual_formats'])]
     private Collection $screeningRoomSetups;
 
     /**
@@ -464,8 +465,8 @@ class Cinema implements SlugInterface
      */
     public function getScreeningRoomSetups(): Collection
     {
-        return $this->screeningRoomSetups;
-        // ->matching(ScreeningRoomSetupRepository::activeVisualFormatsConstraint());
+        return $this->screeningRoomSetups
+        ->matching(ScreeningRoomSetupRepository::activeScreeningRoomSetupConstraint());
     }
 
     public function addScreeningRoomSetup(ScreeningRoomSetup $screeningRoomSetup): static
