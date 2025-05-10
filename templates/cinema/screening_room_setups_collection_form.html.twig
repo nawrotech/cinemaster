@@ -2,15 +2,16 @@
 
 {% block body %}
        
-{{ form_start(form}) }}
+{{ form_start(form) }}
     <div class="mb-4">
-        {{ form_label(form.screeningRoomSetups) }}
+        {{ form_errors(form) }}
         {{ include("partials/_dynamic_collection_type.html.twig", {
             collectionType: form.screeningRoomSetups,
             addButtonText: "Add Screening Room Setup",
             allowAddingElements: activeVisualFormats is not empty
         }) }}
     </div>
+    {# {% do form.screeningRoomSetups.setRendered %} #}
 {{ form_end(form) }}
 
    

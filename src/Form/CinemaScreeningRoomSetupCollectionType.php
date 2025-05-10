@@ -10,6 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\Valid;
 
 class CinemaScreeningRoomSetupCollectionType extends AbstractType
@@ -32,7 +33,7 @@ class CinemaScreeningRoomSetupCollectionType extends AbstractType
 
         $builder
            ->add("screeningRoomSetups", CollectionType::class, [
-                "label" => "Enter types that can be played in your screening rooms",
+                'label' => false,
                 "entry_type" => ScreeningRoomSetupType::class,
                 "entry_options" => [
                     "label" => false,
@@ -43,9 +44,9 @@ class CinemaScreeningRoomSetupCollectionType extends AbstractType
                 "by_reference" => false,
                 "prototype" => true,
                 'constraints' => [
-                    new Valid()
+                    new Valid(),
+                    new Count(max: 20)
                 ], 
-                "error_bubbling" => false, 
            ])
            ->add("addScreeningFormats", SubmitType::class, [
                 "attr" => [

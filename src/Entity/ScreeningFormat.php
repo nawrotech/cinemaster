@@ -6,9 +6,19 @@ use App\Enum\LanguagePresentation;
 use App\Repository\ScreeningFormatRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
-
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: ScreeningFormatRepository::class)]
+#[UniqueEntity(
+    fields: ['visualFormat', 'languagePresentation', 'cinema'],
+    message: 'This screening format already exists for this cinema.',
+    repositoryMethod: 'findActiveByCinema'
+)]
+#[ORM\UniqueConstraint(
+    name: "unique_active_screening_format",
+    columns: ["language_presentation", "visual_format_id", "cinema_id", "active"],
+    options: ["where" => "(active = true)"]
+)]
 class ScreeningFormat
 {
     #[ORM\Id]

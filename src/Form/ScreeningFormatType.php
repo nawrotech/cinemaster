@@ -10,7 +10,6 @@ use App\Repository\VisualFormatRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Event\PreSetDataEvent;
-use Symfony\Component\Form\Event\SubmitEvent;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -26,8 +25,9 @@ class ScreeningFormatType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $cinema = $options["cinema"];
-     
+
+        $cinema = $options['cinema'];
+
 
         $builder
             ->addEventListener(FormEvents::PRE_SET_DATA, function (PreSetDataEvent $event) use($cinema) {
@@ -60,7 +60,6 @@ class ScreeningFormatType extends AbstractType
                 'class' => VisualFormat::class,
                 "choices" => $this->visualFormatRepository->findByCinemaAndActiveStatus($cinema, true),
                 'choice_label' => 'name',
-               
             ])
             ->add("remove", RemoveButtonType::class);
         ;

@@ -9,7 +9,10 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\Valid;
 
 class CinemaVisualFormatCollectionType extends AbstractType
@@ -43,7 +46,8 @@ class CinemaVisualFormatCollectionType extends AbstractType
                 "by_reference" => false,
                 "prototype" => true,  
                 "constraints" => [
-                    new Valid()
+                    new Valid(),
+                    new Count(max: 20)
                 ],
             ])   
             ->add("addScreeningRoomSetups", SubmitType::class, [

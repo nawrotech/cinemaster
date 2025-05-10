@@ -4,8 +4,12 @@ namespace App\Repository;
 
 use App\Entity\Cinema;
 use App\Entity\ScreeningFormat;
+use App\Entity\VisualFormat;
+use App\Enum\LanguagePresentation;
+use Countable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -24,18 +28,71 @@ class ScreeningFormatRepository extends ServiceEntityRepository
      */
     public function findByCinemaAndActiveStatus(Cinema $cinema, ?bool $isActive = null): array
     {
-        $qb = $this->createQueryBuilder('sf')
-            ->andWhere('sf.cinema = :cinema')
-            ->setParameter('cinema', $cinema);
+        $qb = $this->findByCinema($cinema);
 
         if ($isActive !== null) {
-            $qb->addCriteria($this->activeScreeningFormatCriteria($isActive));
+            $qb = $this->findByActiveStatus($isActive, $qb);
         }
 
         return $qb->getQuery()->getResult();
     }
 
-    public static function activeScreeningFormatCriteria(?bool $isActive): Criteria
+    public function findActiveByCinema(array $fieldValues)
+    {
+        $visualFormat = $fieldValues['visualFormat'] ?? null;
+        $languagePresentation = $fieldValues['languagePresentation'] ?? null;
+        $cinema = $fieldValues['cinema'] ?? null;
+
+        if (!$visualFormat || !$languagePresentation || !$cinema) {
+            return null;
+        }
+
+        if (is_string($languagePresentation)) {
+            $languagePresentation = LanguagePresentation::tryFrom($languagePresentation);
+
+            if (!$languagePresentation) {
+                return null;
+            }
+        }
+
+        $qb = $this->findByCinema($cinema);
+
+        $qb = $this->findByActiveStatus(true, $qb);
+
+        $qb = $this->findByLanguagePresentation($languagePresentation, $qb);
+
+        $qb = $this->findByVisualFormat($visualFormat, $qb);
+
+        return $qb->getQuery()->getResult();
+    }
+
+
+    public function findByCinema(Cinema $cinema, ?QueryBuilder $qb = null): QueryBuilder {
+        return ($qb ?? $this->createQueryBuilder("sf"))
+                ->andWhere('sf.cinema = :cinema')
+                ->setParameter('cinema', $cinema);
+    }
+
+    public function findByActiveStatus(bool $isActive, ?QueryBuilder $qb = null): QueryBuilder {
+        return ($qb ?? $this->createQueryBuilder("sf"))
+                ->andWhere('sf.active = :active')
+                ->setParameter('active', $isActive);
+    }
+
+    public function findByVisualFormat(VisualFormat $visualFormat, ?QueryBuilder $qb = null): QueryBuilder {
+        return ($qb ?? $this->createQueryBuilder("sf"))
+                ->andWhere('sf.visualFormat = :visualFormat')
+                ->setParameter('visualFormat', $visualFormat);
+    }
+
+    public function findByLanguagePresentation(LanguagePresentation $languagePresentation, ?QueryBuilder $qb = null): QueryBuilder {
+        return ($qb ?? $this->createQueryBuilder("sf"))
+                ->andWhere('sf.languagePresentation = :languagePresentation')
+                ->setParameter('languagePresentation', $languagePresentation);
+    }
+
+
+    public static function activeScreeningFormatCriteria(?bool $isActive = true): Criteria
     {
         $criteria = Criteria::create();
 
@@ -45,6 +102,7 @@ class ScreeningFormatRepository extends ServiceEntityRepository
 
         return $criteria;
     }
+
 
     public function findByIds(array $screeningFormatIds): array
     {
@@ -66,9 +124,10 @@ class ScreeningFormatRepository extends ServiceEntityRepository
             ->andWhere("LOWER(sf.languagePresentation) LIKE LOWER(:screeningFormatTerm)
                         OR
                         LOWER(vf.name) LIKE LOWER(:screeningFormatTerm)")
+            ->setParameter("screeningFormatTerm", "%$screeningFormatTerm%")
+
             ->andWhere("sf.cinema = :cinema")
             ->setParameter("cinema", $cinema)
-            ->setParameter("screeningFormatTerm", "%$screeningFormatTerm%")
             ->addCriteria($this->activeScreeningFormatCriteria($isActive))
             ->getQuery()
             ->getResult()
