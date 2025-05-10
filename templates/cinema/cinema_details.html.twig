@@ -40,7 +40,7 @@
 							<li>{{ screeningFormat.displayScreeningFormat }}</li>
 						{% endfor %}
 					</ul>
-					<a class="link" href="{{ path("app_cinema_add_screening_formats", {slug: cinema.slug}) }}">Add more</a>
+					<a class="link" href="{{ path("app_cinema_add_screening_formats", {slug: cinema.slug}) }}">Edit</a>
 				</div>
 			</div>
 		</aside>
@@ -79,7 +79,7 @@
 				{% endfor %}
 			</ul>
 
-			{% if cinema.screeningRoomSetups is not empty %}
+			{% if cinema.screeningRoomSetups|length is not empty %}
 				<a class="link d-block" href="{{path("app_screening_room_create", {slug: cinema.slug})}}">
 					Create screening room
 				</a>

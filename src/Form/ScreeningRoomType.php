@@ -12,7 +12,11 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Positive;
@@ -39,6 +43,10 @@ class ScreeningRoomType extends AbstractType
                 "label" => "Screening room name",
                 "attr" => [
                     "placeholder" => "e.g. Room A"
+                ],
+                'constraints' => [
+                    new NotBlank(),
+                    new Length(min: 2, max: 50)
                 ]
             ])
             ->add("maxRows", IntegerType::class, [
@@ -46,7 +54,7 @@ class ScreeningRoomType extends AbstractType
                 "mapped" => false,
                 'constraints' => [
                     new NotBlank(),
-                    new  Positive(),
+                    new Positive(),
                     new LessThanOrEqual([
                         'value' => $maxRowsConstraint,  
                         'message' => 'The maximum number of seats per row is {{ compared_value }}.'
@@ -89,7 +97,10 @@ class ScreeningRoomType extends AbstractType
             ->add("maintenanceTimeInMinutes", IntegerType::class, [
                 "constraints" => [
                     new NotBlank(),
-                    new Positive()
+                    new LessThanOrEqual([
+                        'value' => 60,  
+                        'message' => 'The maximum number of seats per row is {{ compared_value }}.'
+                    ])
                 ]
             ])
             ->add("screeningRoomSetup", EntityType::class, [
@@ -98,6 +109,16 @@ class ScreeningRoomType extends AbstractType
                 'choice_label' => 'displaySetup',
             ])
             ->add("create", SubmitType::class)
+            ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+                $form = $event->getForm();
+                
+                $seatsPerRow = $form->get('seatsPerRow')->getData();
+                if (empty($seatsPerRow)) {
+                    $form->get('seatsPerRow')->addError(new FormError(
+                        'Please generate rows before submitting the form'
+                    ));
+                }
+            });
         ;
     }
 

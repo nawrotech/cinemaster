@@ -13,6 +13,13 @@
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="#">Home</a>
           </li>
+          
+          {% if app.current_route_parameters.slug|default(null) != null %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ path('app_cinema_details', { slug: app.current_route_parameters.slug }) }}">Back to dashboard</a>
+            </li>
+          {% endif %}
+
           <li class="nav-item">
             <a class="nav-link" href="#">Features</a>
           </li>
