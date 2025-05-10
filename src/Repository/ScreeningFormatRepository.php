@@ -61,7 +61,7 @@ class ScreeningFormatRepository extends ServiceEntityRepository
 
         $qb = $this->findByLanguagePresentation($languagePresentation, $qb);
 
-        $qb = $this->findByVisualFormat($visualFormat, $qb);
+        $qb = $this->findByVisualFormatName($visualFormat->getName(), $qb);
 
         return $qb->getQuery()->getResult();
     }
@@ -79,10 +79,11 @@ class ScreeningFormatRepository extends ServiceEntityRepository
                 ->setParameter('active', $isActive);
     }
 
-    public function findByVisualFormat(VisualFormat $visualFormat, ?QueryBuilder $qb = null): QueryBuilder {
+    public function findByVisualFormatName(string $visualFormatName, ?QueryBuilder $qb = null): QueryBuilder {
         return ($qb ?? $this->createQueryBuilder("sf"))
-                ->andWhere('sf.visualFormat = :visualFormat')
-                ->setParameter('visualFormat', $visualFormat);
+                ->innerJoin('sf.visualFormat', 'vf')
+                ->andWhere('vf.name = :visualFormatName')
+                ->setParameter('visualFormatName', $visualFormatName);
     }
 
     public function findByLanguagePresentation(LanguagePresentation $languagePresentation, ?QueryBuilder $qb = null): QueryBuilder {

@@ -53,7 +53,7 @@ class ScreeningRoomSetupRepository extends ServiceEntityRepository
         $qb = $this->findByCinema($cinema);
         $qb = $this->findByActiveStatus(true, $qb);
         $qb = $this->findBySoundFormat($soundFormat, $qb);
-        $qb = $this->findByVisualFormat($visualFormat, $qb);
+        $qb = $this->findByVisualFormatName($visualFormat->getName(), $qb);
         
         return $qb->getQuery()->getResult();
     }
@@ -82,12 +82,15 @@ class ScreeningRoomSetupRepository extends ServiceEntityRepository
     }
 
 
-    public function findByVisualFormat(VisualFormat $visualFormat, ?QueryBuilder $qb = null): QueryBuilder 
+    public function findByVisualFormatName(string $visualFormatName, ?QueryBuilder $qb = null): QueryBuilder 
     {
         return ($qb ?? $this->createQueryBuilder("srs"))
-                ->andWhere('srs.visualFormat = :visualFormat')
-                ->setParameter('visualFormat', $visualFormat);
+                ->innerJoin('srs.visualFormat', 'vf')
+                ->andWhere('vf.name = :visualFormatName')
+                ->setParameter('visualFormatName', $visualFormatName);
     }
+
+
 
     public function hasActiveSetupForCinema(Cinema $cinema): bool
     {
