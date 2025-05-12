@@ -1,111 +1,135 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Cinema
-	{{cinema.name }}
+    {{cinema.name }}
 {% endblock %}
 
 {% block body %}
 
-	<div class="container-sm">
-		<h1 class="mb-4">Cinema
-			{{ cinema.name }}
-		</h1>
-		<p>Opening hours: {{ cinema.openTime|date("G:i") }} - {{ cinema.closeTime|date("G:i") }}</p>
-		<a target="_blank" href="{{ path("app_main_cinema_showtimes", {slug: cinema.slug}) }}">User view</a>
-		<aside>
-			<h2 class="mb-4">Cinema settings</h2>
-			<div class="row mb-4">
-				<div class="col-4">
-					<h3>Visual formats</h3>
-					<ul>
-						{% for visualFormat in cinema.visualFormats %}
-							<li>{{ visualFormat.name }}</li>
-						{% endfor %}
-					</ul>
-					<a class="link" href="{{ path("app_cinema_add_visual_formats", {slug: cinema.slug}) }}">Edit</a>
-				</div>
-				<div class="col-4">
-					<h3>Screening room setups</h3>
-					<ul>
-						{% for screeningRoomSetup in screeningRoomSetups %}
-							<li>{{ screeningRoomSetup.displaySetup }}</li>
-						{% endfor %}
-					</ul>
-					<a class="link" href="{{ path("app_cinema_add_screening_room_setups", {slug: cinema.slug}) }}">Edit</a>
-				</div>
-				<div class="col-4">
-					<h3>Screening formats</h3>
-					<ul>
-						{% for screeningFormat in screeningFormats %}
-							<li>{{ screeningFormat.displayScreeningFormat }}</li>
-						{% endfor %}
-					</ul>
-					<a class="link" href="{{ path("app_cinema_add_screening_formats", {slug: cinema.slug}) }}">Edit</a>
-				</div>
-			</div>
-		</aside>
+    <div class="container-sm">
+        <h1 class="mb-4">Cinema
+            {{ cinema.name }}
+        </h1>
+        <p class="lead mb-4">Opening hours: {{ cinema.openTime|date("G:i") }} - {{ cinema.closeTime|date("G:i") }}</p>
+        
+        <hr class="my-4">
 
+        <div class="mb-4">
+            <h2 class="mb-3">Cinema Settings and Rooms</h2>
+            <div class="settings-and-rooms-grid">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        {{ include('cinema/_settings_card.html.twig', {
+                            'title': 'Visual Formats',
+                            'items': cinema.visualFormats,
+                            'property_path': 'name',
+                            'route_name': 'app_cinema_add_visual_formats',
+                            'route_params': {'slug': cinema.slug},
+                            'button_text': 'Edit Visual Formats'
+                        }) }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ include('cinema/_settings_card.html.twig', {
+                            'title': 'Screening Room Setups',
+                            'items': screeningRoomSetups,
+                            'property_path': 'displaySetup',
+                            'route_name': 'app_cinema_add_screening_room_setups',
+                            'route_params': {'slug': cinema.slug},
+                            'button_text': 'Edit Setups'
+                        }) }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ include('cinema/_settings_card.html.twig', {
+                            'title': 'Screening Formats',
+                            'items': screeningFormats,
+                            'property_path': 'displayScreeningFormat',
+                            'route_name': 'app_cinema_add_screening_formats',
+                            'route_params': {'slug': cinema.slug},
+                            'button_text': 'Edit Screening Formats'
+                        }) }}
+                    </div>
+                </div>
 
-		<div class="mb-4">
-			<h2>Rooms:</h2>
-			<ul>
-				{% for screeningRoom in screeningRooms %}
-					<li class="mb-2">
-						<div class="dropdown">
-							<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-								{{ screeningRoom.name }}
-							</button>
-							<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-								<li>
-									<a class="dropdown-item" href="{{path("app_screening_room_edit", {screening_room_slug: screeningRoom.slug, slug: cinema.slug} )}}">Edit seats</a>
-								</li>
-								<li>
-									{% set screeningRoomVisualFormatName = screeningRoom.screeningRoomSetup.visualFormat.name %}
+                <div class="mb-4">
+                    <h2 class="mb-3">Rooms</h2>
+                    <div class="border rounded scrollable-rooms-list">
+                        <ul class="list-group list-group-flush">
+                            {% for screeningRoom in screeningRooms %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>{{ screeningRoom.name }}</span>
+                                    <div class="btn-group" role="group" aria-label="Screening room actions">
+                                        <a class="btn btn-outline-primary btn-sm" href="{{path("app_screening_room_edit", {screening_room_slug: screeningRoom.slug, slug: cinema.slug} )}}">Edit Seats</a>
+                                        {% set screeningRoomVisualFormatName = screeningRoom.screeningRoomSetup.visualFormat.name %}
+                                        {% if screeningRoomVisualFormatName in movieVisualFormats  %}
+                                            <a class="btn btn-outline-secondary btn-sm" href="{{path("app_showtime_create", { screening_room_slug: screeningRoom.slug, slug: cinema.slug } )}}">Schedule</a>
+                                        {% endif %}
+                                        <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteScreeningRoomModal{{ screeningRoom.id }}">Delete</button>
+                                    </div>
 
-									{% if screeningRoomVisualFormatName in movieVisualFormats  %}
-										<a class="dropdown-item" href="{{path("app_showtime_create", { screening_room_slug: screeningRoom.slug, slug: cinema.slug } )}}">Schedule Showtime</a>
-									{% endif %}
-								</li>
-								{# <li>
-									<form action="{{ path("app_screening_room_delete", {id: screeningRoom.id, slug: cinema.slug}) }}" method="DELETE">
-										<button class="dropdown-item">Delete</button>
+                                    <div class="modal fade" id="deleteScreeningRoomModal{{ screeningRoom.id }}" tabindex="-1" aria-labelledby="deleteScreeningRoomModalLabel{{ screeningRoom.id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="deleteScreeningRoomModalLabel{{ screeningRoom.id }}">Confirm Delete</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to delete screening room "<strong>{{ screeningRoom.name }}</strong>"?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <form action="{{ path("app_screening_room_delete", {id: screeningRoom.id, slug: cinema.slug}) }}" method="POST" class="d-inline">
+                                                        <input type="hidden" name="_method" value="DELETE">
+                                                        <input type="hidden" name="token" value="{{ csrf_token('delete-screening-room-' ~ screeningRoom.id) }}">
+                                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% else %}
+                                <li class="list-group-item text-muted">No screening rooms created yet.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
 
-										<input type="hidden" name="token" value="{{ csrf_token('delete-screening-room-' ~ screeningRoom.id) }}">
-									</form>
-								</li> #}
-							</ul>
-						</div>
-					</li>
-				{% endfor %}
-			</ul>
-
-			{% if cinema.screeningRoomSetups|length is not empty %}
-				<a class="link d-block" href="{{path("app_screening_room_create", {slug: cinema.slug})}}">
-					Create screening room
-				</a>
-			{% endif %}
-
-		</div>
-
-		<div class="mb-4">
-			<h2>Movies</h2>
-			<a class="link d-block" href="{{ path("app_movie_select_movies", {slug: cinema.slug}) }}">
-				Add movies
-			</a>
-
-			<a class="link d-block" href="{{ path("app_movie_available_movies", {slug: cinema.slug}) }}">Show cinema's movies</a>
-		</div>
-
-        <div class="showtimes">
-            <h2>Showtimes</h2>
-
-            <a class="btn btn-success" href="{{ path("app_showtime_showtime_axis", {slug: cinema.slug }) }}">Show Scheduled showtimes in cinema</a>
-
-			<a class="btn btn-secondary" href="{{ path("app_showtime_scheduled_room", {slug: cinema.slug}) }}" >Show Scheduled showtimes in room</a>
+                    {% if cinema.screeningRoomSetups|length is not empty %}
+                        <a class="btn btn-primary mt-3 w-100" href="{{path("app_screening_room_create", {slug: cinema.slug})}}">
+                            Create Screening Room
+                        </a>
+                    {% else %}
+                        <div class="alert alert-info mt-3" role="alert">
+                          Please configure <a href="{{ path("app_cinema_add_screening_room_setups", {slug: cinema.slug}) }}" class="alert-link">Screening Room Setups</a> first to create rooms.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
 
+        <hr class="my-4">
 
-	</d>
+        <div class="mb-4">
+            <h2 class="mb-3">Movies</h2>
+            <div class="d-grid gap-2 d-sm-block">
+                <a class="btn btn-primary" href="{{ path("app_movie_select_movies", {slug: cinema.slug}) }}">
+                    Manage Cinema Movies
+                </a>
+                <a class="btn btn-outline-primary" href="{{ path("app_movie_available_movies", {slug: cinema.slug}) }}">
+                    View Available Movies
+                </a>
+            </div>
+        </div>
 
+        <hr class="my-4">
 
-</div>{% endblock %}
+        <div class="mb-4">
+            <h2 class="mb-3">Showtimes</h2>
+            <div class="d-grid gap-2 d-sm-block">
+                <a class="btn btn-success" href="{{ path("app_showtime_showtime_axis", {slug: cinema.slug }) }}">View Showtime Axis</a>
+                <a class="btn btn-info" href="{{ path("app_showtime_scheduled_room", {slug: cinema.slug}) }}" >View by Scheduled Room</a>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
