@@ -1,7 +1,16 @@
-<search>
-    <form action="{{ action_route }}">
-      <label for="movie">Find a Movie</label>
-      <input value="{{ query_value }}" type="search" id="movie" name="{{ name }}" />
-      <button class="btn btn-info">Search</button>
-    </form>
+<search class="{{ class|default('') }}">
+    <form 
+        class="d-flex align-items-center" 
+        role="search" 
+        action="{{ action_route|default('') }}" 
+        method="{{ method|default('GET') }}">
+      <input 
+        class="form-control me-2"
+        type="search" 
+        placeholder="{{ placeholder|default('Search') }}"
+        aria-label="Search" 
+        name="{{ name|default('q') }}" 
+        value="{{ query_value|default('') }}">
+      <button class="btn btn-outline-success" type="submit">{{ button_label|default('Search') }}</button>
+  </form>
 </search>

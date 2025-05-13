@@ -3,55 +3,61 @@
 {% block title %}Add movies{% endblock %}
 
 {% block body %}
-
-    {{ include("partials/_search_input.html.twig", {
-        action_route: "",
-        query_value: app.request.get("q"),
-        name: "q"
-    }) }}
-    {% set cinemaSlug = app.current_route_parameters.slug %}
-    
-    <p>Can't find movie? <a href="{{ path("app_movie_create", {slug: cinemaSlug}) }}">Create your own!</a></p>
-
-    <div class="grid-container">
-        {% for tmdbMovie in pager %}
-            <form action="{{path("app_movie_add", {
-                slug:  cinemaSlug, 
-                tmdbId: tmdbMovie.id,
-                q: app.request.get("q"),
-                page: app.request.get("page")  
+    <div class="container">
+        <div class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
             
-            })}}" 
-                method="post" 
-                class="card"
-                id="{{ "form" ~ loop.index }}"
-                style="width: 18rem;">
-                    <input type="hidden" name="token" value="{{ csrf_token('add-tmdbMovie-' ~ tmdbMovie.id ) }}">
-                    <input type="hidden" name="formId" value="{{ "form" ~ loop.index }}">
-                    
-                    <img src="{{ "https://image.tmdb.org/t/p/w300" ~ tmdbMovie.poster_path }}" class="card-img-top" alt="{{ tmdbMovie.title ~ "poster-image" }}">
-                   
-                    <div class="card-body">
-                        <h5 class="card-title">{{ tmdbMovie.title }}</h5>
-                        <p class="card-text text-truncate">{{ tmdbMovie.overview }}</p>
-                    </div>
-                    
+            {{ include("partials/_search_input.html.twig", {
+                action_route: "",
+                query_value: app.request.get("q"),
+                name: "q"
+            }) }}
+            {% set cinemaSlug = app.current_route_parameters.slug %}
+            
+            <a href="{{ path('app_movie_available_movies', {slug: cinemaSlug}) }}">Go to cinema's movies</a>
+        </div>
+    
+        <p>Can't find movie? <a href="{{ path("app_movie_create", {slug: cinemaSlug}) }}">Create your own!</a></p>
 
-                    {% if tmdbMovie.id not in storedTmdbIds %}
-                        <button name="add-tmdbMovie" class="btn btn-success">Add movie</button>
-                        {% else %}
-                        <a class="btn btn-warning" href="{{ path("app_movie_available_movies", {
-                            slug: cinemaSlug,
-                            q: tmdbMovie.title
-                        }) }}">View</a>
-                    {% endif %}
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mb-3">
+            {% for tmdbMovie in pager %}
+                <div class="col">
+                    <form action="{{path("app_movie_add", {
+                        slug:  cinemaSlug, 
+                        tmdbId: tmdbMovie.id,
+                        q: app.request.get("q"),
+                        page: app.request.get("page")  
+                    })}}" 
+                        method="post" 
+                        class="card h-100"
+                        id="{{ "form" ~ loop.index }}">
+                        <input type="hidden" name="token" value="{{ csrf_token('add-tmdbMovie-' ~ tmdbMovie.id ) }}">
+                        <input type="hidden" name="formId" value="{{ "form" ~ loop.index }}">
+                        
+                        <img src="{{ "https://image.tmdb.org/t/p/w300" ~ tmdbMovie.poster_path }}" class="card-img-top" alt="{{ tmdbMovie.title ~ "poster-image" }}">
+                       
+                        <div class="card-body">
+                            <h5 class="card-title">{{ tmdbMovie.title }}</h5>
+                            <p class="card-text text-truncate">{{ tmdbMovie.overview }}</p>
+                        </div>
+                        
+                        <div class="card-footer">
+                            {% if tmdbMovie.id not in storedTmdbIds %}
+                                <button name="add-tmdbMovie" class="btn btn-success w-100">Add movie</button>
+                            {% else %}
+                                <a class="btn btn-warning w-100" href="{{ path("app_movie_available_movies", {
+                                    slug: cinemaSlug,
+                                    q: tmdbMovie.title
+                                }) }}">View</a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
 
-
-            </form>
-        {% endfor %}
+        <div class="overflow-auto">
+            {{ pagerfanta(pager, "twitter_bootstrap5") }}
+        </div>
 
     </div>
-    {{ pagerfanta(pager, "twitter_bootstrap5") }}
-
-
 {% endblock %}

@@ -8,42 +8,44 @@
 {% endblock %}
 
 {% block body %}
-    {{ include("partials/_search_input.html.twig", {
-        action_route: "",
-        query_value: app.request.get("q"),
-        name: "q",
-    }) }}
-  
-    <a href="{{ path('app_movie_select_movies', {slug: app.current_route_parameters.slug}) }}" class="link">Add more movie</a>
+    <div class="container">
+        {{ include("partials/_search_input.html.twig", {
+            action_route: "",
+            query_value: app.request.get("q"),
+            name: "q",
+            class: "mb-3"
+        }) }}
 
-    <div class="grid-container">
-     
-      {% for movie in pager %}
+        <a href="{{ path('app_movie_select_movies', {slug: app.current_route_parameters.slug}) }}" class="btn btn-primary mb-3">Add more movie</a>
 
-        <div class="card" style="width: 18rem;">
-            <div class="image-container">
-                <img src="{{ asset(movie.posterPath, "uploads_url") }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
-            </div>
-                <div class="card-body">
-                    <h5 class="card-title">{{ movie.title }}</h5>
-                    <p class="card-text text-truncate">{{ movie.overview }}</p>
-            
-                        {{ include("movie/_manage_movie_screening_formats.html.twig") }}
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mb-3">
+            {% for movie in pager %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="image-container">
+                            <img src="{{ asset(movie.posterPath, "uploads_url") }}" class="card-img-top" alt="{{ movie.title ~ "post-image" }}">
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ movie.title }}</h5>
+                            <p class="card-text text-truncate">{{ movie.overview }}</p>
+                        </div>
+                        <div class="card-footer">
+                            {{ include("movie/_manage_movie_screening_formats.html.twig") }}
 
-                        {% if (movie.id not in scheduledMovieIds and movie.movieReferences is empty) %}
-                            {{ include("movie/_movie_update_form.html.twig") }}
-                        {% endif %}
+                            {% if (movie.id not in scheduledMovieIds and movie.movieReferences is empty) %}
+                                {{ include("movie/_movie_update_form.html.twig") }}
+                            {% endif %}
 
-                        {{ include("movie/_modal_ajax_reference_list.html.twig") }}
+                            {{ include("movie/_modal_ajax_reference_list.html.twig") }}
+                        </div>
+                    </div>
                 </div>
+            {% endfor %}
         </div>
-          
-      {% endfor %}
+
+        <div class="overflow-auto">
+            {{ pagerfanta(pager, "twitter_bootstrap5") }}
+        </div>
+
     </div>
-
-
-
-{{ pagerfanta(pager, "twitter_bootstrap5") }}
-
-
 {% endblock %}

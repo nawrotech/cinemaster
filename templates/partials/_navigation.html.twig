@@ -10,29 +10,18 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Home</a>
-          </li>
-          
-
-          
-          {% if is_granted('ROLE_ADMIN') %}
+          {% if is_granted('ROLE_ADMIN') and app.current_route_parameters.slug|default(null) != null %}
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Admin actions
               </a>
               <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                {% if app.current_route_parameters.slug|default(null) != null %}
                   <li>
                     <a class="dropdown-item" href="{{ path('app_cinema_details', { slug: app.current_route_parameters.slug }) }}">Dashboard</a>
                   </li>
-                {% endif %}
-    
-                {% if app.current_route_parameters.slug|default(null) != null %}
                   <li>
                     <a class="dropdown-item" target="_blank" href="{{ path("app_main_cinema_showtimes", {slug: app.current_route_parameters.slug}) }}">Cinema user perspective</a>
                   </li>
-                {% endif %}
               </ul>
             </li>
           {% endif %}
