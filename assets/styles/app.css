@@ -166,7 +166,7 @@
     outline: 5px solid red;
  }
  .seat-status-checkbox[type="checkbox"]:checked {
-    outline: 5px solid green;
+    outline: 5px solid #0d6efd;
  }
 
  /* cinema_showtimes */

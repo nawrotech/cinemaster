@@ -1,0 +1,39 @@
+<div class="d-flex flex-column align-items-center mb-2">
+    <p class="seat-position">{{ seat.seat.seatPosition }}</p>
+    <form method="post" action="{{path("app_screening_room_seat_update", {
+        id: seat.id,
+        slug: cinema.name
+        })}}" class="text-center">
+
+        <input type="hidden" name="cinemaSlug" value="{{cinema.slug}}" >
+        <input type="hidden" name="screeningRoomSlug" value="{{room.slug}}">
+        <input type="hidden" name="token" value="{{ csrf_token('edit-seat-' ~ seat.id) }}">
+
+        <div class="mb-2">
+            <select name="seatType" id="seatType" class="form-select form-select-sm">
+                {% for seatType in enum('App\\Enum\\ScreeningRoomSeatType').cases %}
+                    <option
+                        {{ seatType.value == seat.type.value ? "selected" : "" }}
+                        value="{{ seatType.value }}">
+                        {{ seatType.value }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-checsk form-switch mb-2">
+            <input 
+                class="form-check-input seat-status-checkbox"
+                type="checkbox"
+                role="switch"
+                id="{{ "seatStatus" ~ seat.id }}"
+                name="seatStatus" 
+                {{ seat.status == "available" ? "checked" : "" }}
+            >
+            <label class="visually-hidden" for="{{ "seatStatus" ~ seat.id }}">Set change availability</label>
+        </div>
+
+        <button class="btn btn-sm btn-primary rounded-circle"><i class="bi bi-check-circle"></i></button>
+        
+    </form>
+</div>

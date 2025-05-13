@@ -126,6 +126,8 @@ class ScreeningRoomController extends AbstractController
         $screeningRoomSeat->setStatus($seatStatus);
         $em->flush();
 
+        $this->addFlash('success', 'Seat successfully updated');
+
         return $this->redirectToRoute(
             "app_screening_room_edit",
             [
@@ -181,7 +183,9 @@ class ScreeningRoomController extends AbstractController
                 $form->get("lastSeatInRow")->getData(),
                 $form->get("seatType")->getData(),
             );
-     
+
+            $this->addFlash('success', sprintf('Seats from from row %s have been updated', $form->get('row')->getData()));
+
             return $this->redirectToRoute("app_screening_room_edit", [
                 "screening_room_slug" => $screeningRoom->getSlug(),
                 "slug" => $cinema->getSlug()
