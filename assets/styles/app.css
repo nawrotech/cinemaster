@@ -6,6 +6,7 @@
     height: 40px;
 }
 
+
 .available {
     background-color: green;
 }
@@ -46,7 +47,6 @@
 .drag-handle {
     cursor: grab;
 }
-
 
  .seat-position {
     font-size: 0.75rem;
@@ -187,4 +187,18 @@
 .format-badge .badge.rounded-end {
     border-top-left-radius: 0 !important;
     border-bottom-left-radius: 0 !important;
+}
+
+/* cinema_details.html.twig */
+.settings-card {
+    --vfs-block-size: 150px;
+}
+
+.rooms-list {
+    --vfs-block-size: 200px;
+}
+
+.v-fixed-scroll {
+    block-size: var(--vfs-block-size, 150px);
+    overflow: auto;
 }

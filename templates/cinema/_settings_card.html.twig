@@ -1,8 +1,8 @@
-<div class="card h-100">
-    <div class="card-body d-flex flex-column" style="min-height: 220px;">
+<div class="card h-100 settings-card">
+    <div class="card-body d-flex flex-column">
         <h5 class="card-title">{{ title }}</h5>
         {% if items is not empty %}
-            <ul class="list-group list-group-flush mb-3">
+            <ul class="list-group list-group-flush mb-3 v-fixed-scroll">
                 {% for item in items %}
                     <li class="list-group-item px-0 py-1">
                         {% if property_path %}
@@ -16,6 +16,10 @@
         {% else %}
             <p class="text-muted small">No {{ title|lower }} added.</p>
         {% endif %}
-        <a class="btn btn-sm btn-outline-primary mt-auto" href="{{ path(route_name, route_params) }}">{{ button_text|default('Edit') }}</a>
+        <a 
+            class="btn btn-sm btn-outline-primary mt-auto" 
+            href="{{ path(route_name, route_params) }}">
+            {{ button_text|default('Edit') }}
+        </a>
     </div>
 </div>
