@@ -19,25 +19,25 @@ class MovieRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return Movie[]|\Doctrine\ORM\QueryBuilder 
+     * @return Movie[]
      */
-    public function findBySearchTerm(Cinema $cinema, ?string $searchTerm = null, $returnQueryBuilder = false): array|QueryBuilder
+    public function findBySearchTerm(Cinema $cinema, ?string $searchTerm = null): array
     {
-        $queryBuilder = $this->createQueryBuilder('m');
+        return $this->createSearchQueryBuilder($cinema, $searchTerm)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function createSearchQueryBuilder(Cinema $cinema, ?string $searchTerm = null): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('m');
+        $qb = $this->filterByCinema($cinema, $qb);
 
         if ($searchTerm) {
-            $queryBuilder = $queryBuilder->andWhere('LOWER(m.title) LIKE LOWER(:searchTerm)')
-                ->andWhere("m.cinema = :cinema")
-                ->setParameter('searchTerm', "%$searchTerm%")
-                ->setParameter("cinema", $cinema);
+            $qb = $this->filterByTitle($searchTerm, $qb);
         }
 
-        if ($returnQueryBuilder) {
-            return $queryBuilder;
-        }
-
-        return $queryBuilder->getQuery()
-            ->getResult();
+        return $qb;
     }
 
     /**
@@ -45,24 +45,25 @@ class MovieRepository extends ServiceEntityRepository
      */
     public function findTmdbIdsForCinema(Cinema $cinema): array
     {
-        return $this->createQueryBuilder('m')
-            ->select("m.tmdbId")
-            ->where("m.cinema = :cinema")
-            ->setParameter("cinema", $cinema)
-            ->getQuery()
-            ->getSingleColumnResult();
+        $qb = $this->createQueryBuilder('m')
+            ->select("m.tmdbId");
+        
+        $qb = $this->filterByCinema($cinema, $qb);
+
+        return $qb->getQuery()->getSingleColumnResult();      
     }
 
-    /**
-     * @return Movie[] 
-     */
-    public function findDistinctMovie(Cinema $cinema): array
-    {
-        return $this->createQueryBuilder('m')
-            ->innerJoin("m.movieScreeningFormats", "msf")
-            ->andWhere("m.cinema = :cinema")
-            ->setParameter("cinema", $cinema)
-            ->getQuery()
-            ->getResult();
+    public function filterByCinema(Cinema $cinema, ?QueryBuilder $qb = null): QueryBuilder {
+        return ($qb ?? $this->createQueryBuilder("m"))
+                    ->andWhere('m.cinema = :cinema')
+                    ->setParameter('cinema', $cinema);
     }
+
+    public function filterByTitle(string $searchTerm, ?QueryBuilder $qb = null): QueryBuilder {
+        return ($qb ?? $this->createQueryBuilder("m"))
+                    ->andWhere('LOWER(m.title) LIKE LOWER(:searchTerm)')
+                    ->setParameter('searchTerm', "%$searchTerm%");
+    }
+
+
 }

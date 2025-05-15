@@ -6,6 +6,7 @@ use App\Entity\Cinema;
 use App\Entity\Movie;
 use App\Entity\MovieScreeningFormat;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -20,61 +21,60 @@ class MovieScreeningFormatRepository extends ServiceEntityRepository
 
     public function findMovieScreeningFormatsForCinema(Cinema $cinema): array
     {
-        return $this->createQueryBuilder('msf')
+        $qb = $this->createQueryBuilder('msf')
             ->innerJoin('msf.screeningFormat', 'sf')
             ->innerJoin('sf.visualFormat', 'vf')
-            ->select('DISTINCT vf.name')
-            ->andWhere('msf.cinema = :cinema')
-            ->setParameter('cinema', $cinema)
-            ->getQuery()
-            ->getSingleColumnResult();
+            ->select('DISTINCT vf.name');
+
+        $qb = $this->filterByCinema($cinema, $qb);
+        
+        return $qb->getQuery()->getSingleColumnResult();
     }
 
-
-    /**
-     * @return Movie|ScreeningFormat[]
-     */
-    public function findMovieWithFormats(): array
-    {
-        return $this->createQueryBuilder('msf')
-            ->addSelect("m")
-            ->addSelect("sf")
-            ->innerJoin("msf.movie", "m")
-            ->innerJoin("msf.screeningFormat", "sf")
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-
+    
     /**
      * @return MovieScreeningFormat[] Returns an array of MovieScreeningFormats for movie
      */
-    public function findScreeningFormatsForMovie(Movie $movie)
+    public function findScreeningFormatsForMovie(Movie $movie): array
     {
-        return $this->createQueryBuilder('msf')
-            ->innerJoin("msf.screeningFormat", "sf")
-            ->addSelect("sf")
-            ->andWhere("msf.movie = :movie")
-            ->setParameter("movie", $movie)
-            ->getQuery()
-            ->getResult()
-        ;
+        $qb = $this->createQueryBuilder('msf')
+            ->innerJoin("msf.screeningFormat", "sf");
+
+        $qb = $this->filterByMovie($movie, $qb);
+
+        return $qb->getQuery()->getResult();
     }
 
     /**
      * @return ScreeningFormat[] 
      */
-    public function findByScreeningFormatIds(array $screeningFormatIds, Movie $movie)
+    public function findByScreeningFormatIds(array $screeningFormatIds, Movie $movie): array
     {
-        return $this->createQueryBuilder('msf')
+        $qb = $this->createQueryBuilder('msf')
             ->innerJoin("msf.screeningFormat", "sf")
             ->andWhere("sf.id IN (:screeningFormatIds)")
-            ->andWhere("msf.movie = :movie")
-            ->setParameter("screeningFormatIds", $screeningFormatIds)
-            ->setParameter("movie", $movie)
+            ->setParameter("screeningFormatIds", $screeningFormatIds);
+        
+        $qb = $this->filterByMovie($movie, $qb);
+
+        return $qb
             ->getQuery()
             ->getResult()
         ;
+    }
+
+    public function filterByMovie(Movie $movie,  ?QueryBuilder $qb = null): QueryBuilder 
+    {
+        return ($qb ?? $this->createQueryBuilder("msf"))
+                    ->andWhere('msf.movie = :movie')
+                    ->setParameter('movie', $movie);
+    }
+
+
+    public function filterByCinema(Cinema $cinema, ?QueryBuilder $qb = null): QueryBuilder 
+    {
+        return ($qb ?? $this->createQueryBuilder("msf"))
+                    ->andWhere('msf.cinema = :cinema')
+                    ->setParameter('cinema', $cinema);
     }
 }
