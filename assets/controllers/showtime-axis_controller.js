@@ -102,22 +102,24 @@ export default class extends Controller {
         const showtimeDateObject = dateTimeObjectConverter(showtime.startsAt);
 
         const showtimeElement = document.createElement("div");
+        showtimeElement.classList.add(this.showtimeClass);
         showtimeElement.dataset.showtimeId = showtime.id;
         showtimeElement.setAttribute("data-showtime-axis-target", "showtime");
         showtimeElement.innerHTML = `
-            <p class="m-0 fs-5">${timeDisplayConverter(showtime.startsAt)} - ${timeDisplayConverter(showtime.endsAt)}</p>
-            <h2 class="m-0 fs-5">${showtime.movieTitle}</h2>
-            <p class="m-0 fs-6">Format: ${showtime.screeningFormat}</p>
-            <a class="link-primary fs-6" href="${this.showtimeEditUrlValue}/${showtime.id}">Edit</a>
-            <button class="btn btn-link fs-6 text-danger" 
-                    data-showtime-axis-id-param="${showtime.id}"
-                    data-action="showtime-axis#deleteShowtime"
-                    >
-                    Delete
-            </button>
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="m-0">${timeDisplayConverter(showtime.startsAt)} - ${timeDisplayConverter(showtime.endsAt)}</p>
+                    <h2 class="m-0">${showtime.movieTitle}, ${showtime.screeningFormat}</h2>
+                </div>
+                <div class="col-md-6">
+                    <a class="btn btn-link text-primary p-0 m-0 me-1" href="${this.showtimeEditUrlValue}/${showtime.id}">Edit</a>
+                    <button class="btn btn-link text-danger p-0 m-0" 
+                        data-showtime-axis-id-param="${showtime.id}"
+                        data-action="showtime-axis#deleteShowtime">Delete</button>
+                </div>
+            </div>
         `;
 
-        showtimeElement.classList.add(this.showtimeClass);
         showtimeElement.style.setProperty("--showtimeDuration", `${showtime.durationInMinutes}px`);
         showtimeElement.style.setProperty("--minutesPastHour", `${showtimeDateObject.minute}px`);
 

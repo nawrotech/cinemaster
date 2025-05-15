@@ -4,9 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Cinema;
 use App\Entity\ScreeningFormat;
-use App\Entity\VisualFormat;
 use App\Enum\LanguagePresentation;
-use Countable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\QueryBuilder;
@@ -120,18 +118,17 @@ class ScreeningFormatRepository extends ServiceEntityRepository
         string $screeningFormatTerm,
         bool $isActive = true
     ): array {
-        return $this->createQueryBuilder('sf')
+        $qb =  $this->createQueryBuilder('sf')
             ->innerJoin("sf.visualFormat", "vf")
             ->andWhere("LOWER(sf.languagePresentation) LIKE LOWER(:screeningFormatTerm)
                         OR
                         LOWER(vf.name) LIKE LOWER(:screeningFormatTerm)")
-            ->setParameter("screeningFormatTerm", "%$screeningFormatTerm%")
+            ->setParameter("screeningFormatTerm", "%$screeningFormatTerm%");
 
-            ->andWhere("sf.cinema = :cinema")
-            ->setParameter("cinema", $cinema)
-            ->addCriteria($this->activeScreeningFormatCriteria($isActive))
-            ->getQuery()
-            ->getResult()
-        ;
+        $qb = $this->findByCinema($cinema, $qb);
+
+        $qb = $this->findByActiveStatus($isActive, $qb);
+
+        return $qb->getQuery()->getResult();
     }
 }

@@ -2,8 +2,8 @@
     background-color: red;
     border: 3px solid black;
     border-radius: 10rem 10rem 100vh 100vh;
-    width: 40px;
-    height: 40px;
+    inline-size: 40px;
+    block-size: 40px;
 }
 
 
@@ -26,7 +26,7 @@
 }
 
 .seat-form {
-    width: min-content;
+    inline-size: min-content;
 }
 
 .msf-legend {
@@ -55,13 +55,13 @@
 
  /* screening-room day-axis */
 .day-axis {
-    --size-multiplier: 1;
+    --size-multiplier: 1.325;
     border: 1px solid black;
     font-size: 1.25rem;
     position: relative;
 
     .axis-hour {
-        height: calc(60px * var(--size-multiplier));
+        block-size: calc(60px * var(--size-multiplier));
         border-bottom: 1px solid black;
         position: relative;
     }
@@ -69,12 +69,19 @@
     .showtime {
         position: absolute;
         left: 80px;
-        height: calc(var(--size-multiplier) * var(--showtimeDuration));
+        block-size: calc(var(--size-multiplier) * var(--showtimeDuration));
         top: calc(var(--size-multiplier) * var(--minutesPastHour));
         color: black;
         border: 1px solid black;
         background-color: white;
         z-index: 1;
+
+        :is(h2, p, a, button) {
+            font-size: 0.75rem;
+            @media (width > 992px) {
+                font-size: 1rem;
+            }
+        }
      }     
 
      .screening-room-showtime-column {
@@ -93,10 +100,11 @@
     font-size: 1.25rem;
     position: relative;
     margin-top: 2rem;
-    /* overflow: auto; */
+
+    inline-size: 100%;
 
     .axis-hour {
-        height: calc(60px * var(--size-multiplier));
+        block-size: calc(60px * var(--size-multiplier));
         border-bottom: 1px solid black;
         position: relative;
     }
@@ -119,7 +127,7 @@
 
     .cinema-showtime-wrapper {
         position: absolute;
-        height: calc(var(--size-multiplier) * var(--showtimeDuration));
+        block-size: calc(var(--size-multiplier) * var(--showtimeDuration));
         top: calc(var(--size-multiplier) * var(--minutesPastHour));
         left: var(--leftSpacing);
 
@@ -127,7 +135,7 @@
         border: 1px solid black;
         background-color: hotpink;
         z-index: 1;
-        width: 60px;
+        inline-size: 60px;
         isolation: isolate;
    
 

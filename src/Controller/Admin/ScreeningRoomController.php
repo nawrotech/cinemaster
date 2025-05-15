@@ -184,7 +184,7 @@ class ScreeningRoomController extends AbstractController
                 $form->get("seatType")->getData(),
             );
 
-            $this->addFlash('success', sprintf('Seats from from row %s have been updated', $form->get('row')->getData()));
+            $this->addFlash('success', sprintf('Seats from row %s have been updated', $form->get('row')->getData()));
 
             return $this->redirectToRoute("app_screening_room_edit", [
                 "screening_room_slug" => $screeningRoom->getSlug(),
