@@ -25,10 +25,10 @@ class ScreeningRoomSetupRepository extends ServiceEntityRepository
      */
     public function findByCinemaAndActiveStatus(Cinema $cinema, ?bool $isActive = null): array
     {
-        $qb = $this->findByCinema($cinema);
+        $qb = $this->filterByCinema($cinema);
 
         if ($isActive !== null) {
-            $qb = $this->findByActiveStatus($isActive, $qb);
+            $qb = $this->filterByActiveStatus($isActive, $qb);
         }
 
         return $qb->getQuery()->getResult();
@@ -50,16 +50,16 @@ class ScreeningRoomSetupRepository extends ServiceEntityRepository
             return null;
         }
         
-        $qb = $this->findByCinema($cinema);
-        $qb = $this->findByActiveStatus(true, $qb);
-        $qb = $this->findBySoundFormat($soundFormat, $qb);
-        $qb = $this->findByVisualFormatName($visualFormat->getName(), $qb);
+        $qb = $this->filterByCinema($cinema);
+        $qb = $this->filterByActiveStatus(true, $qb);
+        $qb = $this->filterBySoundFormat($soundFormat, $qb);
+        $qb = $this->filterByVisualFormatName($visualFormat->getName(), $qb);
         
         return $qb->getQuery()->getResult();
     }
 
  
-    public function findByCinema(Cinema $cinema, ?QueryBuilder $qb = null): QueryBuilder 
+    public function filterByCinema(Cinema $cinema, ?QueryBuilder $qb = null): QueryBuilder 
     {
         return ($qb ?? $this->createQueryBuilder("srs"))
                 ->andWhere('srs.cinema = :cinema')
@@ -67,14 +67,14 @@ class ScreeningRoomSetupRepository extends ServiceEntityRepository
     }
 
   
-    public function findByActiveStatus(bool $isActive, ?QueryBuilder $qb = null): QueryBuilder 
+    public function filterByActiveStatus(bool $isActive, ?QueryBuilder $qb = null): QueryBuilder 
     {
         return ($qb ?? $this->createQueryBuilder("srs"))
                 ->andWhere('srs.isActive = :active')
                 ->setParameter('active', $isActive);
     }
 
-    public function findBySoundFormat(string $soundFormat, ?QueryBuilder $qb = null): QueryBuilder 
+    public function filterBySoundFormat(string $soundFormat, ?QueryBuilder $qb = null): QueryBuilder 
     {
         return ($qb ?? $this->createQueryBuilder("srs"))
                 ->andWhere('srs.soundFormat = :soundFormat')
@@ -82,7 +82,7 @@ class ScreeningRoomSetupRepository extends ServiceEntityRepository
     }
 
 
-    public function findByVisualFormatName(string $visualFormatName, ?QueryBuilder $qb = null): QueryBuilder 
+    public function filterByVisualFormatName(string $visualFormatName, ?QueryBuilder $qb = null): QueryBuilder 
     {
         return ($qb ?? $this->createQueryBuilder("srs"))
                 ->innerJoin('srs.visualFormat', 'vf')
@@ -91,15 +91,14 @@ class ScreeningRoomSetupRepository extends ServiceEntityRepository
     }
 
 
-
     public function hasActiveSetupForCinema(Cinema $cinema): bool
     {
-        $count = $this->findByCinema($cinema)
-            ->select('COUNT(srs.id)')
-            ->andWhere('srs.isActive = :active')
-            ->setParameter("active", true)
-            ->getQuery()
-            ->getSingleScalarResult();
+        $count = $this->filterByCinema($cinema)
+            ->select('COUNT(srs.id)');
+
+        $count = $this->filterByActiveStatus(true, $count);
+                    
+        $count = $count->getQuery()->getSingleScalarResult();
 
         return $count > 0;
     }

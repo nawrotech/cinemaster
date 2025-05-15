@@ -26,10 +26,10 @@ class ScreeningFormatRepository extends ServiceEntityRepository
      */
     public function findByCinemaAndActiveStatus(Cinema $cinema, ?bool $isActive = null): array
     {
-        $qb = $this->findByCinema($cinema);
+        $qb = $this->filterByCinema($cinema);
 
         if ($isActive !== null) {
-            $qb = $this->findByActiveStatus($isActive, $qb);
+            $qb = $this->filterByActiveStatus($isActive, $qb);
         }
 
         return $qb->getQuery()->getResult();
@@ -53,55 +53,16 @@ class ScreeningFormatRepository extends ServiceEntityRepository
             }
         }
 
-        $qb = $this->findByCinema($cinema);
+        $qb = $this->filterByCinema($cinema);
 
-        $qb = $this->findByActiveStatus(true, $qb);
+        $qb = $this->filterByActiveStatus(true, $qb);
 
-        $qb = $this->findByLanguagePresentation($languagePresentation, $qb);
+        $qb = $this->filterByLanguagePresentation($languagePresentation, $qb);
 
-        $qb = $this->findByVisualFormatName($visualFormat->getName(), $qb);
+        $qb = $this->filterByVisualFormatName($visualFormat->getName(), $qb);
 
         return $qb->getQuery()->getResult();
     }
-
-
-    public function findByCinema(Cinema $cinema, ?QueryBuilder $qb = null): QueryBuilder {
-        return ($qb ?? $this->createQueryBuilder("sf"))
-                ->andWhere('sf.cinema = :cinema')
-                ->setParameter('cinema', $cinema);
-    }
-
-    public function findByActiveStatus(bool $isActive, ?QueryBuilder $qb = null): QueryBuilder {
-        return ($qb ?? $this->createQueryBuilder("sf"))
-                ->andWhere('sf.active = :active')
-                ->setParameter('active', $isActive);
-    }
-
-    public function findByVisualFormatName(string $visualFormatName, ?QueryBuilder $qb = null): QueryBuilder {
-        return ($qb ?? $this->createQueryBuilder("sf"))
-                ->innerJoin('sf.visualFormat', 'vf')
-                ->andWhere('vf.name = :visualFormatName')
-                ->setParameter('visualFormatName', $visualFormatName);
-    }
-
-    public function findByLanguagePresentation(LanguagePresentation $languagePresentation, ?QueryBuilder $qb = null): QueryBuilder {
-        return ($qb ?? $this->createQueryBuilder("sf"))
-                ->andWhere('sf.languagePresentation = :languagePresentation')
-                ->setParameter('languagePresentation', $languagePresentation);
-    }
-
-
-    public static function activeScreeningFormatCriteria(?bool $isActive = true): Criteria
-    {
-        $criteria = Criteria::create();
-
-        if ($isActive !== null) {
-            $criteria->andWhere(Criteria::expr()->eq('active', $isActive));
-        }
-
-        return $criteria;
-    }
-
 
     public function findByIds(array $screeningFormatIds): array
     {
@@ -125,10 +86,48 @@ class ScreeningFormatRepository extends ServiceEntityRepository
                         LOWER(vf.name) LIKE LOWER(:screeningFormatTerm)")
             ->setParameter("screeningFormatTerm", "%$screeningFormatTerm%");
 
-        $qb = $this->findByCinema($cinema, $qb);
+        $qb = $this->filterByCinema($cinema, $qb);
 
-        $qb = $this->findByActiveStatus($isActive, $qb);
+        $qb = $this->filterByActiveStatus($isActive, $qb);
 
         return $qb->getQuery()->getResult();
+    }
+
+
+    public function filterByCinema(Cinema $cinema, ?QueryBuilder $qb = null): QueryBuilder {
+        return ($qb ?? $this->createQueryBuilder("sf"))
+                ->andWhere('sf.cinema = :cinema')
+                ->setParameter('cinema', $cinema);
+    }
+
+    public function filterByActiveStatus(bool $isActive, ?QueryBuilder $qb = null): QueryBuilder {
+        return ($qb ?? $this->createQueryBuilder("sf"))
+                ->andWhere('sf.active = :active')
+                ->setParameter('active', $isActive);
+    }
+
+    public function filterByVisualFormatName(string $visualFormatName, ?QueryBuilder $qb = null): QueryBuilder {
+        return ($qb ?? $this->createQueryBuilder("sf"))
+                ->innerJoin('sf.visualFormat', 'vf')
+                ->andWhere('vf.name = :visualFormatName')
+                ->setParameter('visualFormatName', $visualFormatName);
+    }
+
+    public function filterByLanguagePresentation(LanguagePresentation $languagePresentation, ?QueryBuilder $qb = null): QueryBuilder {
+        return ($qb ?? $this->createQueryBuilder("sf"))
+                ->andWhere('sf.languagePresentation = :languagePresentation')
+                ->setParameter('languagePresentation', $languagePresentation);
+    }
+
+
+    public static function activeScreeningFormatCriteria(?bool $isActive = true): Criteria
+    {
+        $criteria = Criteria::create();
+
+        if ($isActive !== null) {
+            $criteria->andWhere(Criteria::expr()->eq('active', $isActive));
+        }
+
+        return $criteria;
     }
 }

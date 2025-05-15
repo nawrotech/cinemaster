@@ -24,16 +24,16 @@ class VisualFormatRepository extends ServiceEntityRepository
     */
     public function findByCinemaAndActiveStatus(Cinema $cinema, ?bool $isActive = null): array
     {
-        $qb = $this->findByCinema($cinema);
+        $qb = $this->filterByCinema($cinema);
 
         if ($isActive !== null) {
-            $qb = $this->findByActiveStatus($isActive, $qb);
+            $qb = $this->filterByActiveStatus($isActive, $qb);
         }
 
         return $qb->getQuery()->getResult();
     }
 
-    public function findActiveByCinema(array $fieldValues)
+    public function findActiveByCinema(array $fieldValues): ?array
     {
         $name = $fieldValues['name'] ?? null;
         $cinema = $fieldValues['cinema'] ?? null;
@@ -42,37 +42,35 @@ class VisualFormatRepository extends ServiceEntityRepository
             return null;
         }
 
-        $qb = $this->findByCinema($cinema);
+        $qb = $this->filterByCinema($cinema);
 
-        $qb = $this->findByActiveStatus(true, $qb);
+        $qb = $this->filterByActiveStatus(true, $qb);
 
-        $qb = $this->findByName($name, $qb);
+        $qb = $this->filterByName($name, $qb);
 
         return $qb->getQuery()->getResult();
     }
 
 
-    public function findByCinema(Cinema $cinema, ?QueryBuilder $qb = null): QueryBuilder {
+    public function filterByCinema(Cinema $cinema, ?QueryBuilder $qb = null): QueryBuilder {
         return ($qb ?? $this->createQueryBuilder("v"))
                 ->andWhere('v.cinema = :cinema')
                 ->setParameter('cinema', $cinema);
     }
 
-    public function findByActiveStatus(bool $isActive, ?QueryBuilder $qb = null): QueryBuilder {
+    public function filterByActiveStatus(bool $isActive, ?QueryBuilder $qb = null): QueryBuilder {
         return ($qb ?? $this->createQueryBuilder("v"))
                 ->andWhere('v.active = :active')
                 ->setParameter('active', $isActive);
     }
 
-    public function findByName(string $name, ?QueryBuilder $qb = null): QueryBuilder {
+    public function filterByName(string $name, ?QueryBuilder $qb = null): QueryBuilder {
         return ($qb ?? $this->createQueryBuilder("v"))
                 ->andWhere('v.name = :name')
                 ->setParameter('name', $name);
     }
 
 
-
-    
 
 
     public static function activeVisualFormatsConstraint(bool $isActive = true): Criteria 
