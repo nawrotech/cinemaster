@@ -15,6 +15,7 @@ use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSeatRepository;
 use App\Repository\ShowtimeRepository;
 use App\Service\ShowtimeService;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -43,40 +44,32 @@ class ShowtimeController extends AbstractController
         #[MapQueryString] ?ScheduledShowtimesFilter $scheduledShowtimeFilterDto
     ): Response {
 
-        $screeningRoom = $screeningRoomRepository->findOneBy(
-            ["name" => $scheduledShowtimeFilterDto?->screeningRoomName]);
-
-        $isPublished = match ($scheduledShowtimeFilterDto?->published) {
-            '1' => true,
-            '0' => false,
-            default => null, 
-        };
-
-        $showtimeStartTime = $scheduledShowtimeFilterDto?->showtimeStartTime 
-            ?? new \DateTimeImmutable('now')->format('Y-m-d');
-
-        $showtimeEndTime = $scheduledShowtimeFilterDto?->showtimeEndTime 
-            ? "{$scheduledShowtimeFilterDto->showtimeEndTime} 23:59:59"
+        $showtimeStartsFrom = $scheduledShowtimeFilterDto?->showtimeStartsFrom
+            ? new \DateTimeImmutable($scheduledShowtimeFilterDto->showtimeStartsFrom)
+            : (new DateTimeImmutable())->setTime(0, 0, 0);
+    
+        $showtimeStartsBefore = $scheduledShowtimeFilterDto?->showtimeStartsBefore 
+            ? (new \DateTimeImmutable($scheduledShowtimeFilterDto->showtimeStartsBefore))->setTime(23, 59, 59)
             : null;
 
-        $showtimesQueryBuilder = $showtimeRepository->findFiltered(
-            cinema: $cinema,
-            screeningRoom: $screeningRoom,
-            showtimeStartTime: $showtimeStartTime,
-            showtimeEndTime: $showtimeEndTime,
-            movieTitle: $scheduledShowtimeFilterDto?->movieTitle,
-            isPublished: $isPublished,
-            returnQueryBuilder: true
-        );     
+        $showtimeFilteredQueryBuilder = $showtimeRepository
+                    ->createFilteredQueryBuilder(
+                        $cinema, 
+                        $scheduledShowtimeFilterDto?->screeningRoomName, 
+                        $showtimeStartsFrom,
+                        $showtimeStartsBefore,
+                        $scheduledShowtimeFilterDto?->movieTitle,
+                        $scheduledShowtimeFilterDto?->getPublishedAsBool()
+                    );
 
         $pager = $pagerfantaFactory->createShowtimesPagerfanta(
-                                        $showtimesQueryBuilder, 
+                                        $showtimeFilteredQueryBuilder, 
                                         $scheduledShowtimeFilterDto?->page ?? 1);
 
         return $this->render('showtime/index.html.twig', [
             "showtimes" => $pager,  
             "availableRoomNames" => $screeningRoomRepository->findDistinctRoomNames($cinema),
-            "showtimeStartTime" => $showtimeStartTime,
+            "showtimeStartsFrom" => $showtimeStartsFrom->format('Y-m-d'),
         ]);
     }
 
@@ -251,7 +244,7 @@ class ShowtimeController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        $showtimes = $showtimeRepository->findFiltered($cinema, date: $date, isPublished: false);
+        $showtimes = $showtimeRepository->findUnpublishedByCinemaAtDate($cinema, $date);
         if (!(count($showtimes) > 0)) {
             $this->addFlash('info', 'No unpublished showtimes found for this date');
             return $this->redirectToRoute('app_showtime_showtime_axis', [
@@ -309,11 +302,7 @@ class ShowtimeController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        $showtimes = $showtimeRepository->findFiltered(
-            cinema: $cinema,
-            date: $date,
-            includeScreeningRoomName: true
-        );
+        $showtimes = $showtimeRepository->findByCinemaAtDate($date, $cinema);
 
         $cinemaShowtimes = [];
         foreach ($showtimes as $showtime) {
@@ -347,11 +336,8 @@ class ShowtimeController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        $showtimes = $showtimeRepository->findFiltered(
-            cinema: $cinema,
-            screeningRoom: $screeningRoom,
-            date: $date,
-        );
+        $showtimes = $showtimeRepository
+            ->findByCinemaAndScreeningRoomAtDate($date, $cinema, $screeningRoom);
 
         $showtimes = array_map(function (Showtime $showtime) {
             return ShowtimeDto::fromEntity($showtime);
@@ -359,6 +345,8 @@ class ShowtimeController extends AbstractController
 
         return $this->json($showtimes);
     }
+
+    
 
     #[Route("/scheduled-showtime-axis", name: "app_showtime_showtime_axis")]
     public function showtimeAxis(

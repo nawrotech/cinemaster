@@ -36,7 +36,7 @@ class ShowtimeService
         $startDate ??= new \DateTimeImmutable('now')->modify("+{$this->timezoneOffsetHours} hours");
         $cinemaOpenHour = (int) $cinema->getOpenTime()->format('H');
 
-        $showtimes = $this->showtimeRepository->findPublishedShowtimesForDate(
+        $showtimes = $this->showtimeRepository->findPublishedShowtimesByCinemaAndMovies(
             $cinema,
             $movieIds,
             $cinema->getOpenTime()->format('H'),

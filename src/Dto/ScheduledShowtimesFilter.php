@@ -6,27 +6,36 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class ScheduledShowtimesFilter
 {
-    public const PUBLICATION_ALL = '';
-    public const PUBLICATION_PUBLISHED = '1';
-    public const PUBLICATION_UNPUBLISHED = '0';
+    public const ALL = '';
+    public const PUBLISHED = '1';
+    public const UNPUBLISHED = '0';
 
     public function __construct(
         #[Assert\Length(min: 0, max: 50)]
         public readonly string $screeningRoomName = "",
 
         #[Assert\Date]
-        public readonly string $showtimeStartTime = "",
+        public readonly string $showtimeStartsFrom = "",
 
         #[Assert\Date]
-        public readonly string $showtimeEndTime = "",
+        public readonly string $showtimeStartsBefore = "",
 
         #[Assert\Length(min: 0, max: 100)]
         public readonly string $movieTitle = "",
 
-        #[Assert\Choice(choices: [self::PUBLICATION_ALL, self::PUBLICATION_PUBLISHED, self::PUBLICATION_UNPUBLISHED])]
-        public readonly string $published = self::PUBLICATION_ALL,
+        #[Assert\Choice(choices: [self::ALL, self::PUBLISHED, self::UNPUBLISHED])]
+        public readonly string $published = self::ALL,
 
         #[Assert\Positive]
         public readonly int $page = 1,
     ) {}
+
+    public function getPublishedAsBool(): ?bool
+    {
+        return match($this->published) {
+            self::PUBLISHED => true,
+            self::UNPUBLISHED => false,
+            default => null,
+        };
+    }
 }

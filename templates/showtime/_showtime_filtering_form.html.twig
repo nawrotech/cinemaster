@@ -16,21 +16,21 @@
             
             <div class="form-check form-check-inline">
                 <input class="form-check-input" type="radio" name="published" id="published_all" 
-                        value="{{ constant('App\\Dto\\ScheduledShowtimesFilter::PUBLICATION_ALL') }}" 
+                        value="{{ constant('App\\Dto\\ScheduledShowtimesFilter::ALL') }}" 
                         {{ app.request.get('published') == '' or app.request.get('published') is null ? 'checked' : '' }}>
                 <label class="form-check-label" for="published_all">All Showtimes</label>
             </div>
             
             <div class="form-check form-check-inline">
                 <input class="form-check-input" type="radio" name="published" id="published_yes" 
-                        value="{{ constant('App\\Dto\\ScheduledShowtimesFilter::PUBLICATION_PUBLISHED') }}" 
+                        value="{{ constant('App\\Dto\\ScheduledShowtimesFilter::PUBLISHED') }}" 
                         {{ app.request.get('published') == '1' ? 'checked' : '' }}>
                 <label class="form-check-label" for="published_yes">Published</label>
             </div>
             
             <div class="form-check form-check-inline">
                 <input class="form-check-input" type="radio" name="published" id="published_no" 
-                        value="{{ constant('App\\Dto\\ScheduledShowtimesFilter::PUBLICATION_UNPUBLISHED') }}" 
+                        value="{{ constant('App\\Dto\\ScheduledShowtimesFilter::UNPUBLISHED') }}" 
                         {{ app.request.get('published') == '0' ? 'checked' : '' }}>
                 <label class="form-check-label" for="published_no">Unpublished</label>
             </div>
@@ -39,10 +39,10 @@
         <label class="col-6 col-lg-2">
             Start time:
             <input
-            id="showtimeStartTime"
+            id="showtimeStartsFrom"
             type="date"
-            name="showtimeStartTime"
-            value="{{ app.request.get("showtimeStartTime") ?? showtimeStartTime }}"
+            name="showtimeStartsFrom"
+            value="{{ app.request.get("showtimeStartsFrom") ?? showtimeStartsFrom }}"
             class="form-control"
             />
         </label>
@@ -50,10 +50,10 @@
         <label class="col-6 col-lg-2">
             End time:
             <input 
-                id="showtimeEndTime"
+                id="showtimeStartsBefore"
                 type="date" 
-                name="showtimeEndTime"
-                value="{{ app.request.get("showtimeEndTime") }}"
+                name="showtimeStartsBefore"
+                value="{{ app.request.get("showtimeStartsBefore") }}"
                 class="form-control"
                 />
         </label>

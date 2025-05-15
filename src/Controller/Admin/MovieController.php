@@ -143,7 +143,7 @@ class MovieController extends AbstractController
 
         $movies = $q
             ? $movieRepository->findBySearchTerm($cinema, $q)
-            : $movieRepository->findBy(["cinema" => $cinema]);
+            : $movieRepository->findBySearchTerm($cinema);
 
         $pagerfanta = $pagerfantaFactory->createAvailableMoviesPagerfanta($movies, $page);
 
