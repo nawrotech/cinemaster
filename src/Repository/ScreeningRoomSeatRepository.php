@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use App\Entity\ScreeningRoom;
 use App\Entity\ScreeningRoomSeat;
-use App\Entity\Showtime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -18,59 +17,6 @@ class ScreeningRoomSeatRepository extends ServiceEntityRepository
     ) {
         parent::__construct($registry, ScreeningRoomSeat::class);
     }
-
-    /**
-     * @return int[]
-     */
-    public function findRows(ScreeningRoom $screeningRoom): array
-    {
-        $result = $this->createQueryBuilder('srs')
-            ->select("s.rowNum")
-            ->distinct()
-            ->innerJoin("srs.screeningRoom", "sr")
-            ->innerJoin("srs.seat", "s")
-            ->andWhere("sr = :screeningRoom")
-            ->setParameter("screeningRoom", $screeningRoom)
-            ->addOrderBy("s.rowNum", "ASC")
-            ->getQuery()
-            ->getResult();
-
-        return array_map("intval", array_column($result, "rowNum"));
-    }
-
-    /**
-     * @return ScreeningRoomSeat[]
-     */
-    public function findSeatsInRow(
-        ScreeningRoom $screeningRoom,
-        int $rowNum,
-        ?Showtime $showtime = null
-    ): array {
-        return $this->createQueryBuilder('srs')
-            ->innerJoin("srs.screeningRoom", "sr")
-            ->innerJoin("srs.seat", "s")
-            ->andWhere("sr = :screeningRoom AND s.rowNum = :rowNum")
-            ->orderBy("s.rowNum", "ASC")
-            ->orderBy("s.seatNumInRow", "ASC")
-            ->setParameter("rowNum", $rowNum)
-            ->setParameter("screeningRoom", $screeningRoom)
-            ->getQuery()
-            ->getResult();;
-    }
-
-    // SUPER USELESS
-    // public function findBySeatId(int $roomId, int $seatId)
-    // {
-
-    //     return $this->createQueryBuilder('srs')
-    //         ->innerJoin("srs.screeningRoom", "sr")
-    //         ->andWhere("srs.id = :seatId")
-    //         ->andWhere("sr.id = :roomId")
-    //         ->setParameter("seatId", $seatId)
-    //         ->setParameter("roomId", $roomId)
-    //         ->getQuery()
-    //         ->getOneOrNullResult();
-    // }
 
     public function findSeatsByScreeningRoom(ScreeningRoom $screeningRoom)
     {
@@ -111,14 +57,5 @@ class ScreeningRoomSeatRepository extends ServiceEntityRepository
     }
 
 
-    // public function findNumOfRowsForRoom(int $roomId): ?ScreeningRoomSeat
-    // {
-    //     return $this->createQueryBuilder('s')
-    //         ->select("COUNT(DISTINCT )")
-    //         ->where('s. = :roomId')
-    //         ->setParameter('val', $value)
-    //         ->getQuery()
-    //         ->getOneOrNullResult()
-    //     ;
-    // }
+
 }

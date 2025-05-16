@@ -3,10 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\ReservationSeat;
-use App\Entity\ScreeningRoom;
 use App\Entity\Showtime;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -22,19 +22,18 @@ class ReservationSeatRepository extends ServiceEntityRepository
 
     public function findSeatsByShowtime(Showtime $showtime)
     {
-        return $this->createQueryBuilder('rs')
+        $qb = $this->createQueryBuilder('rs')
             ->addSelect("srs")
             ->innerJoin("rs.seat", "srs")
             ->addSelect("s")
             ->innerJoin("srs.seat", "s")
-            ->andWhere("rs.showtime = :showtime")
-            ->setParameter("showtime", $showtime)
             ->addOrderBy("s.rowNum", "ASC")
-            ->addOrderBy("s.seatNumInRow", "ASC")
-            ->getQuery()
-            ->getResult();
-    }
+            ->addOrderBy("s.seatNumInRow", "ASC");
 
+        $qb = $this->filterByShowtime($showtime, $qb);
+
+        return $qb->getQuery()->getResult();
+    }
 
 
     public function findExpiredLockedSeats(
@@ -48,50 +47,13 @@ class ReservationSeatRepository extends ServiceEntityRepository
             ->setParameter("status", $status)
             ->getQuery()
             ->getResult()
-
         ;
     }
 
-    /**
-     * @return int[]
-     */
-    public function findRows(ScreeningRoom $screeningRoom): array
+    public function filterByShowtime(Showtime $showtime, ?QueryBuilder $qb): QueryBuilder
     {
-        $result = $this->createQueryBuilder('rs')
-            ->select("DISTINCT s.rowNum")
-            ->innerJoin("rs.seat", "srs")
-            ->innerJoin("srs.seat", "s")
-            ->andWhere("srs.screeningRoom = :screeningRoom")
-            ->setParameter("screeningRoom", $screeningRoom)
-            ->addOrderBy("s.rowNum", "ASC")
-            ->getQuery()
-            ->getResult();
-
-        return array_map("intval", array_column($result, "rowNum"));
-    }
-
-
-    /**
-     * @return ReservationSeat[]
-     */
-    public function findSeatsInRow(
-        ScreeningRoom $screeningRoom,
-        int $rowNum,
-        ?Showtime $showtime = null
-    ): array {
-        return $this->createQueryBuilder('rs')
-            ->innerJoin("rs.seat", "srs")
-            ->innerJoin("srs.seat", "s")
+        return ($qb ?? $this->createQueryBuilder('rs'))
             ->andWhere("rs.showtime = :showtime")
-            ->andWhere("srs.screeningRoom = :screeningRoom")
-            ->andWhere("s.rowNum = :rowNum")
-            ->addOrderBy("s.rowNum", "ASC")
-            ->addOrderBy("s.seatNumInRow", "ASC")
-            ->setParameter("rowNum", $rowNum)
-            ->setParameter("screeningRoom", $screeningRoom)
-            ->setParameter("showtime", $showtime)
-            ->getQuery()
-            ->getResult()
-        ;
+            ->setParameter('showtime', $showtime);
     }
 }

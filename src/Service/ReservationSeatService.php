@@ -17,7 +17,6 @@ class ReservationSeatService
     {
         $screeningRoomSeats = $this->reservationSeatRepository->findSeatsByShowtime($showtime);
 
-        // TODO change first layer seat to specific getScreeningRoomSeat
         foreach ($screeningRoomSeats as $screeningRoomSeat) {
             $rowNum = $screeningRoomSeat->getSeat()->getSeat()->getRowNum();
             $groupedSeats[$rowNum][] = $screeningRoomSeat;
