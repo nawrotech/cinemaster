@@ -49,7 +49,7 @@ class ScreeningRoom implements SlugInterface
     /**
      * @var Collection<int, Showtime>
      */
-    #[ORM\OneToMany(targetEntity: Showtime::class, mappedBy: 'screeningRoom')]
+    #[ORM\OneToMany(targetEntity: Showtime::class, mappedBy: 'screeningRoom', fetch: 'EXTRA_LAZY')]
     private Collection $showtimes;
 
     #[ORM\ManyToOne(inversedBy: 'screeningRooms')]

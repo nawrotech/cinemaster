@@ -29,7 +29,13 @@
                                     {% if screeningRoomVisualFormatName in movieVisualFormats  %}
                                         <a class="btn btn-outline-secondary btn-sm" href="{{path("app_showtime_create", { screening_room_slug: screeningRoom.slug, slug: cinema.slug } )}}">Schedule</a>
                                     {% endif %}
-                                    <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteScreeningRoomModal{{ screeningRoom.id }}">Delete</button>
+
+
+                                    {% if not screeningRoom.showtimes.count %}
+                                        <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteScreeningRoomModal{{ screeningRoom.id }}">Delete</button>
+                                    {% endif %}
+                                    
+
                                 </div>
 
                                 <div class="modal fade" id="deleteScreeningRoomModal{{ screeningRoom.id }}" tabindex="-1" aria-labelledby="deleteScreeningRoomModalLabel{{ screeningRoom.id }}" aria-hidden="true">

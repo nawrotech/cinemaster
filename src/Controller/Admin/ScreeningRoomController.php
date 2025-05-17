@@ -141,8 +141,15 @@ class ScreeningRoomController extends AbstractController
     #[IsCsrfTokenValid(new Expression('"delete-screening-room-" ~ args["screeningRoom"].getId()'), tokenKey: 'token')]
     #[Route('/delete/{id}', name: 'app_screening_room_delete', methods:["DELETE"])]
     public function deleteScreeningRoom(
+        string $slug,
         ScreeningRoom $screeningRoom,
+        ScreeningRoomRepository $screeningRoomRepository,
         EntityManagerInterface $em) {
+
+        if ($screeningRoomRepository->hasShowtimes($screeningRoom)) {
+            $this->addFlash('danger', 'Cannot delete screening room with associated showtimes.');
+            return $this->redirectToRoute('app_cinema_details', ['slug' => $slug]);
+        }
 
         $cinemaSlug = $screeningRoom->getCinema()->getSlug();
         $screeningRoom->setActive(false);

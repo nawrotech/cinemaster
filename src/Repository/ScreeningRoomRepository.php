@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Cinema;
 use App\Entity\ScreeningRoom;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -44,5 +45,20 @@ class ScreeningRoomRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getResult();
+    
     }
+
+
+    public function hasShowtimes(ScreeningRoom $screeningRoom): bool
+    {
+        return $this->createQueryBuilder('sr')
+            ->select('1')
+            ->join('sr.showtimes', 's')
+            ->where('sr.id = :screeningRoomId')
+            ->setParameter('screeningRoomId', $screeningRoom->getId())
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult() !== null;
+    }
+
 }
