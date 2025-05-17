@@ -3,24 +3,54 @@
 {% block title %}Make reservation for {{ showtime.movieScreeningFormat.displayMovieScreeningFormat }}{% endblock %}
 
 {% block body %}
-        {{ form_start(form) }}
-            {{ form_errors(form) }}
-            {{ form_row(form.email) }}
-            {{ form_row(form.submit) }}
-            {{ form_rest(form) }}
-        {{ form_end(form) }}
-        <h1>{{ showtime.movieScreeningFormat.displayMovieScreeningFormat }}</h1>
-        <p>Date: {{ showtime.startsAt|date("D, M Y") }} </p>
-        <p>{{ showtime.startsAt|date("h:i") }} - {{ showtime.endsAt|date("h:i") }}</p>
-            
-        {% for reservationSeatRow in groupedReservationSeats %}
-            <div class="row">
-                <h1 class="col-1">{{ loop.index }}</h1>
-                <div class="col-1 d-flex gap-2">
-                    {% for seat in reservationSeatRow  %}        
-                        {{ include("partials/_reservation_seat.html.twig") }}
-                    {% endfor %}
-                </div>
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="mb-1">{{ showtime.movieScreeningFormat.displayMovieScreeningFormat }}</h2>
+            <div class="d-flex gap-3 text-muted mb-3">
+                <span><i class="bi bi-calendar3"></i> {{ showtime.startsAt|date("D, M Y") }}</span>
+                <span><i class="bi bi-clock"></i> {{ showtime.startsAt|date("h:i") }} - {{ showtime.endsAt|date("h:i") }}</span>
             </div>
-        {% endfor %}
+        </div>
+        <div class="col-md-4">
+            {{ form_start(form, {'attr': {'class': 'card p-3 bg-light border-0 shadow-sm'}}) }}
+                <h5 class="mb-3">Reservation Details</h5>
+                {{ form_errors(form) }}
+                {{ form_row(form.email, {'attr': {'class': 'form-control mb-2'}}) }}
+                {{ form_row(form.submit, {'attr': {'class': 'btn btn-primary w-100'}}) }}
+                {{ form_rest(form) }}
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    <div class="text-center mb-4">
+        <div class="screen bg-light p-2 mb-4 mx-auto rounded shadow-sm" style="max-width: 80%;">
+            <small class="text-muted">SCREEN</small>
+        </div>
+        
+        <div class="seat-legend d-flex justify-content-center gap-3 mb-4">
+            <div class="d-flex align-items-center"><div class="seat-indicator available me-1"></div> Available</div>
+            <div class="d-flex align-items-center"><div class="seat-indicator selected me-1"></div> Selected</div>
+            <div class="d-flex align-items-center"><div class="seat-indicator reserved me-1"></div> Reserved</div>
+        </div>
+        
+        <div class="seat-container m-auto">
+            {% for reservationSeatRow in groupedReservationSeats %}
+                <div class="seat-row d-flex align-items-center justify-content-center mb-1">
+                    <div class="row-label me-2">{{ loop.index }}</div>
+                    <div class="d-flex gap-1">
+                        {% for seat in reservationSeatRow %}        
+                            {{ include("partials/_reservation_seat.html.twig") }}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+    <a class="btn btn-success" href="{{ path('app_order_checkout') }}">Checkout</a>
+
+</div>
+
 {% endblock %}
