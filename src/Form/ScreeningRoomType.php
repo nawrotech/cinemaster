@@ -2,8 +2,10 @@
 
 namespace App\Form;
 
+use App\Entity\PriceTier;
 use App\Entity\ScreeningRoom;
 use App\Entity\ScreeningRoomSetup;
+use App\Repository\PriceTierRepository;
 use App\Repository\ScreeningRoomSetupRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -24,7 +26,8 @@ use Symfony\Component\Validator\Constraints\Positive;
 class ScreeningRoomType extends AbstractType
 {
     public function __construct(
-        private ScreeningRoomSetupRepository $screeningRoomSetupRepository
+        private ScreeningRoomSetupRepository $screeningRoomSetupRepository,
+        private PriceTierRepository $priceTierRepository
         )
     {   
     }
@@ -108,10 +111,18 @@ class ScreeningRoomType extends AbstractType
                 "choices" => $this->screeningRoomSetupRepository->findByCinemaAndActiveStatus($cinema, true),
                 'choice_label' => 'displaySetup',
             ])
+            ->add('tierPrice', EntityType::class, [
+                'class' => PriceTier::class,    
+                'choices' => $this->priceTierRepository->findByCinemaAndActiveStatus($cinema),
+                'choice_label' => function (PriceTier $priceTier) {
+                    return sprintf('%s ($%.2f)', $priceTier->getName(), $priceTier->getPrice());
+                },
+                'mapped' => false,
+                'label' => 'What is the main pricing of the seat in your cinema?'
+            ])
             ->add("create", SubmitType::class)
             ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
                 $form = $event->getForm();
-                
                 $seatsPerRow = $form->get('seatsPerRow')->getData();
                 if (empty($seatsPerRow)) {
                     $form->get('seatsPerRow')->addError(new FormError(

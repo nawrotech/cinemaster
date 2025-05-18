@@ -46,7 +46,7 @@ class PriceTierRepository extends ServiceEntityRepository
     /**
     * @return PriceTier[] Returns an array of VisualFormat objects
     */
-    public function findByCinemaAndActiveStatus(Cinema $cinema, ?bool $isActive = null): array
+    public function findByCinemaAndActiveStatus(Cinema $cinema, ?bool $isActive = true): array
     {
         $qb = $this->filterByCinema($cinema);
 

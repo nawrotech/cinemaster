@@ -76,10 +76,12 @@ class ScreeningRoomController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
+            $priceTier = $form->get('tierPrice')->getData();
+
             $seatsPerRow = $form->get("seatsPerRow")->getData();
             $rowsAndSeats = array_combine(range(1, count($seatsPerRow)), $seatsPerRow);
 
-            $seatService->assignSeatsToScreeningRoom($screeningRoom, $rowsAndSeats);
+            $seatService->assignSeatsToScreeningRoom($screeningRoom, $rowsAndSeats, $priceTier);
 
             $this->addFlash("success", "Screening room has been created!");
             return $this->redirectToRoute("app_cinema_details", [
@@ -178,6 +180,7 @@ class ScreeningRoomController extends AbstractController
         
         $form = $this->createForm(SeatRowType::class, options: [
             "allowed_rows" => $roomRows,
+            'cinema' => $cinema
         ]);
         $form->handleRequest($request);
 
@@ -185,13 +188,15 @@ class ScreeningRoomController extends AbstractController
 
             $screeningRoomSeatService->updateSeatTypeForRow(
                 $screeningRoom,
-                $form->get("row")->getData(),
+                $form->get("rowStart")->getData(),
+                $form->get("rowEnd")->getData(),
                 $form->get("firstSeatInRow")->getData(),
                 $form->get("lastSeatInRow")->getData(),
                 $form->get("seatType")->getData(),
+                $form->get('priceTier')->getData()
             );
 
-            $this->addFlash('success', sprintf('Seats from row %s have been updated', $form->get('row')->getData()));
+            $this->addFlash('success', 'Seats have been updated!');
 
             return $this->redirectToRoute("app_screening_room_edit", [
                 "screening_room_slug" => $screeningRoom->getSlug(),

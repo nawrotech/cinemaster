@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Enum\ScreeningRoomSeatType;
+use App\Enum\SeatPricing;
 use App\Repository\ScreeningRoomSeatRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -30,6 +31,13 @@ class ScreeningRoomSeat
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Seat $seat = null;
+
+    #[ORM\Column(enumType: SeatPricing::class)]
+    private ?SeatPricing $pricingType = SeatPricing::PREMIUM;
+
+    #[ORM\ManyToOne()]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?PriceTier $priceTier = null;
 
 
     public function getId(): ?int
@@ -97,8 +105,29 @@ class ScreeningRoomSeat
         return $this;
     }
 
+    public function getPricingType(): ?SeatPricing
+    {
+        return $this->pricingType;
+    }
 
+    public function setPricingType(SeatPricing $pricingType): static
+    {
+        $this->pricingType = $pricingType;
 
+        return $this;
+    }
+
+    public function getPriceTier(): ?PriceTier
+    {
+        return $this->priceTier;
+    }
+
+    public function setPriceTier(?PriceTier $priceTier): static
+    {
+        $this->priceTier = $priceTier;
+
+        return $this;
+    }
 
 
 }

@@ -21,17 +21,23 @@
             </select>
         </div>
 
-        <div class="form-checsk form-switch mb-2">
-            <input 
-                class="form-check-input seat-status-checkbox"
-                type="checkbox"
-                role="switch"
-                id="{{ "seatStatus" ~ seat.id }}"
-                name="seatStatus" 
-                {{ seat.status == "available" ? "checked" : "" }}
-            >
-            <label class="visually-hidden" for="{{ "seatStatus" ~ seat.id }}">Set change availability</label>
+        <div class="d-flex">
+            <div class="form-checsk form-switch mb-2 col-6">
+                <input 
+                    class="form-check-input seat-status-checkbox"
+                    type="checkbox"
+                    role="switch"
+                    id="{{ "seatStatus" ~ seat.id }}"
+                    name="seatStatus" 
+                    {{ seat.status == "available" ? "checked" : "" }}
+                >
+                <label class="visually-hidden" for="{{ "seatStatus" ~ seat.id }}">Set change availability</label>
+            </div>
+
+            <p class="col-6">{{ seat.priceTier.name }}</p>
+    
         </div>
+
 
         <button class="btn btn-sm btn-primary rounded-circle"><i class="bi bi-check-circle"></i></button>
         

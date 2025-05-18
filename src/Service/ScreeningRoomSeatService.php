@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\PriceTier;
 use App\Entity\ScreeningRoom;
 use App\Enum\ScreeningRoomSeatType;
 use App\Repository\ScreeningRoomSeatRepository;
@@ -31,21 +32,24 @@ class ScreeningRoomSeatService {
 
     public function updateSeatTypeForRow(
         ScreeningRoom $screeningRoom,
-        int $row,
+        int $rowStart,
+        int $rowEnd,
         int $firstSeatInRow,
         int $lastSeatInRow,
-        ScreeningRoomSeatType $seatType
+        ScreeningRoomSeatType $seatType,
+        PriceTier $priceTier
     ): void {
         $seatsInRow = $this->screeningRoomSeatRepository->findSeatsInRange(
             $screeningRoom,
-            $row,
-            $row,
+            $rowStart,
+            $rowEnd,
             $firstSeatInRow,
             $lastSeatInRow
         );
 
         foreach ($seatsInRow as $screeningRoomSeat) {
             $screeningRoomSeat->setType($seatType);
+            $screeningRoomSeat->setPriceTier($priceTier);
         }
 
         $this->em->flush();
