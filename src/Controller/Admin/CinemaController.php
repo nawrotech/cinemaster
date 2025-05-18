@@ -3,10 +3,13 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Cinema;
+use App\Entity\PriceTier;
+use App\Form\CinemaPriceTiersCollectionType;
 use App\Form\CinemaScreeningFormatCollectionType;
 use App\Form\CinemaScreeningRoomSetupCollectionType;
 use App\Form\CinemaType;
 use App\Form\CinemaVisualFormatCollectionType;
+use App\Form\PriceTierType;
 use App\Repository\CinemaRepository;
 use App\Repository\MovieScreeningFormatRepository;
 use App\Repository\ScreeningFormatRepository;
@@ -140,6 +143,29 @@ class CinemaController extends AbstractController
             "form" => $form,
             "activeVisualFormats" => $activeVisualFormats
         ]);
+    }
+
+    #[Route('/{slug}/add-price-tiers', name: 'app_cinema_add_price_tiers', methods: ['GET', 'POST'])]
+    public function addPriceTiers(
+        Cinema $cinema,
+        Request $request, 
+    ) {
+
+        $form = $this->createForm(CinemaPriceTiersCollectionType::class, $cinema);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->em->flush();
+
+            $this->addFlash('success', 'Price tier created successfully.');
+            return $this->redirectToRoute('app_cinema_details', ['slug' => $cinema->getSlug()]);
+        }
+
+        return $this->render('cinema/price_tiers_collection_form.html.twig', [
+            'cinema' => $cinema,
+            'form' => $form
+        ]);
+
     }
 
     #[Route('/{slug}/add-screening-formats', name: 'app_cinema_add_screening_formats',  methods: ['GET', 'POST'])]

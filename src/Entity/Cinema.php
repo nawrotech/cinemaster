@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Contract\SlugInterface;
 use App\Repository\CinemaRepository;
+use App\Repository\PriceTierRepository;
 use App\Repository\ScreeningFormatRepository;
 use App\Repository\ScreeningRoomSetupRepository;
 use App\Repository\VisualFormatRepository;
@@ -185,6 +186,13 @@ class Cinema implements SlugInterface
     )]
     private ?\DateTimeImmutable $closeTime = null;
 
+    /**
+     * @var Collection<int, PriceTier>
+     */
+    #[ORM\OneToMany(targetEntity: PriceTier::class, mappedBy: 'cinema', cascade: ["persist"])]
+    #[Assert\Valid(groups: ['price_tiers'])]
+    private Collection $priceTiers;
+
     public function __toString()
     {
         return $this->name;
@@ -201,6 +209,7 @@ class Cinema implements SlugInterface
         $this->screeningFormats = new ArrayCollection();
         $this->movieScreeningFormats = new ArrayCollection();
         $this->movies = new ArrayCollection();
+        $this->priceTiers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -601,6 +610,36 @@ class Cinema implements SlugInterface
     public function setCloseTime(\DateTimeImmutable $closeTime): static
     {
         $this->closeTime = $closeTime;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PriceTier>
+     */
+    public function getPriceTiers(): Collection
+    {
+        return $this->priceTiers->matching(PriceTierRepository::activePriceTierConstraint());
+    }
+
+    public function addPriceTier(PriceTier $priceTier): static
+    {
+        if (!$this->priceTiers->contains($priceTier)) {
+            $this->priceTiers->add($priceTier);
+            $priceTier->setCinema($this);
+        }
+
+        return $this;
+    }
+
+    public function removePriceTier(PriceTier $priceTier): static
+    {
+        if ($this->priceTiers->removeElement($priceTier)) {
+            // set the owning side to null (unless already changed)
+            if ($priceTier->getCinema() === $this) {
+                $priceTier->setIsActive(false);
+            }
+        }
 
         return $this;
     }

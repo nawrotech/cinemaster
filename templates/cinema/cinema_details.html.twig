@@ -65,29 +65,36 @@
                     </ul>
                 </div>
 
-                {% if cinema.screeningRoomSetups|length is not empty %}
+                {% if cinema.screeningRoomSetups is not empty and cinema.priceTiers is not empty %}
                     <a class="btn btn-primary mt-3 w-100" href="{{path("app_screening_room_create", {slug: cinema.slug})}}">
                         Create Screening Room
                     </a>
                 {% else %}
                     <div class="alert alert-info mt-3" role="alert">
                       Please configure <a href="{{ path("app_cinema_add_screening_room_setups", {slug: cinema.slug}) }}" class="alert-link">Screening Room Setups</a> first to create rooms.
+                        or provide <a class="alert-link" href="{{ path('app_cinema_add_price_tiers', {slug: cinema.slug}) }}">price tiers</a>
+                        
                     </div>
                 {% endif %}
             </div>
             <div class="mb-4 col-md-4">
-                <h2 class="mb-3">Movies</h2>
-                <div class="d-grid gap-2 d-sm-block">
-                    <a class="btn btn-primary" href="{{ path("app_movie_select_movies", {slug: cinema.slug}) }}">
-                        Manage Cinema Movies
-                    </a>
-                    <a class="btn btn-outline-primary" href="{{ path("app_movie_available_movies", {slug: cinema.slug}) }}">
-                        View Available Movies
-                    </a>
+                <div class="mb-3">
+                    <h2 class="mb-3">Movies</h2>
+                    <div class="d-grid gap-2 d-sm-block">
+                        <a class="btn btn-primary" href="{{ path("app_movie_select_movies", {slug: cinema.slug}) }}">
+                            Manage Cinema Movies
+                        </a>
+                        <a class="btn btn-outline-primary" href="{{ path("app_movie_available_movies", {slug: cinema.slug}) }}">
+                            View Available Movies
+                        </a>
+                    </div>
+                </div>
+                <div class="">
+                    <h2 class="mb-3">Pricing</h2>
+                    <a class="btn btn-success" href="{{ path('app_cinema_add_price_tiers', { slug: cinema.slug }) }}">Manage prices</a>
                 </div>
             </div>
     
-         
     
             <div class="mb-4 col-md-4">
                 <h2 class="mb-3">Showtimes</h2>
