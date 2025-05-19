@@ -210,3 +210,10 @@
     block-size: var(--vfs-block-size, 150px);
     overflow: auto;
 }
+
+/* _price_tier_legend.html.twig */
+.tier-color-swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+}

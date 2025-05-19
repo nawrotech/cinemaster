@@ -54,6 +54,11 @@ class SeatRowType extends AbstractType
                 'placeholder' => 'Choose a row',
                 'required' => true,
             ])
+            ->add("firstSeatInRow", IntegerType::class, [
+                "data" => 1
+            ])
+            ->add("lastSeatInRow", IntegerType::class, [
+            ])
             ->add('priceTier', EntityType::class, [
                 'class' => PriceTier::class,    
                 'choices' => $this->priceTierRepository->findByCinemaAndActiveStatus($cinema),
@@ -67,11 +72,6 @@ class SeatRowType extends AbstractType
                 'choice_label' => fn(ScreeningRoomSeatType $screeningRoomSeatType) => $screeningRoomSeatType->value,
                 'placeholder' => 'Choose a seat type for the entire row',
                 'required' => true,
-            ])
-            ->add("firstSeatInRow", IntegerType::class, [
-                "data" => 1
-            ])
-            ->add("lastSeatInRow", IntegerType::class, [
             ])
             ->add("submit", SubmitType::class)
             ->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {

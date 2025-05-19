@@ -5,6 +5,11 @@
 {% block body %}
         <h1>Screening room name: {{ room.name }}</h1>   
         <p><strong>Setup: </strong> {{ room.screeningRoomSetup.displaySetup }}</p>
+
+        {% if cinema.priceTiers is defined %}
+            {{ include('screening_room/_price_tier_legend.html.twig') }}
+        {% endif %}
+        
         <div class="row">
             <div class="col-md-10 mb-3">
                 <div class="overflow-auto w-100">

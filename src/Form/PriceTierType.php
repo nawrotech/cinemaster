@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\PriceTier;
 use App\Form\Type\RemoveButtonType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ColorType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -24,6 +25,9 @@ class PriceTierType extends AbstractType
                 'label' => 'Price',
                 'currency' => 'USD',
                 'attr' => ['placeholder' => '10.00'],
+            ])
+            ->add('color', ColorType::class, [
+                'label' => 'Pick a color'
             ])
             ->add("remove", RemoveButtonType::class)
             ;

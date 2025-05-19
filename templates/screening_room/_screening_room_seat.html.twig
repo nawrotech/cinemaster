@@ -1,5 +1,9 @@
-<div class="d-flex flex-column align-items-center mb-2">
-    <p class="seat-position">{{ seat.seat.seatPosition }}</p>
+<div class="seat-card border rounded p-1 mb-1" 
+
+    style="{{ seat.priceTier.color is defined and seat.priceTier.color ?
+     'background-color: ' ~ seat.priceTier.color ~ ';' : '' }}"
+    >
+
     <form method="post" action="{{path("app_screening_room_seat_update", {
         id: seat.id,
         slug: cinema.name
@@ -9,20 +13,23 @@
         <input type="hidden" name="screeningRoomSlug" value="{{room.slug}}">
         <input type="hidden" name="token" value="{{ csrf_token('edit-seat-' ~ seat.id) }}">
 
-        <div class="mb-2">
-            <select name="seatType" id="seatType" class="form-select form-select-sm">
+        <div class="d-flex align-items-center justify-content-center mb-1">
+            <span class="badge bg-secondary">{{ seat.seat.seatPosition }}</span>
+        </div>
+
+        <div class="mb-1">
+            <select name="seatType" class="form-select form-select-sm py-0" style="font-size: 0.8rem; height: auto;">
                 {% for seatType in enum('App\\Enum\\ScreeningRoomSeatType').cases %}
-                    <option
-                        {{ seatType.value == seat.type.value ? "selected" : "" }}
-                        value="{{ seatType.value }}">
+                    <option {{ seatType.value == seat.type.value ? "selected" : "" }} value="{{ seatType.value }}">
                         {{ seatType.value }}
                     </option>
                 {% endfor %}
             </select>
         </div>
 
-        <div class="d-flex">
-            <div class="form-checsk form-switch mb-2 col-6">
+        <div class="d-flex align-items-center justify-content-between mb-1">
+            <small class="text-muted">Available</small>
+            <div class="form-check form-switch m-0">
                 <input 
                     class="form-check-input seat-status-checkbox"
                     type="checkbox"
@@ -31,15 +38,11 @@
                     name="seatStatus" 
                     {{ seat.status == "available" ? "checked" : "" }}
                 >
-                <label class="visually-hidden" for="{{ "seatStatus" ~ seat.id }}">Set change availability</label>
             </div>
-
-            <p class="col-6">{{ seat.priceTier.name }}</p>
-    
         </div>
 
-
-        <button class="btn btn-sm btn-primary rounded-circle"><i class="bi bi-check-circle"></i></button>
-        
+        <button type="submit" class="btn btn-sm btn-primary w-100 py-0" style="font-size: 0.75rem;">
+            <i class="bi bi-check-circle"></i> Save
+        </button>
     </form>
 </div>

@@ -42,6 +42,11 @@ class PriceTier
     #[ORM\JoinColumn(nullable: false)]
     private ?Cinema $cinema = null;
 
+    #[ORM\Column(length: 7, nullable: true)]
+    #[Assert\NotNull]
+    #[Assert\CssColor()]
+    private ?string $color = null;
+
 
     public function getId(): ?int
     {
@@ -92,6 +97,18 @@ class PriceTier
     public function setCinema(?Cinema $cinema): static
     {
         $this->cinema = $cinema;
+
+        return $this;
+    }
+
+    public function getColor(): ?string
+    {
+        return $this->color;
+    }
+
+    public function setColor(string $color): static
+    {
+        $this->color = $color;
 
         return $this;
     }

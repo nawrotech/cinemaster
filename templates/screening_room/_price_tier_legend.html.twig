@@ -1,0 +1,18 @@
+<div class="card mb-3">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Price Tier Legend</h5>
+    </div>
+    <div class="card-body p-2">
+        <div class="row g-2">
+            {% for tier in cinema.priceTiers %}
+                <div class="col-auto">
+                    <div class="d-flex align-items-center">
+                        <div class="color-swatch me-2 tier-color-swatch" 
+                             style="background-color: {{ tier.color }};"></div>
+                        <span>{{ tier.name }} ({{ tier.price|format_currency('USD') }})</span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

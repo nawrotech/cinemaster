@@ -45,7 +45,7 @@ class CinemaPriceTiersCollectionType extends AbstractType
                 "prototype" => true,  
                 "constraints" => [
                     new Valid(),
-                    new Count(max: 2)
+                    new Count(max: 10)
                 ],
             ])   
             ->add("submit", SubmitType::class, [
