@@ -63,7 +63,9 @@ class SeatRowType extends AbstractType
                 'class' => PriceTier::class,    
                 'choices' => $this->priceTierRepository->findByCinemaAndActiveStatus($cinema),
                 'choice_label' => function (PriceTier $priceTier) {
-                    return sprintf('%s ($%.2f)', $priceTier->getName(), $priceTier->getPrice());
+                    return sprintf('%s ($%.2f)', 
+                        ucfirst($priceTier->getType()->value), 
+                        $priceTier->getPrice());
                 },
                 'mapped' => false,
             ])

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\SeatPricing;
 use App\Repository\ReservationSeatRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -37,8 +38,8 @@ class ReservationSeat
     #[ORM\Column(length: 7)]
     private ?string $priceTierColor = null;
 
-    #[ORM\Column(length: 30)]
-    private ?string $priceTierName = null;
+    #[ORM\Column(type: 'string', enumType: SeatPricing::class)]
+    private ?SeatPricing $priceTierType = null;
 
     #[ORM\ManyToOne(targetEntity: PriceTier::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
@@ -133,14 +134,14 @@ class ReservationSeat
         return $this;
     }
 
-    public function getPriceTierName(): ?string
+    public function getPriceTierType(): ?SeatPricing
     {
-        return $this->priceTierName;
+        return $this->priceTierType;
     }
 
-    public function setPriceTierName(string $priceTierName): static
+    public function setPriceTierType(SeatPricing $priceTierType): static
     {
-        $this->priceTierName = $priceTierName;
+        $this->priceTierType = $priceTierType;
 
         return $this;
     }

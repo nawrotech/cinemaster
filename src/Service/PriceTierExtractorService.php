@@ -17,11 +17,11 @@ class PriceTierExtractorService
     {
 
         $distinctPriceTiers = $this->reservationSeatRepository->findDistinctPriceTiersByShowtime($showtime);
-
+        
         $priceTiers = [];
         foreach ($distinctPriceTiers as $priceTier) {
             $priceTiers[] = new ReservationPriceTierDto(
-                $priceTier['priceTierName'],
+                $priceTier['priceTierType'],
                 $priceTier['priceTierPrice'],
                 $priceTier['priceTierColor']
             );

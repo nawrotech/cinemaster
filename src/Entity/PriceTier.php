@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\SeatPricing;
 use App\Repository\PriceTierRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -9,13 +10,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: PriceTierRepository::class)]
 #[UniqueEntity(
-    fields: ['name', 'price', 'cinema'],
+    fields: ['type', 'price', 'cinema'],
     message: 'This price tier already exists for this cinema.',
     repositoryMethod: 'findActiveByCinema'
 )]
 #[ORM\UniqueConstraint(
     name: "unique_active_price_tier",
-    columns: ["name", "price", "cinema_id", "is_active"],
+    columns: ["type", "price", "cinema_id", "is_active"],
     options: ["where" => "(is_active = true)"]
 )]
 class PriceTier
@@ -25,10 +26,6 @@ class PriceTier
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 30)]
-    #[Assert\NotBlank]
-    #[Assert\Length(max: 30)]
-    private ?string $name = null;
 
     #[ORM\Column]
     #[Assert\NotBlank]
@@ -47,22 +44,13 @@ class PriceTier
     #[Assert\CssColor()]
     private ?string $color = null;
 
+    #[ORM\Column(type: 'string', enumType: SeatPricing::class)]
+    private ?SeatPricing $type = null;
+
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): static
-    {
-        $this->name = $name;
-
-        return $this;
     }
 
     public function getPrice(): ?float
@@ -109,6 +97,18 @@ class PriceTier
     public function setColor(string $color): static
     {
         $this->color = $color;
+
+        return $this;
+    }
+
+    public function getType(): ?SeatPricing
+    {
+        return $this->type;
+    }
+
+    public function setType(SeatPricing $type): static
+    {
+        $this->type = $type;
 
         return $this;
     }

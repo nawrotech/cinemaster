@@ -139,7 +139,7 @@ class ShowtimeService
                 $priceTier = $showtimeRoomSeat->getPriceTier();
                 if ($priceTier) {
                     $reservationSeat->setOriginalPriceTier($priceTier);
-                    $reservationSeat->setPriceTierName($priceTier->getName());
+                    $reservationSeat->setPriceTierType($priceTier->getType());
                     $reservationSeat->setPriceTierPrice($priceTier->getPrice());
                     $reservationSeat->setPriceTierColor($priceTier->getColor());
                 }

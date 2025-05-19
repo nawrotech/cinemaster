@@ -61,10 +61,10 @@ class ReservationSeatRepository extends ServiceEntityRepository
     public function findDistinctPriceTiersByShowtime(Showtime $showtime) 
     {
         $query = $this->getEntityManager()->createQuery(
-            'SELECT DISTINCT rs.priceTierName, rs.priceTierPrice, rs.priceTierColor 
+            'SELECT DISTINCT rs.priceTierType, rs.priceTierPrice, rs.priceTierColor 
              FROM App\Entity\ReservationSeat rs
              WHERE rs.showtime = :showtime
-             AND rs.priceTierName IS NOT NULL
+             AND rs.priceTierType IS NOT NULL
              AND rs.priceTierPrice IS NOT NULL
              AND rs.priceTierColor IS NOT NULL
              ORDER BY rs.priceTierPrice ASC'

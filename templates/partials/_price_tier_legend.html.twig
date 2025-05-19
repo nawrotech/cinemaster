@@ -9,7 +9,7 @@
                     <div class="d-flex align-items-center">
                         <div class="color-swatch me-2 tier-color-swatch" 
                              style="background-color: {{ tier.color }};"></div>
-                        <span>{{ tier.name }} ({{ tier.price|format_currency('USD') }})</span>
+                        <span>{{ tier.type.value }} ({{ tier.price|format_currency('USD') }})</span>
                     </div>
                 </div>
             {% endfor %}

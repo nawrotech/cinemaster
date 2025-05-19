@@ -111,14 +111,16 @@ class ScreeningRoomType extends AbstractType
                 "choices" => $this->screeningRoomSetupRepository->findByCinemaAndActiveStatus($cinema, true),
                 'choice_label' => 'displaySetup',
             ])
-            ->add('tierPrice', EntityType::class, [
+            ->add('priceTier', EntityType::class, [
                 'class' => PriceTier::class,    
                 'choices' => $this->priceTierRepository->findByCinemaAndActiveStatus($cinema),
                 'choice_label' => function (PriceTier $priceTier) {
-                    return sprintf('%s ($%.2f)', $priceTier->getName(), $priceTier->getPrice());
+                    return sprintf('%s ($%.2f)', 
+                            ucfirst($priceTier->getType()->value),
+                            $priceTier->getPrice());
                 },
                 'mapped' => false,
-                'label' => 'What is the main pricing of the seat in your cinema?'
+                'label' => 'What\'s the base price for cinema seats?'
             ])
             ->add("create", SubmitType::class)
             ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {

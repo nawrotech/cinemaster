@@ -2,22 +2,24 @@
 
 namespace App\Dto;
 
+use App\Enum\SeatPricing;
+
 class ReservationPriceTierDto
 {
-    private string $name;
+    private SeatPricing $type;
     private float $price;
     private string $color;
 
-    public function __construct(string $name, float $price, string $color)
+    public function __construct(SeatPricing $type, float $price, string $color)
     {
-        $this->name = $name;
+        $this->type = $type;
         $this->price = $price;
         $this->color = $color;
     }
 
-    public function getName(): string
+    public function getType(): SeatPricing
     {
-        return $this->name;
+        return $this->type;
     }
 
     public function getPrice(): float
@@ -32,6 +34,6 @@ class ReservationPriceTierDto
 
     public function getKey(): string
     {
-        return $this->name . '-' . $this->price . '-' . $this->color;
+        return $this->type . '-' . $this->price . '-' . $this->color;
     }
 }

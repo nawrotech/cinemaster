@@ -23,17 +23,17 @@ class PriceTierRepository extends ServiceEntityRepository
     public function findActiveByCinema(array $fieldValues): ?array
     {
 
-        $name = $fieldValues['name'] ?? null;
+        $type = $fieldValues['type'] ?? null;
         $price = $fieldValues['price'] ?? null;
         $cinema = $fieldValues['cinema'] ?? null;
         
-        if (!$name || !$price || !$cinema) {
+        if (!$type || !$price || !$cinema) {
             return null;
         }
 
         $qb = $this->filterByCinema($cinema);
 
-        $qb = $this->filterByName($name, $qb);
+        $qb = $this->filterByName($type, $qb);
         
         $qb = $this->filterByPrice($price, $qb);
 
@@ -70,10 +70,10 @@ class PriceTierRepository extends ServiceEntityRepository
                 ->setParameter('isActive', $isActive);
     }
 
-    public function filterByName(string $name, ?QueryBuilder $qb = null): QueryBuilder {
+    public function filterByName(string $type, ?QueryBuilder $qb = null): QueryBuilder {
         return ($qb ?? $this->createQueryBuilder("pt"))
-                ->andWhere('pt.name = :name')
-                ->setParameter('name', $name);
+                ->andWhere('pt.type = :type')
+                ->setParameter('type', $type);
     }
 
 
