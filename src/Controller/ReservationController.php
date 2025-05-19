@@ -9,6 +9,8 @@ use App\Form\ReservationType;
 use App\Repository\ReservationSeatRepository;
 use App\Service\CartService;
 use App\Service\Mailer;
+use App\Service\PriceTierExtractor;
+use App\Service\PriceTierExtractorService;
 use App\Service\ReservationSeatService;
 use App\Service\ReservationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -30,7 +32,10 @@ class ReservationController extends AbstractController
         Request $request,
         #[MapEntity(mapping: ["slug" => "slug"])] Cinema $cinema,
         #[MapEntity(mapping: ["showtime_slug" => "slug"])] Showtime $showtime,
+        PriceTierExtractorService $priceTierExtractorService
     ): Response {
+
+        $priceTiers = $priceTierExtractorService->getShowtimePriceTiers($showtime);
 
         $groupedReservationSeats = $reservationSeatService->groupSeatsForLayout($showtime);
 
@@ -53,7 +58,8 @@ class ReservationController extends AbstractController
             "groupedReservationSeats" => $groupedReservationSeats,
             "showtime" => $showtime,
             "form" => $form,
-            "cinema" => $cinema
+            "cinema" => $cinema,
+            'priceTiers' => $priceTiers
         ]);
     }
 

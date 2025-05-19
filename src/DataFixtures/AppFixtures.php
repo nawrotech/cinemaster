@@ -43,11 +43,11 @@ class AppFixtures extends Fixture
         });
 
 
-        $screeningRooms = ScreeningRoomFactory::createScreeningRoomsForCinemas(10);
+        // $screeningRooms = ScreeningRoomFactory::createScreeningRoomsForCinemas(10);
 
-        foreach($screeningRooms as $screeningRoom) {
-            ScreeningRoomSeatFactory::createForScreeningRoom($screeningRoom);
-        }
+        // foreach($screeningRooms as $screeningRoom) {
+        //     ScreeningRoomSeatFactory::createForScreeningRoom($screeningRoom);
+        // }
 
         $manager->flush();
     }

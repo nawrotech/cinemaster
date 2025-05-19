@@ -1,23 +1,44 @@
-.seat {
-    background-color: red;
-    border: 3px solid black;
-    border-radius: 10rem 10rem 100vh 100vh;
-    inline-size: 40px;
-    block-size: 40px;
+:root {
+    --available: green;
+    --reserved: red;
+    --selected: yellow;
 }
 
+.seat {
+    border: 3px solid black;
+    border-radius: 10rem 10rem 100vh 100vh;
+    inline-size: 50px;
+    block-size: 50px;
+}
+
+.seat-indicator {
+    block-size: 20px;
+    inline-size: 20px;
+    border-radius: 0.2rem;
+
+    &.available {   
+        background-color: var(--available, green);
+    }
+    &.selected {
+        background-color: var(--selected, yellow);
+    }
+    &.reserved {
+        background-color: var(--reserved, red);
+
+    }
+}
 
 .available {
-    background-color: green;
+    background-color: var(--available, green);
 }
 
 .locked,
 .reserved {
-    background-color: red;
+    background-color: var(--reserved, red);
 }
 
 .selected  {
-    background-color: yellow;
+    background-color: var(--selected, yellow);
 }
 
 .seats-container {

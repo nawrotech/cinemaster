@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\PriceTier;
 use App\Entity\ScreeningRoom;
 use App\Entity\ScreeningRoomSeat;
 use App\Exception\InvalidRowsAndSeatsStructureException;
@@ -48,9 +49,9 @@ class SeatService {
 
 
 
-    public function assignSeatsToScreeningRoom(ScreeningRoom $screeningRoom, array $rowsAndSeats) {
+    public function assignSeatsToScreeningRoom(ScreeningRoom $screeningRoom, array $rowsAndSeats, PriceTier $priceTier) {
 
-        $this->em->wrapInTransaction(function($em) use($rowsAndSeats, $screeningRoom) {
+        $this->em->wrapInTransaction(function($em) use($rowsAndSeats, $screeningRoom, $priceTier) {
 
             $seatsByRow = $this->groupSeatsByRow($rowsAndSeats);
 
@@ -61,6 +62,7 @@ class SeatService {
                     $screeningRoomSeat = new ScreeningRoomSeat();
                     $screeningRoomSeat->setScreeningRoom($screeningRoom);
                     $screeningRoomSeat->setSeat($seat);
+                    $screeningRoomSeat->setPriceTier($priceTier);
                     $em->persist($screeningRoomSeat);
                 }
             }

@@ -21,8 +21,6 @@ class ReservationType extends AbstractType
         $builder
             ->add("email", EmailType::class, [
                 "required" => true,
-
-                // "constraints" => "required"
             ])
             ->add("submit", SubmitType::class)
             ->addEventListener(FormEvents::POST_SUBMIT, function(PostSubmitEvent $event) use($cart) {

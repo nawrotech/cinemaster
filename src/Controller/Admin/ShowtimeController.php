@@ -47,27 +47,28 @@ class ShowtimeController extends AbstractController
         $showtimeStartsFrom = $scheduledShowtimeFilterDto?->showtimeStartsFrom
             ? new \DateTimeImmutable($scheduledShowtimeFilterDto->showtimeStartsFrom)
             : (new DateTimeImmutable())->setTime(0, 0, 0);
-    
-        $showtimeStartsBefore = $scheduledShowtimeFilterDto?->showtimeStartsBefore 
+
+        $showtimeStartsBefore = $scheduledShowtimeFilterDto?->showtimeStartsBefore
             ? (new \DateTimeImmutable($scheduledShowtimeFilterDto->showtimeStartsBefore))->setTime(23, 59, 59)
             : null;
 
         $showtimeFilteredQueryBuilder = $showtimeRepository
-                    ->createFilteredQueryBuilder(
-                        $cinema, 
-                        $scheduledShowtimeFilterDto?->screeningRoomName, 
-                        $showtimeStartsFrom,
-                        $showtimeStartsBefore,
-                        $scheduledShowtimeFilterDto?->movieTitle,
-                        $scheduledShowtimeFilterDto?->getPublishedAsBool()
-                    );
+            ->createFilteredQueryBuilder(
+                $cinema,
+                $scheduledShowtimeFilterDto?->screeningRoomName,
+                $showtimeStartsFrom,
+                $showtimeStartsBefore,
+                $scheduledShowtimeFilterDto?->movieTitle,
+                $scheduledShowtimeFilterDto?->getPublishedAsBool()
+            );
 
         $pager = $pagerfantaFactory->createShowtimesPagerfanta(
-                                        $showtimeFilteredQueryBuilder, 
-                                        $scheduledShowtimeFilterDto?->page ?? 1);
+            $showtimeFilteredQueryBuilder,
+            $scheduledShowtimeFilterDto?->page ?? 1
+        );
 
         return $this->render('showtime/index.html.twig', [
-            "showtimes" => $pager,  
+            "showtimes" => $pager,
             "availableRoomNames" => $screeningRoomRepository->findDistinctRoomNames($cinema),
             "showtimeStartsFrom" => $showtimeStartsFrom->format('Y-m-d'),
         ]);
@@ -106,8 +107,8 @@ class ShowtimeController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        $showtimeStartsAtDate = (new \DateTime($showtimeStarting))->format("Y-m-d") 
-                ?? new \DateTimeImmutable()->format("Y-m-d"); 
+        $showtimeStartsAtDate = (new \DateTime($showtimeStarting))->format("Y-m-d")
+            ?? new \DateTimeImmutable()->format("Y-m-d");
 
         $showtimes = $showtimeRepository->findBy(["cinema" => $cinema]);
 
@@ -157,24 +158,26 @@ class ShowtimeController extends AbstractController
             'published' => $request->query->get('published'),
             'page' => $request->query->get('page'),
         ]);
-        
+
         $redirectParams = array_merge(['slug' => $cinema->getSlug()], $queryParams);
 
-        if ($request->request->get("published") === "0" &&
-            $showtime->getReservations()->count() === 0) {
+        if (
+            $request->get("published") === "0" &&
+            $showtime->getReservations()->count() === 0
+        ) {
             $showtime->setPublished(false);
             $this->em->flush();
             $this->addFlash("success", "Show has been successfully unpublished");
-            
+
             return $this->redirectToRoute("app_showtime_scheduled_room", $redirectParams);
-        } elseif ($request->request->get("published") === "1") {
+        } elseif ($request->get("published") === "1") {
             $showtimeService->publishShowtime($showtime);
             $this->addFlash("success", "Show has been successfully published");
-            
+
             return $this->redirectToRoute("app_showtime_scheduled_room", $redirectParams);
         } else {
             $this->addFlash("danger", "Show has reservations and cannot be unpublished");
-            
+
             return $this->redirectToRoute("app_showtime_scheduled_room", $redirectParams);
         }
     }
@@ -194,14 +197,14 @@ class ShowtimeController extends AbstractController
                     'message' => $message
                 ], Response::HTTP_BAD_REQUEST);
             }
-            
+
             $this->addFlash("danger", $message);
             return $this->redirectToRoute("app_showtime_scheduled_room", [
                 "slug" => $showtime->getCinema()->getSlug()
             ]);
         }
 
-        $reservationSeats = $reservationSeatRepository->findBy(["showtime" => $showtime]);    
+        $reservationSeats = $reservationSeatRepository->findBy(["showtime" => $showtime]);
         $this->em->wrapInTransaction(function ($em) use ($showtime, $reservationSeats) {
             foreach ($reservationSeats as $reservationSeat) {
                 $em->remove($reservationSeat);
@@ -223,10 +226,12 @@ class ShowtimeController extends AbstractController
         ]);
     }
 
-    #[Route("/showtimes/publish/by-date/{date}",
-     name: "app_showtime_publish_for_date", 
-     requirements: ["date" => "\d{4}-\d{2}-\d{2}"],
-     methods: ["POST", 'GET'])]
+    #[Route(
+        "/showtimes/publish/by-date/{date}",
+        name: "app_showtime_publish_for_date",
+        requirements: ["date" => "\d{4}-\d{2}-\d{2}"],
+        methods: ["POST", 'GET']
+    )]
     public function publishForDate(
         #[MapEntity(mapping: ["slug" => "slug"])]
         Cinema $cinema,
@@ -258,8 +263,8 @@ class ShowtimeController extends AbstractController
         $this->em->wrapInTransaction(function ($em) use ($showtimes, $screeningRoomSeatRepository, $i, $batchSize) {
             foreach ($showtimes as $showtime) {
                 $seats = $screeningRoomSeatRepository
-                            ->findBy(["screeningRoom" => $showtime->getScreeningRoom()]);
-                
+                    ->findBy(["screeningRoom" => $showtime->getScreeningRoom()]);
+
                 foreach ($seats as $seat) {
                     $reservationSeat = new ReservationSeat();
                     $reservationSeat->setShowtime($showtime);
@@ -267,10 +272,10 @@ class ShowtimeController extends AbstractController
                     $reservationSeat->setStatus($seat->getStatus());
                     $this->em->persist($reservationSeat);
                 }
-                
+
                 $showtime->setPublished(true);
                 $em->persist($showtime);
-                
+
                 if (++$i % $batchSize === 0) {
                     $em->flush();
                     $em->clear(ReservationSeat::class);
@@ -285,9 +290,11 @@ class ShowtimeController extends AbstractController
         ]);
     }
 
-    #[Route("/showtimes/{date?}",
+    #[Route(
+        "/showtimes/{date?}",
         name: "app_showtime_scheduled_showtimes_in_cinema",
-        requirements: ["date" => "\d{4}-\d{2}-\d{2}"])]
+        requirements: ["date" => "\d{4}-\d{2}-\d{2}"]
+    )]
     public function scheduledShowtimesOnDateInCinema(
         #[MapEntity(mapping: ["slug" => "slug"])] Cinema $cinema,
         ShowtimeRepository $showtimeRepository,
@@ -314,13 +321,15 @@ class ShowtimeController extends AbstractController
                 $roomShowtime = ShowtimeDto::fromEntity($roomShowtime);
             }
         }
-        
+
         return $this->json($cinemaShowtimes);
     }
 
-    #[Route("/screening-rooms/{screening_room_slug}/showtimes/{date?}", 
+    #[Route(
+        "/screening-rooms/{screening_room_slug}/showtimes/{date?}",
         name: "app_showtime_scheduled_showtimes",
-        requirements: ["date" => "\d{4}-\d{2}-\d{2}"])]
+        requirements: ["date" => "\d{4}-\d{2}-\d{2}"]
+    )]
     public function scheduledShowtimesOnDateForScreeningRoom(
         #[MapEntity(mapping: ["slug" => "slug"])] Cinema $cinema,
         ShowtimeRepository $showtimeRepository,
@@ -328,6 +337,7 @@ class ShowtimeController extends AbstractController
         string $date,
         #[MapEntity(mapping: ["screening_room_slug" => "slug"])] ?ScreeningRoom $screeningRoom = null,
     ) {
+
         $errors = $validator->validate($date, new Date());
         if (count($errors) > 0) {
             return $this->json([
@@ -335,9 +345,10 @@ class ShowtimeController extends AbstractController
                 "message" => 'Invalid date format. Please use YYYY-MM-DD format.'
             ], Response::HTTP_BAD_REQUEST);
         }
-
+        
         $showtimes = $showtimeRepository
             ->findByCinemaAndScreeningRoomAtDate($date, $cinema, $screeningRoom);
+
 
         $showtimes = array_map(function (Showtime $showtime) {
             return ShowtimeDto::fromEntity($showtime);
@@ -346,7 +357,7 @@ class ShowtimeController extends AbstractController
         return $this->json($showtimes);
     }
 
-    
+
 
     #[Route("/scheduled-showtime-axis", name: "app_showtime_showtime_axis")]
     public function showtimeAxis(

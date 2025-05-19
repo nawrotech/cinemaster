@@ -23,6 +23,10 @@
         </div>
     </div>
 
+    {% if priceTiers %}
+        {{ include('partials/_price_tier_legend.html.twig') }}
+    {% endif %}
+    
     <div class="text-center mb-4">
         <div class="screen bg-light p-2 mb-4 mx-auto rounded shadow-sm" style="max-width: 80%;">
             <small class="text-muted">SCREEN</small>
@@ -40,14 +44,13 @@
                     <div class="row-label me-2">{{ loop.index }}</div>
                     <div class="d-flex gap-1">
                         {% for seat in reservationSeatRow %}        
-                            {{ include("partials/_reservation_seat.html.twig") }}
+                            {{ include("reservation/_reservation_seat.html.twig") }}
                         {% endfor %}
                     </div>
                 </div>
             {% endfor %}
         </div>
     </div>
-
 
     <a class="btn btn-success" href="{{ path('app_order_checkout') }}">Checkout</a>
 

@@ -135,6 +135,15 @@ class ShowtimeService
                 $reservationSeat->setShowtime($showtime);
                 $reservationSeat->setSeat($showtimeRoomSeat);
                 $reservationSeat->setStatus($showtimeRoomSeat->getStatus());
+
+                $priceTier = $showtimeRoomSeat->getPriceTier();
+                if ($priceTier) {
+                    $reservationSeat->setOriginalPriceTier($priceTier);
+                    $reservationSeat->setPriceTierName($priceTier->getName());
+                    $reservationSeat->setPriceTierPrice($priceTier->getPrice());
+                    $reservationSeat->setPriceTierColor($priceTier->getColor());
+                }
+
                 $em->persist($reservationSeat);
             }
             $showtime->setPublished(true);

@@ -31,6 +31,18 @@ class ReservationSeat
     #[ORM\JoinColumn(nullable: true)]
     private ?Reservation $reservation = null;
 
+    #[ORM\Column()]
+    private ?float $priceTierPrice = null;
+
+    #[ORM\Column(length: 7)]
+    private ?string $priceTierColor = null;
+
+    #[ORM\Column(length: 30)]
+    private ?string $priceTierName = null;
+
+    #[ORM\ManyToOne(targetEntity: PriceTier::class)]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    private ?Pricetier $originalPriceTier = null;
 
     public function getId(): ?int
     {
@@ -93,6 +105,54 @@ class ReservationSeat
     public function setReservation(?Reservation $reservation): static
     {
         $this->reservation = $reservation;
+
+        return $this;
+    }
+
+    public function getPriceTierPrice(): ?float
+    {
+        return $this->priceTierPrice;
+    }
+
+    public function setPriceTierPrice(float $priceTierPrice): static
+    {
+        $this->priceTierPrice = $priceTierPrice;
+
+        return $this;
+    }
+
+    public function getPriceTierColor(): ?string
+    {
+        return $this->priceTierColor;
+    }
+
+    public function setPriceTierColor(string $priceTierColor): static
+    {
+        $this->priceTierColor = $priceTierColor;
+
+        return $this;
+    }
+
+    public function getPriceTierName(): ?string
+    {
+        return $this->priceTierName;
+    }
+
+    public function setPriceTierName(string $priceTierName): static
+    {
+        $this->priceTierName = $priceTierName;
+
+        return $this;
+    }
+
+    public function getOriginalPriceTier(): ?PriceTier
+    {
+        return $this->originalPriceTier;
+    }
+
+    public function setOriginalPriceTier(?PriceTier $originalPriceTier): static
+    {
+        $this->originalPriceTier = $originalPriceTier;
 
         return $this;
     }

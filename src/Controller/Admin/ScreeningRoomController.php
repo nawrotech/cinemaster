@@ -76,7 +76,7 @@ class ScreeningRoomController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $priceTier = $form->get('tierPrice')->getData();
+            $priceTier = $form->get('priceTier')->getData();
 
             $seatsPerRow = $form->get("seatsPerRow")->getData();
             $rowsAndSeats = array_combine(range(1, count($seatsPerRow)), $seatsPerRow);

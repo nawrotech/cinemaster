@@ -42,7 +42,7 @@ class PriceTier
     #[ORM\JoinColumn(nullable: false)]
     private ?Cinema $cinema = null;
 
-    #[ORM\Column(length: 7, nullable: true)]
+    #[ORM\Column(length: 7)]
     #[Assert\NotNull]
     #[Assert\CssColor()]
     private ?string $color = null;
