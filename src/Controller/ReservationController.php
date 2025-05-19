@@ -9,7 +9,6 @@ use App\Form\ReservationType;
 use App\Repository\ReservationSeatRepository;
 use App\Service\CartService;
 use App\Service\Mailer;
-use App\Service\PriceTierExtractor;
 use App\Service\PriceTierExtractorService;
 use App\Service\ReservationSeatService;
 use App\Service\ReservationService;
@@ -76,7 +75,7 @@ class ReservationController extends AbstractController
         Showtime $showtime
     ) {
 
-        $reservationSeatId = $request->request->get("reservation_seat_id");
+        $reservationSeatId = $request->get("reservation_seat_id");
         $session = $request->getSession();
 
         $selectedSeat  = $reservationSeatRepository->find($reservationSeatId);
@@ -89,12 +88,13 @@ class ReservationController extends AbstractController
             ]);
         }
 
-        if ($request->request->get("reserve")) {
-            $cartService->addSeat($reservationSeatId, $session);
+        $showtimeId = $showtime->getId();
+        if ($request->get("reserve")) {
+            $cartService->addSeat($reservationSeatId, $session, $showtimeId);
         }
 
-        if ($request->request->get("cancel")) {
-            $cartService->removeSeat($reservationSeatId, $session);
+        if ($request->get("cancel")) {
+            $cartService->removeSeat($reservationSeatId, $session, $showtimeId);
         }
 
         return $this->redirectToRoute("app_reservation_reserve_showtime", [

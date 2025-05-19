@@ -6,11 +6,12 @@
     {% set isLocked = seat.statusLockedExpiresAt|date("Y-m-d H:i:s") > "now"|date("Y-m-d H:i:s") %}
     {% set isAvailable = seat.status == "available" and isLocked == false %}
        
+
     <button                           
-        name="{{ seat.id in app.session.get('cart', []) ? "cancel" : "reserve" }}"
+        name="{{ seat.id in app.session.get('cart', []).(showtime.id)|default([]) ? "cancel" : "reserve" }}"
         value="true"
         class="seat
-        {{ seat.id in app.session.get('cart', []) ? "selected" : seat.status }}
+        {{ seat.id in app.session.get('cart', []).(showtime.id)|default([]) ? "selected" : seat.status }}
         "
         style="border: 5px solid {{ seat.priceTierColor }}"
         {{ isAvailable ? "" : "disabled" }} 
