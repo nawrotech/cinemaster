@@ -2,8 +2,9 @@
 
 namespace App\Service;
 
-use App\Enum\SeatPricing;
+use App\Entity\Showtime;
 use App\Repository\ReservationSeatRepository;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CartService {
@@ -11,13 +12,18 @@ class CartService {
     public const CART_KEY = 'cart';
     public const ACTIVE_SHOWTIME_KEY = 'active_showtime';
 
+    private SessionInterface $session;
+
     public function __construct(
         private ReservationSeatRepository $reservationSeatRepository,
-        private SeatPricingService $seatPricingService
-    ) {}
+        private RequestStack $requestStack
+    ) {
+        $this->session = $this->requestStack->getSession();
+    }
   
-    public function addSeat(int $reservationSeatId, SessionInterface $session, int $showtimeId) {
-        $cartSeats = $session->get('cart', []);
+    public function addSeat(int $reservationSeatId, int $showtimeId) {
+
+        $cartSeats = $this->session->get('cart', []);
 
         if (!isset($cartSeats[$showtimeId])) {
             $cartSeats[$showtimeId] = [];
@@ -27,11 +33,11 @@ class CartService {
             $cartSeats[$showtimeId][] = $reservationSeatId;
         }
 
-        $session->set('cart', $cartSeats);
+        $this->session->set('cart', $cartSeats);
     }
 
-    public function removeSeat(int $reservationSeatId, SessionInterface $session, int $showtimeId) {
-        $cartSeats = $session->get('cart', []);
+    public function removeSeat(int $reservationSeatId, int $showtimeId) {
+        $cartSeats = $this->session->get('cart', []);
     
         if (isset($cartSeats[$showtimeId])) {
             $cartSeats[$showtimeId] = array_filter(
@@ -40,43 +46,37 @@ class CartService {
             );
         }
         
-        $session->set('cart', $cartSeats);
+        $this->session->set('cart', $cartSeats);
     }
 
-
-    public function getReservationSeats(array $seatIds): array
+    public function getReservationSeatsForCheckout(Showtime $showtime): array
     {
-        return $this->reservationSeatRepository->findBy(['id' => $seatIds]);
-    }
+        $cart = $this->session->get('cart', []);
 
-
-    public function groupSeatsByPricingType(array $reservationSeats): array
-    {
-        $groupedSeats = [];
-        
-        foreach ($reservationSeats as $reservationSeat) {
-            $pricingType = $reservationSeat->getSeat()->getPricingType()->value;
-            $groupedSeats[$pricingType] = ($groupedSeats[$pricingType] ?? 0) + 1;
+        $showtimeId = $showtime->getId();
+        if (!isset($cart[$showtimeId]) || empty($cart[$showtimeId])) {
+            return [];
         }
-        
-        return $groupedSeats;
+
+        $reservationSeats = $this->reservationSeatRepository->findBy(['id' => $cart[$showtimeId]]);
+
+        $this->validateSeatsBelongToShowtime($reservationSeats, $showtimeId);
+
+        return $reservationSeats;
+
     }
 
-    public function convertToCheckoutItems(array $groupedSeats): array
-    {
-        $checkoutItems = [];
-        
-        foreach ($groupedSeats as $pricingTypeValue => $quantity) {
-            $pricingType = SeatPricing::tryFrom($pricingTypeValue);
-            $productId = $this->seatPricingService->getProductIdForSeat($pricingType);
-            $checkoutItems[] = [
-                'type' => 'variants',
-                'id' => $productId,
-                'quantity' => $quantity,
-            ];
+
+    private function validateSeatsBelongToShowtime(array $cartSeats, int $showtimeId): void {
+        foreach ($cartSeats as $seat) {
+            if ($seat->getShowtime()->getId() !== $showtimeId) {
+                throw new \LogicException('Given seats dont\'t belong to given showtime!');
+            }
         }
-        
-        return $checkoutItems;
     }
+
+
+    
+
 
 }

@@ -7,7 +7,15 @@ parameters:
     uploads_base_url: "https://%env(AWS_S3_BUCKET)%.s3.eu-north-1.amazonaws.com"
     ticket_qr_codes_path: "%kernel.project_dir%/public/qr_codes/tickets"
     timezone_offset_hours: '%env(int:TIMEZONE_OFFSET_HOURS)%'
-    
+
+    app.payment.regular_product_id: '%env(LEMON_SQUEEZY_REGULAR_PRODUCT_ID)%'
+    app.payment.premium_product_id: '%env(LEMON_SQUEEZY_PREMIUM_PRODUCT_ID)%'
+    app.payment.lemon_squeezy.store_id: '%env(LEMON_SQUEEZY_STORE_ID)%'
+    app.payment.lemon_squeezy.product_ids:
+        regular: '%env(LEMON_SQUEEZY_REGULAR_PRODUCT_ID)%'
+        premium: '%env(LEMON_SQUEEZY_PREMIUM_PRODUCT_ID)%'
+        fallback: '%env(LEMON_SQUEEZY_FALLBACK_PRODUCT_ID)%'
+
 services:
 
     _defaults:

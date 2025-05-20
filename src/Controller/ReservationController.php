@@ -76,7 +76,6 @@ class ReservationController extends AbstractController
     ) {
 
         $reservationSeatId = $request->get("reservation_seat_id");
-        $session = $request->getSession();
 
         $selectedSeat  = $reservationSeatRepository->find($reservationSeatId);
         $isNotAvailable =  $selectedSeat->getStatus() !== "available" || $selectedSeat->getStatusLockedExpiresAt() > new \DateTimeImmutable();
@@ -90,11 +89,11 @@ class ReservationController extends AbstractController
 
         $showtimeId = $showtime->getId();
         if ($request->get("reserve")) {
-            $cartService->addSeat($reservationSeatId, $session, $showtimeId);
+            $cartService->addSeat($reservationSeatId, $showtimeId);
         }
 
         if ($request->get("cancel")) {
-            $cartService->removeSeat($reservationSeatId, $session, $showtimeId);
+            $cartService->removeSeat($reservationSeatId, $showtimeId);
         }
 
         return $this->redirectToRoute("app_reservation_reserve_showtime", [
