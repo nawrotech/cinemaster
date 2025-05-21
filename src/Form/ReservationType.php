@@ -6,30 +6,43 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Event\PostSubmitEvent;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ReservationType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
 
-        $cart = $options["cart"];
+        $selectedSeats = $options["selectedSeats"];
 
         $builder
             ->add("email", EmailType::class, [
                 "required" => true,
+                'constraints' => [
+                    new NotBlank(),
+                    new Email()
+                ]
             ])
-            ->add("submit", SubmitType::class)
-            ->addEventListener(FormEvents::POST_SUBMIT, function(PostSubmitEvent $event) use($cart) {
+            ->add('firstName', TextType::class, [
+                'constraints' => [
+                    new NotBlank(),
+                    new Length(min: 2, max: 30)
+                ]
+            ])
+            ->add("proceedToCheckout", SubmitType::class)
+            ->addEventListener(FormEvents::POST_SUBMIT, function(PostSubmitEvent $event) use($selectedSeats) {
                 $form = $event->getForm();
-                if (!$cart) {
+                if (empty($selectedSeats)) {
                     $form->addError(new FormError("At least one seat must be selected!"));
                 }
             })
-
         ;
     }
 
@@ -37,7 +50,7 @@ class ReservationType extends AbstractType
     {
         $resolver->setDefaults([
             "data_class" => null,
-            "cart" => null
+            "selectedSeats" => null
         ]);
     }
 }

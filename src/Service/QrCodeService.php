@@ -7,21 +7,22 @@ use Endroid\QrCode\Builder\BuilderInterface;
 use Symfony\Component\HttpFoundation\UriSigner;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class QrCodeService {
+class QrCodeService
+{
 
     public function __construct(
         private BuilderInterface $qrBuilder,
         private UrlGeneratorInterface $urlGenerator,
         private UriSigner $uriSigner,
-        ) {
-    }
+    ) {}
 
-    public function generateReservationQrCode(Reservation $reservation): string {
+    public function generateReservationQrCode(Reservation $reservation): string
+    {
         $cinemaSlug = $reservation->getShowtime()->getCinema()->getSlug();
         $showtimeEndsAt = $reservation->getShowtime()->getEndsAt();
         $reservationId = $reservation->getId();
 
-        $reservationValidationUrl = $this->urlGenerator->generate("app_reservation_show_validation_form", [
+        $reservationValidationUrl = $this->urlGenerator->generate("app_reservation_ticket_validation_form", [
             "slug" => $cinemaSlug,
             "id" => $reservationId
         ], UrlGeneratorInterface::ABSOLUTE_URL);
@@ -33,6 +34,5 @@ class QrCodeService {
         )->getDataUri();
 
         return $qrCode;
-    
     }
 }

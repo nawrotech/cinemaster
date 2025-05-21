@@ -13,11 +13,16 @@
             </div>
         </div>
         <div class="col-md-4">
-            {{ form_start(form, {'attr': {'class': 'card p-3 bg-light border-0 shadow-sm'}}) }}
+            {{ form_start(form, {'attr': {
+                'class': 'card p-3 bg-light border-0 shadow-sm',
+                'data-turbo': 'false',
+            }}) }}
                 <h5 class="mb-3">Reservation Details</h5>
                 {{ form_errors(form) }}
+                {{ form_row(form.firstName, {'attr': {'class': 'form-control mb-2'}}) }}
                 {{ form_row(form.email, {'attr': {'class': 'form-control mb-2'}}) }}
-                {{ form_row(form.submit, {'attr': {'class': 'btn btn-primary w-100'}}) }}
+                {{ form_row(form.proceedToCheckout, {'attr': {'class': 'w-100 btn btn-success'}}) }}
+
                 {{ form_rest(form) }}
             {{ form_end(form) }}
         </div>
@@ -51,8 +56,6 @@
             {% endfor %}
         </div>
     </div>
-
-    <a class="btn btn-success" href="{{ path('app_order_checkout', {id: showtime.id}) }}">Checkout</a>
 
 </div>
 

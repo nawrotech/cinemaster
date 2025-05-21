@@ -7,5 +7,5 @@ use App\Entity\User;
 
 interface PaymentProviderInterface
 {
-    public function createCheckout(Showtime $showtime, ?User $user = null): string;
+    public function createCheckout(Showtime $showtime, array $user): string;
 }

@@ -2,11 +2,13 @@
     slug: cinema.slug,
     showtime_slug: showtime.slug
     })}}">
+    
     <input name="reservation_seat_id" value="{{ seat.id }}" type="hidden">
+    <input name="token" value="{{ csrf_token('select-seat-' ~ seat.id) }}" type="hidden">
+ 
     {% set isLocked = seat.statusLockedExpiresAt|date("Y-m-d H:i:s") > "now"|date("Y-m-d H:i:s") %}
     {% set isAvailable = seat.status == "available" and isLocked == false %}
        
-
     <button                           
         name="{{ seat.id in app.session.get('cart', []).(showtime.id)|default([]) ? "cancel" : "reserve" }}"
         value="true"

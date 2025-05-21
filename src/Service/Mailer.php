@@ -19,7 +19,7 @@ class Mailer {
     {
     }
     
-    public function sendReservationReceipt(Reservation $reservation): void {
+    public function sendReservationDetails(Reservation $reservation): void {
 
         $email = $reservation->getEmail();
         $reservationSeats = $this->reservationSeatRepository->findBy(["reservation" => $reservation]);

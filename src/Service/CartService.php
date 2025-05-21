@@ -7,7 +7,8 @@ use App\Repository\ReservationSeatRepository;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class CartService {
+class CartService
+{
 
     public const CART_KEY = 'cart';
     public const ACTIVE_SHOWTIME_KEY = 'active_showtime';
@@ -20,8 +21,9 @@ class CartService {
     ) {
         $this->session = $this->requestStack->getSession();
     }
-  
-    public function addSeat(int $reservationSeatId, int $showtimeId) {
+
+    public function addSeat(int $reservationSeatId, int $showtimeId)
+    {
 
         $cartSeats = $this->session->get('cart', []);
 
@@ -36,18 +38,45 @@ class CartService {
         $this->session->set('cart', $cartSeats);
     }
 
-    public function removeSeat(int $reservationSeatId, int $showtimeId) {
+    public function removeSeat(int $reservationSeatId, int $showtimeId)
+    {
         $cartSeats = $this->session->get('cart', []);
-    
+
         if (isset($cartSeats[$showtimeId])) {
             $cartSeats[$showtimeId] = array_filter(
-                $cartSeats[$showtimeId], 
+                $cartSeats[$showtimeId],
                 fn($id) => $id !== $reservationSeatId
             );
         }
-        
+
         $this->session->set('cart', $cartSeats);
     }
+
+    public function clearCartForShowtimeId(int $showtimeId)
+    {
+        $cartSeats = $this->session->get('cart', []);
+
+        if (!isset($cartSeats[$showtimeId])) {
+            return [];
+        }
+
+        unset($cartSeats[$showtimeId]);
+
+        $this->session->set('cart', $cartSeats);
+    }
+
+
+    public function isEmptyForShowtimeId(int $showtimeId): bool
+    {
+        $cartSeats = $this->session->get('cart', []);
+
+        if (!isset($cartSeats[$showtimeId])) {
+            return true;
+        }
+
+        return false;
+    }
+
 
     public function getReservationSeatsForCheckout(Showtime $showtime): array
     {
@@ -60,23 +89,26 @@ class CartService {
 
         $reservationSeats = $this->reservationSeatRepository->findBy(['id' => $cart[$showtimeId]]);
 
-        $this->validateSeatsBelongToShowtime($reservationSeats, $showtimeId);
-
         return $reservationSeats;
-
     }
 
 
-    private function validateSeatsBelongToShowtime(array $cartSeats, int $showtimeId): void {
+    public function validateSeats(array $cartSeats, int $showtimeId): void
+    {
+        $now = new \DateTimeImmutable();
+
         foreach ($cartSeats as $seat) {
             if ($seat->getShowtime()->getId() !== $showtimeId) {
-                throw new \LogicException('Given seats dont\'t belong to given showtime!');
+                throw new \LogicException('Seat does not belong to the specified showtime');
+            }
+
+            if ($seat->getStatus() !== 'available') {
+                throw new \LogicException('One or more seats are no longer available');
+            }
+
+            if ($seat->getStatusLockedExpiresAt() !== null && $seat->getStatusLockedExpiresAt() > $now) {
+                throw new \LogicException('One or more seats are currently being purchased by another customer');
             }
         }
     }
-
-
-    
-
-
 }

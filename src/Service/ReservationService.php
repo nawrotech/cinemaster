@@ -6,33 +6,50 @@ use App\Entity\Reservation;
 use App\Entity\Showtime;
 use App\Repository\ReservationSeatRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
-class ReservationService {
+class ReservationService
+{
 
     public function __construct(
         private ReservationSeatRepository $reservationSeatRepository,
-        private EntityManagerInterface $em)
+        private EntityManagerInterface $em,
+        private RequestStack $requestStack,
+        private CartService $cartService,
+        private Mailer $mailer
+    ) {}
+
+    public function lockSeats(Showtime $showtime, string $email, string $firstName, ?int $expirationInMinutes = 10): bool
     {
+        $reservationSeats = $this->cartService
+            ->getReservationSeatsForCheckout($showtime);
+
+        $this->cartService->validateSeats($reservationSeats, $showtime->getId());
+
+        foreach ($reservationSeats as $reservationSeat) {
+            $expirationTime = (new \DateTimeImmutable())->modify("+{$expirationInMinutes} minutes");
+            $reservationSeat->setStatusLockedExpiresAt($expirationTime);
+            $reservationSeat->setStatus('locked');
+        }
+        $this->em->flush();
+
+        $session = $this->getSession();
+        $session->set('email', $email);
+        $session->set('firstName', $firstName);
+
+        return true;
     }
 
-    public function lockSeats(SessionInterface $session, string $email, ?int $expirationInMinutes = 10) {
-        
-            foreach($session->get("cart", []) as $seatId) {
-                $reservationSeat = $this->reservationSeatRepository->find($seatId);
 
-                $expirationTime = (new \DateTimeImmutable())->modify("+{$expirationInMinutes} minutes");
-                $reservationSeat->setStatusLockedExpiresAt($expirationTime);
-                $session->set("email", $email);
+    public function createReservation(
+        Showtime $showtime,
+    ): Reservation {
 
-            }
-            $this->em->flush();            
-    
-    }
+        $session = $this->getSession();
+        $email = $session->get('email', 'test@email.com');
 
-    public function createReservation(SessionInterface $session, Showtime $showtime): Reservation {
-        $email = $session->get("email");
-        $cart = $session->get("cart");
+        $reservationSeats = $this->cartService
+            ->getReservationSeatsForCheckout($showtime);
 
         $reservation = new Reservation();
         $reservation->setEmail($email);
@@ -40,25 +57,26 @@ class ReservationService {
 
         $this->em->persist($reservation);
 
-        $this->em->wrapInTransaction(function ($em)  use($reservation, $cart){
-            foreach($cart as $seatId) {
-                $reservationSeat = $this->reservationSeatRepository->find($seatId);
-                
-                if (!$reservationSeat) {
-                    throw new \Exception("Seat not found or already locked.");
-                }
-
+        $this->em->wrapInTransaction(function ($em)  use ($reservation, $reservationSeats) {
+            foreach ($reservationSeats as $reservationSeat) {
                 $reservationSeat->setReservation($reservation);
                 $reservationSeat->setStatus("reserved");
-    
             }
             $em->flush();
-  
         });
 
-        $session->remove("cart");
-        $session->remove("email");
-        return $reservation;
+        $this->mailer->sendReservationDetails($reservation);
 
+        $this->cartService->clearCartForShowtimeId($showtime->getId());
+        $session->remove("email");
+
+        return $reservation;
+    }
+
+
+
+    private function getSession()
+    {
+        return $this->requestStack->getSession();
     }
 }

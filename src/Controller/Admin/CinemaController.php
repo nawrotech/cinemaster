@@ -3,13 +3,11 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Cinema;
-use App\Entity\PriceTier;
 use App\Form\CinemaPriceTiersCollectionType;
 use App\Form\CinemaScreeningFormatCollectionType;
 use App\Form\CinemaScreeningRoomSetupCollectionType;
 use App\Form\CinemaType;
 use App\Form\CinemaVisualFormatCollectionType;
-use App\Form\PriceTierType;
 use App\Repository\CinemaRepository;
 use App\Repository\MovieScreeningFormatRepository;
 use App\Repository\ScreeningFormatRepository;
