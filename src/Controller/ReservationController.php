@@ -41,7 +41,7 @@ class ReservationController extends AbstractController
 
         $session = $request->getSession();
         $cart = $session->get('cart');
-        
+
         $selectedSeats = $cart[$showtime->getId()] ?? [];
 
         $form = $this->createForm(ReservationType::class, [
@@ -54,7 +54,7 @@ class ReservationController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $email = $form->get('email')->getData();
-            $firstName = $form->get('firstName')->getData();
+            $firstName = $form?->get('firstName')?->getData();
 
             try {
                 $success = $reservationService->lockSeats($showtime, $email, $firstName);
@@ -62,7 +62,7 @@ class ReservationController extends AbstractController
                 if (!$success) {
                     $cartService->clearCartForShowtimeId($showtime->getId());
 
-                    $this->addFlash('danger', 'An error occurred, please try again later.');
+                    $this->addFlash('danger', 'Problem with reservation occurred, please try again later.');
                     return $this->redirectToRoute('app_reservation_reserve_showtime', [
                         'slug' => $cinema->getSlug(),
                         'showtime_slug' => $showtime->getSlug()

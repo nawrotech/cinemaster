@@ -4,7 +4,6 @@ namespace App\Service;
 
 use App\Contract\PaymentProviderInterface;
 use App\Entity\Showtime;
-use App\Entity\User;
 use App\Repository\ReservationSeatRepository;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\Attribute\Target;
@@ -25,17 +24,18 @@ class LemonSqueezyService implements PaymentProviderInterface
         private ReservationSeatRepository $reservationSeatRepository,
         private CartService $cartService,
         private UrlGeneratorInterface $urlGenerator,
-        private RequestStack $requestStack
-
+        private RequestStack $requestStack,
     ) {}
 
-    public function createCheckout(Showtime $showtime, User|array $userData): string
+    public function createCheckout(Showtime $showtime, array $userData): string
     {
         $cartSeats = $this->cartService->getReservationSeatsForCheckout($showtime);
 
         $groupedItems = $this->groupItemsByPricingType($cartSeats);
 
         $attributes = [];
+
+        $attributes['checkout_data']['custom'] = [(string) $showtime->getId()];
 
         $paymentToken = bin2hex(random_bytes(16));
         $session = $this->requestStack->getSession();
@@ -44,12 +44,12 @@ class LemonSqueezyService implements PaymentProviderInterface
         $attributes['product_options']['redirect_url'] = $this->urlGenerator
             ->generate('app_order_success', [
                 'id' => $showtime->getId(),
-                'token' => $paymentToken
+                'payment_token' => $paymentToken
             ], UrlGeneratorInterface::ABSOLUTE_URL);
 
         if ($userData) {
             $attributes['checkout_data']['email'] = $userData['email'];
-        } 
+        }
 
         if (count($groupedItems) > 1) {
             return $this->createMultiTypeCheckout($groupedItems, $attributes);
@@ -129,14 +129,6 @@ class LemonSqueezyService implements PaymentProviderInterface
         ];
 
         return $this->sendLemonSqueezyRequest($attributes, $this->productIds['fallback']);
-    }
-
-    public function retrieveStoreUrl(): string
-    {
-        $response = $this->lsClient->request(Request::METHOD_GET, 'stores/' . $this->storeId);
-        $lsStore = $response->toArray();
-
-        return $lsStore['data']['attributes']['url'];
     }
 
 

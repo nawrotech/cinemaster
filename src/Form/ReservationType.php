@@ -28,16 +28,19 @@ class ReservationType extends AbstractType
                 'constraints' => [
                     new NotBlank(),
                     new Email()
-                ]
+                ],
+                'data' => 'sample@user.com'
             ])
             ->add('firstName', TextType::class, [
                 'constraints' => [
                     new NotBlank(),
                     new Length(min: 2, max: 30)
-                ]
+                ],
+                'data' => 'Sample user one'
+
             ])
             ->add("proceedToCheckout", SubmitType::class)
-            ->addEventListener(FormEvents::POST_SUBMIT, function(PostSubmitEvent $event) use($selectedSeats) {
+            ->addEventListener(FormEvents::POST_SUBMIT, function (PostSubmitEvent $event) use ($selectedSeats) {
                 $form = $event->getForm();
                 if (empty($selectedSeats)) {
                     $form->addError(new FormError("At least one seat must be selected!"));

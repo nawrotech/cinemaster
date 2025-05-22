@@ -6,6 +6,7 @@ use App\Entity\Reservation;
 use App\Entity\Showtime;
 use App\Repository\ReservationSeatRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class ReservationService
@@ -16,7 +17,8 @@ class ReservationService
         private EntityManagerInterface $em,
         private RequestStack $requestStack,
         private CartService $cartService,
-        private Mailer $mailer
+        private Mailer $mailer,
+        private LoggerInterface $logger
     ) {}
 
     public function lockSeats(Showtime $showtime, string $email, string $firstName, ?int $expirationInMinutes = 10): bool
@@ -43,10 +45,15 @@ class ReservationService
 
     public function createReservation(
         Showtime $showtime,
+        string $email,
     ): Reservation {
 
         $session = $this->getSession();
-        $email = $session->get('email', 'test@email.com');
+
+        $this->logger->info('lemonemo', [
+            'email' => $session->get('email'),
+            'name' => $session->get('firstName')
+        ]);
 
         $reservationSeats = $this->cartService
             ->getReservationSeatsForCheckout($showtime);
@@ -68,7 +75,9 @@ class ReservationService
         $this->mailer->sendReservationDetails($reservation);
 
         $this->cartService->clearCartForShowtimeId($showtime->getId());
-        $session->remove("email");
+
+        // $session->remove("email");
+        // $session->remove('firstName');
 
         return $reservation;
     }

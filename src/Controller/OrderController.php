@@ -6,10 +6,10 @@ use App\Contract\PaymentProviderInterface;
 use App\Entity\Showtime;
 use App\Service\CartService;
 use App\Service\LemonSqueezyService;
-use App\Service\ReservationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -24,8 +24,6 @@ final class OrderController extends AbstractController
     ): Response {
 
         $session = $request->getSession();
-
-
         $userData = [
             'email' => $session->get('email'),
             'firstName' => $session->get('firstName')
@@ -36,7 +34,6 @@ final class OrderController extends AbstractController
                 $showtime,
                 $userData
             );
-
             return $this->redirect($checkoutUrl);
         } catch (\Exception $e) {
             $cartService->clearCartForShowtimeId($showtime->getId());
@@ -45,7 +42,7 @@ final class OrderController extends AbstractController
                 'slug' => $showtime->getCinema(),
                 'showtime_slug' => $showtime->getSlug()
             ]);
-        } 
+        }
     }
 
     #[Route('/checkout/success/showtimes/{id}', name: 'app_order_success')]
@@ -53,7 +50,7 @@ final class OrderController extends AbstractController
         Request $request,
         Showtime $showtime,
         CartService $cartService,
-        ReservationService $reservationService,
+        RequestStack $requestStack
     ): Response {
         $redirectParams =  [
             'slug' => $showtime->getCinema()->getSlug(),
@@ -61,7 +58,7 @@ final class OrderController extends AbstractController
         ];
 
         $sessionToken = $request->getSession()->get('payment_token');
-        $requestToken = $request->query->get('token');
+        $requestToken = $request->query->get('payment_token');
 
         if (!$requestToken || $requestToken !== $sessionToken) {
             return $this->redirectToRoute('app_main_cinemas');
@@ -71,7 +68,12 @@ final class OrderController extends AbstractController
             return $this->redirectToRoute('app_reservation_reserve_showtime', $redirectParams);
         }
 
-        $reservationService->createReservation($showtime);
+        $cartService->clearCartForShowtimeId($showtime->getId());
+        $session = $requestStack->getSession();
+
+        $session->remove('email');
+        $session->remove('firstName');
+
 
         $this->addFlash('success', 'Thanks for the order, ticket has been sent to your email');
 
