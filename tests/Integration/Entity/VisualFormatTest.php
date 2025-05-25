@@ -14,13 +14,6 @@ class VisualFormatTest extends KernelTestCase
     use Factories;
     private ?EntityManagerInterface $em;
 
-    protected function setUp(): void
-    {
-        $kernel = self::bootKernel();
-        $this->em = $kernel->getContainer()
-            ->get('doctrine')
-            ->getManager();
-    }
 
     public function testExceptionThrownWhenImmutableNameIsModified(): void{
 
@@ -30,15 +23,7 @@ class VisualFormatTest extends KernelTestCase
 
         $this->expectException(RuntimeException::class);
         $visualFormat->setName("baz");
-
     }
 
    
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $this->em->close();
-        $this->em = null;
-    }
 }

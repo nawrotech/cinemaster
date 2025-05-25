@@ -3,8 +3,6 @@
 namespace App\DataFixtures;
 use App\Factory\CinemaFactory;
 use App\Factory\ScreeningFormatFactory;
-use App\Factory\ScreeningRoomFactory;
-use App\Factory\ScreeningRoomSeatFactory;
 use App\Factory\ScreeningRoomSetupFactory;
 use App\Factory\SeatFactory;
 use App\Factory\UserFactory;

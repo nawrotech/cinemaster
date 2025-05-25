@@ -30,10 +30,10 @@ class ShowtimeControllerTest extends WebTestCase
         $client = static::createClient();
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
 
-        $admin = UserFactory::random();
+        $admin = UserFactory::createOne();
         $client->loginUser($admin->_real());
 
-     
+
         $cinema = CinemaFactory::createOne([
             'owner' => $admin,
             'openTime' => new \DateTimeImmutable('08:00'),
@@ -68,10 +68,10 @@ class ShowtimeControllerTest extends WebTestCase
 
       
         $movie = MovieFactory::createOne([
-            'title' => 'Test Movie'
+            'title' => 'Test Movie',
+            'slug' => 'test-movie'
         ]);
         
-    
         $movieScreeningFormat = MovieScreeningFormatFactory::createOne([
             'movie' => $movie,
             'screeningFormat' => $screeningFormat
@@ -80,7 +80,6 @@ class ShowtimeControllerTest extends WebTestCase
        
         $entityManager->flush();
         
-   
         $crawler = $client->request('GET', sprintf(
             '/admin/cinemas/%s/screening-rooms/%s/showtimes/create',
             $cinema->getSlug(),

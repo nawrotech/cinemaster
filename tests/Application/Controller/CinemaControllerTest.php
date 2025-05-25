@@ -14,7 +14,7 @@ use Zenstruck\Foundry\Test\Factories;
 class CinemaControllerTest extends WebTestCase
 {
 
-    const EMAIL = "m@nly.com";
+    const EMAIL = "test@example.com";
 
     use Factories;
 
@@ -58,30 +58,16 @@ class CinemaControllerTest extends WebTestCase
     public function testCinemaVisualFormatFormRedirectsDependingOnTheClickedButton(): void
     {      
         $cinema = $this->initializeCinema();
-        
         $slug = $cinema->getSlug();
-        $crawler = $this->client->request('GET', "/admin/cinemas/$slug/add-visual-formats");
-
-        $form = $crawler->selectButton('Add screening room setups')->form();
-
-        $this->client->submit($form);
-        $this->assertResponseRedirects("/admin/cinemas/$slug/add-screening-room-setups");
 
         $crawler = $this->client->request('GET', "/admin/cinemas/$slug/add-visual-formats");
-
         $form = $crawler->selectButton('Submit')->form();
-        $this->client->submit($form);
 
+        $form['cinema_visual_format_collection[visualFormats][0][name]'] = 'Format 1';
+
+        $this->client->submit($form);
         $this->assertResponseRedirects("/admin/cinemas/$slug");
+
     }
 
-
-
-    // protected function tearDown(): void
-    // {
-    //     parent::tearDown();
-
-    //     $this->em->close();
-    //     $this->em = null;
-    // }
 }

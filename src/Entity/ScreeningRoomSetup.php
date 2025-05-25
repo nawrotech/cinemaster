@@ -70,7 +70,7 @@ class ScreeningRoomSetup
     {
         
         if ($this->id && $soundFormat !== $this->soundFormat) {
-            throw new \RuntimeException('SoundFormat name is immutable.');
+            throw new \LogicException('SoundFormat name is immutable.');
         }
         $this->soundFormat = $soundFormat;
 
@@ -97,7 +97,7 @@ class ScreeningRoomSetup
     public function setVisualFormat(?VisualFormat $visualFormat): static
     {
         if ($this->id && $visualFormat !== $this->visualFormat) {
-            throw new \RuntimeException('VisualFormat name is immutable.');
+            throw new \LogicException('VisualFormat name is immutable.');
         }
 
         $this->visualFormat = $visualFormat;

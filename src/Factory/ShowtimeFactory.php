@@ -34,9 +34,8 @@ final class ShowtimeFactory extends PersistentProxyObjectFactory
         return [
             'advertisementTimeInMinutes' => self::faker()->numberBetween(10, 20),
             'price' => self::faker()->numberBetween(15, 30),
-            'startTime' => self::faker()->dateTime(),
-            'endTime' => self::faker()->dateTime(),
-            // 'movieFormat' => MovieMovieTypeFactory::new(),
+            'startsAt' => self::faker()->dateTime(),
+            'endsAt' => self::faker()->dateTime(),
             // 'published' => self::faker()->boolean(),
             // 'cinema' => CinemaFactory::new(),
             // 'screeningRoom' => ScreeningRoomFactory::new(),

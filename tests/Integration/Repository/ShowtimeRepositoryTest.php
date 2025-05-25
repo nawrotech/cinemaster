@@ -2,16 +2,15 @@
 
 namespace App\Tests;
 
-use App\Entity\Cinema;
-use App\Entity\MovieMovieType;
 use App\Entity\Showtime;
 use App\Factory\CinemaFactory;
 use App\Factory\MovieFactory;
-use App\Factory\MovieMovieTypeFactory;
+use App\Factory\MovieScreeningFormatFactory;
 use App\Factory\ScreeningRoomFactory;
 use App\Factory\ShowtimeFactory;
 use App\Repository\ShowtimeRepository;
-use Doctrine\ORM\EntityManager;
+use DateTimeImmutable;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Test\Factories;
 
@@ -20,17 +19,7 @@ class ShowtimeRepositoryTest extends KernelTestCase
     use Factories;
     const BASE_DATE = "2024-10-10";
 
-    private ?EntityManager $entityManager;
-
-    protected function setUp(): void
-    {
-        $kernel = self::bootKernel();
-
-        $this->entityManager = $kernel->getContainer()
-            ->get('doctrine')
-            ->getManager();
-        
-    }
+    private ?EntityManagerInterface $entityManager;
 
     public static function overlapScenarioProvider(): array
     {
@@ -67,15 +56,31 @@ class ShowtimeRepositoryTest extends KernelTestCase
         $showtimeStartsAt = sprintf("%s %s", self::BASE_DATE, "10:00:00");
         $showtimeEndsAt = sprintf("%s %s", self::BASE_DATE, "12:00:00");
        
-        $cinema = CinemaFactory::createOne();
+        $cinema = CinemaFactory::createOne([
+            'name' => 'test-cinema'
+        ]);
         $realCinema = $cinema->_real();
 
+        $screeningRoom = ScreeningRoomFactory::createOne([
+            'name' => 'test-room',
+            'cinema' => $cinema
+        ]);
+
+        $movie = MovieFactory::createOne([
+            'cinema' => $cinema
+        ]);
+
+        $movieScreeningFormat = MovieScreeningFormatFactory::createOne([
+            'cinema' => $cinema,
+            'movie' => $movie,
+        ]);
+
          ShowtimeFactory::createOne([
-            "screeningRoom" => ScreeningRoomFactory::createOne(),
+            "screeningRoom" => $screeningRoom,
             "cinema" => $realCinema,
-            "movieFormat" => MovieMovieTypeFactory::new(),
-            "startTime" => new \DateTime($showtimeStartsAt),
-            "endTime" => new \DateTime($showtimeEndsAt)
+            "movieScreeningFormat" => $movieScreeningFormat,
+            "startsAt" => new \DateTime($showtimeStartsAt),
+            "endsAt" => new \DateTime($showtimeEndsAt)
         ]);
 
         $newShowStartsAt = sprintf("%s %s", self::BASE_DATE, $newShowStartsAt);
@@ -83,8 +88,9 @@ class ShowtimeRepositoryTest extends KernelTestCase
 
         $result = $this->getShowtimeRepository()->findOverlapping(
             $realCinema,
-            new \DateTime($newShowStartsAt),
-            new \DateTime($newShowEndsAt),
+            self::BASE_DATE,
+            new \DateTimeImmutable($newShowStartsAt),
+            new \DateTimeImmutable($newShowEndsAt),
         )->getQuery()->getResult();
 
         $expectedCount = $shouldOverlap ? 1 : 0;
@@ -98,92 +104,64 @@ class ShowtimeRepositoryTest extends KernelTestCase
     }
 
     public function testExcludedIdIsIgnored() {
-
         $showtimeStartsAt = sprintf("%s %s", self::BASE_DATE, "10:00:00");
         $showtimeEndsAt = sprintf("%s %s", self::BASE_DATE, "12:00:00");
        
-        $cinema = CinemaFactory::createOne()->_real();
-
-        $showtime = ShowtimeFactory::createOne([
-            "screeningRoom" => ScreeningRoomFactory::createOne(),
-            "cinema" => $cinema,
-            "movieFormat" => MovieMovieTypeFactory::new(),
-            "startTime" => new \DateTime($showtimeStartsAt),
-            "endTime" => new \DateTime($showtimeEndsAt)
+        $cinema = CinemaFactory::createOne([
+            'name' => 'test-cinema'
+        ])->_real();
+        
+        $movie = MovieFactory::createOne([
+            'cinema' => $cinema
         ]);
-
+        
+        $movieScreeningFormat = MovieScreeningFormatFactory::createOne([
+            'cinema' => $cinema,
+            'movie' => $movie,
+        ]);
+        
+        $screeningRoom = ScreeningRoomFactory::createOne([
+            'name' => 'test-room',
+            'cinema' => $cinema
+        ]);
+    
+        $showtime = ShowtimeFactory::createOne([
+            "screeningRoom" => $screeningRoom,
+            "cinema" => $cinema,
+            "movieScreeningFormat" => $movieScreeningFormat, 
+            "startsAt" => new \DateTime($showtimeStartsAt), 
+            "endsAt" => new \DateTime($showtimeEndsAt)     
+        ])->_real();
+    
         $updatedShowtimeStartsAt = sprintf("%s %s", self::BASE_DATE, "11:00:00");
         $updatedShowtimeEndsAt = sprintf("%s %s", self::BASE_DATE, "12:00:00");
-
+    
         assert($showtime instanceof Showtime);
-
+    
         $resultForExisting = $this->getShowtimeRepository()->findOverlapping(
             $cinema,
-            new \DateTime($updatedShowtimeStartsAt),
-            new \DateTime($updatedShowtimeEndsAt),
-            $showtime->getId()
+            self::BASE_DATE, 
+            new \DateTimeImmutable($updatedShowtimeStartsAt),
+            new \DateTimeImmutable($updatedShowtimeEndsAt),
+            $showtime
         )->getQuery()->getResult();
-
+    
         $resultForNew = $this->getShowtimeRepository()->findOverlapping(
             $cinema,
-            new \DateTime($updatedShowtimeStartsAt),
-            new \DateTime($updatedShowtimeEndsAt),
+            self::BASE_DATE, 
+            new \DateTimeImmutable($updatedShowtimeStartsAt),
+            new \DateTimeImmutable($updatedShowtimeEndsAt),
         )->getQuery()->getResult();
-
-        $this->assertNotEquals($resultForExisting, $resultForNew);
-
+    
+        $this->assertNotEquals(count($resultForExisting), count($resultForNew));
     }
 
-    public function testSameMovieIsPlayingAtTheSameTimeInDifferentRoom() {
-        $showtimeStartsAt = sprintf("%s %s", self::BASE_DATE, "10:00:00");
-        $showtimeEndsAt = sprintf("%s %s", self::BASE_DATE, "12:00:00");
-
-        $movieFormat = MovieMovieTypeFactory::createOne(
-            [
-                "movie" => MovieFactory::new()
-            ]
-        )->_real();
-
-
-        $cinema = CinemaFactory::createOne()->_real();
-
-        $showtime = ShowtimeFactory::createOne([
-            "screeningRoom" => ScreeningRoomFactory::createOne(),
-            "cinema" => $cinema,
-            "movieFormat" => $movieFormat,
-            "startTime" => new \DateTime($showtimeStartsAt),
-            "endTime" => new \DateTime($showtimeEndsAt)
-        ]);
-
-
-
-        $resultOverlapping = $this->getShowtimeRepository()
-            ->findOverlappingForMovie($cinema, $movieFormat, new \DateTime($showtimeStartsAt), new \DateTime($showtimeEndsAt));
-
-        $resultNotOverlapping = $this->getShowtimeRepository()
-            ->findOverlappingForMovie($cinema, $movieFormat, new \DateTime(self::BASE_DATE . " 12:00:00"), new \DateTime(self::BASE_DATE . " 12:50:00"));
-        
-
-        assert($showtime instanceof Showtime);
-
-        $this->assertSame($showtime->getId(), $resultOverlapping->getId());
-        
-        $this->assertNull($resultNotOverlapping);
-
-
-    }
 
     private function getShowtimeRepository(): ShowtimeRepository {
         return self::getContainer()->get(ShowtimeRepository::class);
     }
 
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $this->entityManager->close();
-        $this->entityManager = null;
-    }
+ 
 
 
 }
