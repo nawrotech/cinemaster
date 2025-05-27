@@ -147,7 +147,8 @@ class ShowtimeController extends AbstractController
         #[MapEntity(mapping: ["showtime_id" => "id"])]
         ShowTime $showtime,
         Request $request,
-        ShowtimeService $showtimeService
+        ShowtimeService $showtimeService,
+        ReservationSeatRepository $reservationSeatRepository
     ): Response {
 
         $queryParams = array_filter([
@@ -171,7 +172,12 @@ class ShowtimeController extends AbstractController
 
             return $this->redirectToRoute("app_showtime_scheduled_room", $redirectParams);
         } elseif ($request->get("published") === "1") {
-            $showtimeService->publishShowtime($showtime);
+            if ($reservationSeatRepository->count(['showtime' => $showtime]) === 0) {
+                $showtimeService->publishShowtime($showtime);
+            } else {
+                $showtime->setPublished(true);
+                $this->em->flush();
+            }
             $this->addFlash("success", "Show has been successfully published");
 
             return $this->redirectToRoute("app_showtime_scheduled_room", $redirectParams);

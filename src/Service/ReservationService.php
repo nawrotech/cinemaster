@@ -48,13 +48,6 @@ class ReservationService
         string $email,
     ): Reservation {
 
-        $session = $this->getSession();
-
-        $this->logger->info('lemonemo', [
-            'email' => $session->get('email'),
-            'name' => $session->get('firstName')
-        ]);
-
         $reservationSeats = $this->cartService
             ->getReservationSeatsForCheckout($showtime);
 
@@ -75,9 +68,6 @@ class ReservationService
         $this->mailer->sendReservationDetails($reservation);
 
         $this->cartService->clearCartForShowtimeId($showtime->getId());
-
-        // $session->remove("email");
-        // $session->remove('firstName');
 
         return $reservation;
     }
