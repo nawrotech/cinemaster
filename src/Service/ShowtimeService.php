@@ -33,7 +33,7 @@ class ShowtimeService
         array $movieIds,
         ?\DateTimeImmutable $startDate = null,
     ) {
-        $startDate ??= new \DateTimeImmutable('now')->modify("+{$this->timezoneOffsetHours} hours");
+        $startDate ??= (new \DateTimeImmutable('now'))->modify("+{$this->timezoneOffsetHours} hours");
         $cinemaOpenHour = (int) $cinema->getOpenTime()->format('H');
 
         $showtimes = $this->showtimeRepository->findPublishedShowtimesByCinemaAndMovies(
@@ -54,19 +54,19 @@ class ShowtimeService
         );
 
         foreach ($groupedShowtimes as $movieId => $movieShowtimes) {
-            usort($movieShowtimes, function($a, $b) use ($cinemaOpenHour) {
+            usort($movieShowtimes, function ($a, $b) use ($cinemaOpenHour) {
                 $hourA = (int)$a->getStartsAt()->format('H');
                 $hourB = (int)$b->getStartsAt()->format('H');
-                
+
                 $orderA = $hourA < $cinemaOpenHour ? $hourA + 24 : $hourA;
                 $orderB = $hourB < $cinemaOpenHour ? $hourB + 24 : $hourB;
-                
+
                 return $orderA <=> $orderB;
             });
-            
+
             $groupedShowtimes[$movieId] = $movieShowtimes;
         }
-    
+
         return $groupedShowtimes;
     }
 
@@ -76,8 +76,8 @@ class ShowtimeService
         ?\DateTimeImmutable $endDate = null,
     ) {
 
-        $startDate ??= new \DateTimeImmutable()->modify("+{$this->timezoneOffsetHours} hours");
-        $endDate ??= new \DateTimeImmutable('+7 days')->format('Y-m-d');
+        $startDate ??= (new \DateTimeImmutable())->modify("+{$this->timezoneOffsetHours} hours");
+        $endDate ??= (new \DateTimeImmutable('+7 days'))->format('Y-m-d');
 
         $movieIds = $this->showtimeRepository
             ->findMovieIdsForPublishedShowtimes(
@@ -102,8 +102,8 @@ class ShowtimeService
             throw new \InvalidArgumentException('End date cannot be before start date');
         }
 
-        $startDate ??= new \DateTimeImmutable('now')->modify("+{$this->timezoneOffsetHours} hours");
-        $endDate ??= new \DateTimeImmutable('+7 days')->setTime(23, 59, 59);
+        $startDate ??= (new \DateTimeImmutable('now'))->modify("+{$this->timezoneOffsetHours} hours");
+        $endDate ??= (new \DateTimeImmutable('+7 days'))->setTime(23, 59, 59);
 
         $showtimes = $this->showtimeRepository->findUpcomingShowtimesForTheMovie(
             $cinema,
