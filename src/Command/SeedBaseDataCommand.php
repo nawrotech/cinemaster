@@ -59,7 +59,7 @@ class SeedBaseDataCommand extends Command
         $violations = $this->validator->validate($gridSize, [
             new Type('integer'),
             new Positive(),
-            new LessThan(50)
+            new LessThan(500)
         ]);
 
         if (count($violations) > 0) {
@@ -69,7 +69,7 @@ class SeedBaseDataCommand extends Command
             return Command::FAILURE;
         }
 
-        $batchSize = 20;
+        $batchSize = 50;
         for ($row = 1; $row <= $gridSize; $row++) {
             for ($seatsInRow = 1; $seatsInRow <= $gridSize; $seatsInRow++) {
                 $seat = new Seat();

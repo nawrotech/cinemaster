@@ -13,6 +13,7 @@ use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSetupRepository;
 use App\Service\ScreeningRoomSeatService;
 use App\Service\SeatService;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -45,7 +46,8 @@ class ScreeningRoomController extends AbstractController
         Request $request,
         ScreeningRoomSetupRepository $screeningRoomSetupRepository,
         Cinema $cinema,
-        SeatService $seatService
+        SeatService $seatService,
+        EntityManagerInterface $em
     ): Response {
 
         if ($request->query->get("ajaxCall")) {
@@ -62,7 +64,7 @@ class ScreeningRoomController extends AbstractController
                 "slug" => $cinema->getSlug()
             ]);
         }
-   
+
         $screeningRoom =  new ScreeningRoom();
         $screeningRoom->setCinema($cinema);
 
@@ -119,7 +121,6 @@ class ScreeningRoomController extends AbstractController
         $seatType = ScreeningRoomSeatType::tryFrom($request->getPayload()->get("seatType"));
         if ($seatType == null) {
             throw $this->createNotFoundException('Screening room type not found.');
-
         }
 
         $screeningRoomSeat->setType($seatType);
@@ -141,12 +142,13 @@ class ScreeningRoomController extends AbstractController
     }
 
     #[IsCsrfTokenValid(new Expression('"delete-screening-room-" ~ args["screeningRoom"].getId()'), tokenKey: 'token')]
-    #[Route('/delete/{id}', name: 'app_screening_room_delete', methods:["DELETE"])]
+    #[Route('/delete/{id}', name: 'app_screening_room_delete', methods: ["DELETE"])]
     public function deleteScreeningRoom(
         string $slug,
         ScreeningRoom $screeningRoom,
         ScreeningRoomRepository $screeningRoomRepository,
-        EntityManagerInterface $em) {
+        EntityManagerInterface $em
+    ) {
 
         if ($screeningRoomRepository->hasShowtimes($screeningRoom)) {
             $this->addFlash('danger', 'Cannot delete screening room with associated showtimes.');
@@ -162,7 +164,6 @@ class ScreeningRoomController extends AbstractController
         return $this->redirectToRoute("app_cinema_details", [
             "slug" => $cinemaSlug
         ]);
-
     }
 
     #[Route("/edit/{screening_room_slug}", name: 'app_screening_room_edit')]
@@ -177,7 +178,7 @@ class ScreeningRoomController extends AbstractController
 
         $groupedSeats = $screeningRoomSeatService->groupSeatsForLayout($screeningRoom);
         $roomRows = array_keys($groupedSeats);
-        
+
         $form = $this->createForm(SeatRowType::class, options: [
             "allowed_rows" => $roomRows,
             'cinema' => $cinema

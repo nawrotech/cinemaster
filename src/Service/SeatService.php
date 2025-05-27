@@ -9,15 +9,16 @@ use App\Exception\InvalidRowsAndSeatsStructureException;
 use App\Repository\SeatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class SeatService {
+class SeatService
+{
 
     public function __construct(
-        private SeatRepository $seatRepository, 
-        private EntityManagerInterface $em)
-    {
-    }
+        private SeatRepository $seatRepository,
+        private EntityManagerInterface $em
+    ) {}
 
-    private function calculateMaxRowAndSeat(array $rowsAndSeats): array {
+    private function calculateMaxRowAndSeat(array $rowsAndSeats): array
+    {
         if (empty($rowsAndSeats)) {
             throw new \InvalidArgumentException('Seats per row array cannot be empty.');
         }
@@ -30,10 +31,10 @@ class SeatService {
         $maxSeatsInRow = max($rowsAndSeats);
 
         return [$maxRow, $maxSeatsInRow];
-
     }
 
-    public function groupSeatsByRow(array $rowsAndSeats) {
+    public function groupSeatsByRow(array $rowsAndSeats)
+    {
 
         [$maxRow, $maxSeatsInRow]  = $this->calculateMaxRowAndSeat($rowsAndSeats);
 
@@ -49,34 +50,35 @@ class SeatService {
 
 
 
-    public function assignSeatsToScreeningRoom(ScreeningRoom $screeningRoom, array $rowsAndSeats, PriceTier $priceTier) {
+    public function assignSeatsToScreeningRoom(ScreeningRoom $screeningRoom, array $rowsAndSeats, PriceTier $priceTier)
+    {
 
-        $this->em->wrapInTransaction(function($em) use($rowsAndSeats, $screeningRoom, $priceTier) {
+        $this->em->wrapInTransaction(function ($em) use ($rowsAndSeats, $screeningRoom, $priceTier) {
+
+            $em->persist($screeningRoom);
+            $em->flush();
 
             $seatsByRow = $this->groupSeatsByRow($rowsAndSeats);
 
+            $batchSize = 50;
+
             foreach ($rowsAndSeats as $row => $lastSeatInRow) {
                 $seatsForRow = array_slice($seatsByRow[$row] ?? [], 0, $lastSeatInRow);
-                
+
                 foreach ($seatsForRow as $seat) {
                     $screeningRoomSeat = new ScreeningRoomSeat();
                     $screeningRoomSeat->setScreeningRoom($screeningRoom);
                     $screeningRoomSeat->setSeat($seat);
                     $screeningRoomSeat->setPriceTier($priceTier);
                     $em->persist($screeningRoomSeat);
+                    if ((($seat->getRowNum() * $seat->getSeatNumInRow()) % $batchSize) === 0) {
+                        $em->flush();
+                    }
                 }
             }
 
-            $em->persist($screeningRoom);
             $em->flush();
+            $em->clear();
         });
-        
     }
-
-
-
-
-
-
-
 }

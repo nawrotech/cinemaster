@@ -108,7 +108,7 @@ class ShowtimeController extends AbstractController
         }
 
         $showtimeStartsAtDate = (new \DateTime($showtimeStarting))->format("Y-m-d")
-            ?? new \DateTimeImmutable()->format("Y-m-d");
+            ?? (new \DateTimeImmutable())->format("Y-m-d");
 
         $showtimes = $showtimeRepository->findBy(["cinema" => $cinema]);
 
@@ -351,7 +351,7 @@ class ShowtimeController extends AbstractController
                 "message" => 'Invalid date format. Please use YYYY-MM-DD format.'
             ], Response::HTTP_BAD_REQUEST);
         }
-        
+
         $showtimes = $showtimeRepository
             ->findByCinemaAndScreeningRoomAtDate($date, $cinema, $screeningRoom);
 
