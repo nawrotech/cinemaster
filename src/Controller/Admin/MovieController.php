@@ -12,6 +12,7 @@ use App\Service\MovieService;
 use App\Service\TmdbApiService;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
+use PhpParser\Builder\Method;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\ExpressionLanguage\Expression;
@@ -27,7 +28,7 @@ class MovieController extends AbstractController
 
     public function __construct(private EntityManagerInterface $em) {}
 
-    #[Route('/movies/select-movies', name: 'app_movie_select_movies')]
+    #[Route('/movies/select-movies', name: 'app_movie_select_movies', methods: ['GET'])]
     public function selectMovies(
         MovieRepository $movieRepository,
         PagerfantaFactory $pagerfantaFactory,
@@ -67,7 +68,7 @@ class MovieController extends AbstractController
     }
 
 
-    #[Route('/movies/create/{id?}', name: 'app_movie_create')]
+    #[Route('/movies/create/{id?}', name: 'app_movie_create', methods: ['POST', 'GET'])]
     public function create(
         Request $request,
         EntityManagerInterface $em,
@@ -131,7 +132,7 @@ class MovieController extends AbstractController
 
 
 
-    #[Route('/movies/available-movies', name: 'app_movie_available_movies')]
+    #[Route('/movies/available-movies', name: 'app_movie_available_movies', methods: ['GET'])]
     public function availableMovies(
         MovieRepository $movieRepository,
         PagerfantaFactory $pagerfantaFactory,
@@ -167,11 +168,11 @@ class MovieController extends AbstractController
     ): Response {
 
         $this->em->wrapInTransaction(function (EntityManagerInterface $em) use ($tmdbApiService, $movie, $uploaderHelper): void {
-           
+
             if ($movie->getTmdbId()) {
                 $tmdbApiService->deleteMovie($movie->getTmdbId());
             }
-            
+
             foreach ($movie->getMovieReferences() as $movieReference) {
                 $uploaderHelper->deleteFile($movieReference->getFilePath());
                 $movieReference->setMovie(null);

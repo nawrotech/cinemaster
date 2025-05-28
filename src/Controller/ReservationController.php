@@ -33,8 +33,16 @@ class ReservationController extends AbstractController
         #[MapEntity(mapping: ["slug" => "slug"])] Cinema $cinema,
         #[MapEntity(mapping: ["showtime_slug" => "slug"])] Showtime $showtime,
         PriceTierExtractorService $priceTierExtractorService,
-        CartService $cartService
+        CartService $cartService,
     ): Response {
+
+        if (!$showtime->isPublished()) {
+            $this->addFlash('danger', 'An error occurred, please try again later!');
+
+            return $this->redirectToRoute('app_main_cinema_showtimes', [
+                'slug' => $cinema->getSlug()
+            ]);
+        }
 
         $priceTiers = $priceTierExtractorService->getShowtimePriceTiers($showtime);
         $groupedReservationSeats = $reservationSeatService->groupSeatsForLayout($showtime);

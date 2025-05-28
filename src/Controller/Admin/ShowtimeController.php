@@ -14,6 +14,7 @@ use App\Repository\ReservationSeatRepository;
 use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSeatRepository;
 use App\Repository\ShowtimeRepository;
+use App\Service\ShowtimePublisher;
 use App\Service\ShowtimeService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -147,9 +148,25 @@ class ShowtimeController extends AbstractController
         #[MapEntity(mapping: ["showtime_id" => "id"])]
         ShowTime $showtime,
         Request $request,
-        ShowtimeService $showtimeService,
-        ReservationSeatRepository $reservationSeatRepository
+        ShowtimePublisher $showtimePublisher
     ): Response {
+
+        $action = $request->get('published');
+
+        if ($action === '0') {
+            $success = $showtimePublisher->unpublish($showtime);
+            $message = $success
+                ? 'Show unpublished successfully'
+                : 'Show has reservations and cannot be unpublished';
+            $flashType = $success ? 'success' : 'danger';
+        } elseif ($action === '1') {
+            $showtimePublisher->publish($showtime);
+            $message = 'Show published successfully';
+            $flashType = 'success';
+        } else {
+            $message = 'Invalid action';
+            $flashType = 'danger';
+        }
 
         $queryParams = array_filter([
             'screeningRoomName' => $request->query->get('screeningRoomName'),
@@ -162,30 +179,8 @@ class ShowtimeController extends AbstractController
 
         $redirectParams = array_merge(['slug' => $cinema->getSlug()], $queryParams);
 
-        if (
-            $request->get("published") === "0" &&
-            $showtime->getReservations()->count() === 0
-        ) {
-            $showtime->setPublished(false);
-            $this->em->flush();
-            $this->addFlash("success", "Show has been successfully unpublished");
-
-            return $this->redirectToRoute("app_showtime_scheduled_room", $redirectParams);
-        } elseif ($request->get("published") === "1") {
-            if ($reservationSeatRepository->count(['showtime' => $showtime]) === 0) {
-                $showtimeService->publishShowtime($showtime);
-            } else {
-                $showtime->setPublished(true);
-                $this->em->flush();
-            }
-            $this->addFlash("success", "Show has been successfully published");
-
-            return $this->redirectToRoute("app_showtime_scheduled_room", $redirectParams);
-        } else {
-            $this->addFlash("danger", "Show has reservations and cannot be unpublished");
-
-            return $this->redirectToRoute("app_showtime_scheduled_room", $redirectParams);
-        }
+        $this->addFlash($flashType, $message);
+        return $this->redirectToRoute('app_showtime_scheduled_room', $redirectParams);
     }
 
     #[Route('/showtimes/delete/{id?}', name: "app_showtime_delete", methods: ["DELETE"])]

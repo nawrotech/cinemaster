@@ -23,6 +23,10 @@ class ReservationService
 
     public function lockSeats(Showtime $showtime, string $email, string $firstName, ?int $expirationInMinutes = 10): bool
     {
+        if (!$showtime->isPublished()) {
+            return false;
+        }
+
         $reservationSeats = $this->cartService
             ->getReservationSeatsForCheckout($showtime);
 

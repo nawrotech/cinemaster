@@ -13,7 +13,6 @@ use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSetupRepository;
 use App\Service\ScreeningRoomSeatService;
 use App\Service\SeatService;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,7 +26,7 @@ use Symfony\Component\Security\Http\Attribute\IsCsrfTokenValid;
 class ScreeningRoomController extends AbstractController
 {
 
-    #[Route('/', name: 'app_screening_room')]
+    #[Route('/', name: 'app_screening_room', methods: ['GET'])]
     public function index(
         Cinema $cinema,
         ScreeningRoomRepository $screeningRoomRepository,
@@ -41,13 +40,12 @@ class ScreeningRoomController extends AbstractController
         ]);
     }
 
-    #[Route('/create', name: 'app_screening_room_create')]
+    #[Route('/create', name: 'app_screening_room_create', methods: ['POST', 'GET'])]
     public function create(
         Request $request,
         ScreeningRoomSetupRepository $screeningRoomSetupRepository,
         Cinema $cinema,
         SeatService $seatService,
-        EntityManagerInterface $em
     ): Response {
 
         if ($request->query->get("ajaxCall")) {
@@ -155,18 +153,17 @@ class ScreeningRoomController extends AbstractController
             return $this->redirectToRoute('app_cinema_details', ['slug' => $slug]);
         }
 
-        $cinemaSlug = $screeningRoom->getCinema()->getSlug();
         $screeningRoom->setActive(false);
         $em->flush();
 
         $this->addFlash("warning", "Screening room has been removed!");
 
         return $this->redirectToRoute("app_cinema_details", [
-            "slug" => $cinemaSlug
+            "slug" => $screeningRoom->getCinema()->getSlug()
         ]);
     }
 
-    #[Route("/edit/{screening_room_slug}", name: 'app_screening_room_edit')]
+    #[Route("/edit/{screening_room_slug}", name: 'app_screening_room_edit', methods: ["GET", "POST"])]
     public function edit(
         #[MapEntity(mapping: ["slug" => "slug"])]
         Cinema $cinema,
