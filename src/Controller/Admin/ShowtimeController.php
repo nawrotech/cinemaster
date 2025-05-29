@@ -15,7 +15,6 @@ use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSeatRepository;
 use App\Repository\ShowtimeRepository;
 use App\Service\ShowtimePublisher;
-use App\Service\ShowtimeService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -24,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsCsrfTokenValid;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -44,6 +44,8 @@ class ShowtimeController extends AbstractController
         ScreeningRoomRepository $screeningRoomRepository,
         #[MapQueryString] ?ScheduledShowtimesFilter $scheduledShowtimeFilterDto
     ): Response {
+
+        // dd($scheduledShowtimeFilterDto);
 
         $showtimeStartsFrom = $scheduledShowtimeFilterDto?->showtimeStartsFrom
             ? new \DateTimeImmutable($scheduledShowtimeFilterDto->showtimeStartsFrom)
@@ -73,6 +75,43 @@ class ShowtimeController extends AbstractController
             "availableRoomNames" => $screeningRoomRepository->findDistinctRoomNames($cinema),
             "showtimeStartsFrom" => $showtimeStartsFrom->format('Y-m-d'),
         ]);
+    }
+
+    #[IsCsrfTokenValid('publish_showtime', tokenKey: 'token')]
+    #[Route("/showtimes/publish/by-showtime-id/{showtime_id?}", name: "app_showtime_publish")]
+    public function publish(
+        #[MapEntity(mapping: ["slug" => "slug"])]
+        Cinema $cinema,
+        #[MapEntity(mapping: ["showtime_id" => "id"])]
+        ShowTime $showtime,
+        Request $request,
+        ShowtimePublisher $showtimePublisher,
+        #[MapRequestPayload()] ?ScheduledShowtimesFilter $scheduledShowtimeFilterDto
+    ): Response {
+
+        $action = $request->get('publish_action');
+
+        if ($action === '0') {
+            $success = $showtimePublisher->unpublish($showtime);
+            $message = $success
+                ? 'Show unpublished successfully'
+                : 'Show has reservations and cannot be unpublished';
+            $flashType = $success ? 'success' : 'danger';
+        } elseif ($action === '1') {
+            $showtimePublisher->publish($showtime);
+            $message = 'Show published successfully';
+            $flashType = 'success';
+        } else {
+            $message = 'Invalid action';
+            $flashType = 'danger';
+        }
+
+        $this->addFlash($flashType, $message);
+        $scheduledShowtimeQueryParams = array_filter(get_object_vars($scheduledShowtimeFilterDto));
+
+        $redirectParams = array_merge(['slug' => $cinema->getSlug()], $scheduledShowtimeQueryParams);
+
+        return $this->redirectToRoute('app_showtime_scheduled_room', $redirectParams);
     }
 
     #[Route("/screening-rooms/{screening_room_slug}/showtimes/create/{showtime_id?}", name: "app_showtime_create")]
@@ -140,48 +179,6 @@ class ShowtimeController extends AbstractController
         ]);
     }
 
-    #[IsCsrfTokenValid('publish_showtime', tokenKey: 'token')]
-    #[Route("/showtimes/publish/by-showtime-id/{showtime_id?}", name: "app_showtime_publish", methods: ["POST"])]
-    public function publish(
-        #[MapEntity(mapping: ["slug" => "slug"])]
-        Cinema $cinema,
-        #[MapEntity(mapping: ["showtime_id" => "id"])]
-        ShowTime $showtime,
-        Request $request,
-        ShowtimePublisher $showtimePublisher
-    ): Response {
-
-        $action = $request->get('published');
-
-        if ($action === '0') {
-            $success = $showtimePublisher->unpublish($showtime);
-            $message = $success
-                ? 'Show unpublished successfully'
-                : 'Show has reservations and cannot be unpublished';
-            $flashType = $success ? 'success' : 'danger';
-        } elseif ($action === '1') {
-            $showtimePublisher->publish($showtime);
-            $message = 'Show published successfully';
-            $flashType = 'success';
-        } else {
-            $message = 'Invalid action';
-            $flashType = 'danger';
-        }
-
-        $queryParams = array_filter([
-            'screeningRoomName' => $request->query->get('screeningRoomName'),
-            'showtimeStartTime' => $request->query->get('showtimeStartTime'),
-            'showtimeEndTime' => $request->query->get('showtimeEndTime'),
-            'movieTitle' => $request->query->get('movieTitle'),
-            'published' => $request->query->get('published'),
-            'page' => $request->query->get('page'),
-        ]);
-
-        $redirectParams = array_merge(['slug' => $cinema->getSlug()], $queryParams);
-
-        $this->addFlash($flashType, $message);
-        return $this->redirectToRoute('app_showtime_scheduled_room', $redirectParams);
-    }
 
     #[Route('/showtimes/delete/{id?}', name: "app_showtime_delete", methods: ["DELETE"])]
     public function delete(

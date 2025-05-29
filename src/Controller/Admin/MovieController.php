@@ -12,7 +12,6 @@ use App\Service\MovieService;
 use App\Service\TmdbApiService;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
-use PhpParser\Builder\Method;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\ExpressionLanguage\Expression;
@@ -189,14 +188,6 @@ class MovieController extends AbstractController
             "page" => $page,
             "q" => $q,
             "slug" => $cinema->getSlug(),
-        ]);
-    }
-
-    #[Route('/edit', name: 'app_cinema_movies_edit')]
-    public function edit(): Response
-    {
-        return $this->render('movie/index.html.twig', [
-            'controller_name' => 'MovieController',
         ]);
     }
 }

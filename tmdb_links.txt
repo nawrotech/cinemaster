@@ -1,7 +1,0 @@
-1. Posters
-https://image.tmdb.org/t/p/w300/k42Owka8v91trK1qMYwCQCNwJKr.jpg 
-- for displaying the poster in movies list, 
-- for singular use w500
-2. 
-
-

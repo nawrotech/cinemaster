@@ -17,7 +17,10 @@
                 showtime_id: showtime.id}) 
             }}">
             <input type="hidden" name="token" value="{{ csrf_token('publish_showtime') }}">
-            <input type="hidden" name="published" value="1">
+            <input type="hidden" name="publish_action" value="1">
+
+            {{ include('showtime/_showtime_filtering_parameters_request_payload.html.twig') }}
+
             <button class="btn btn-success w-100">Publish</button>
         </form>
     </div>

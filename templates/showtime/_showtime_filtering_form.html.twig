@@ -4,9 +4,10 @@
             <select name="screeningRoomName" class="form-select">
                 <option value="">All rooms</option>
                 {% for roomName in availableRoomNames %}
-                <option 
-                    {{ roomName == app.request.get("screeningRoomName") ? "selected" : null }}
-                    value="{{ roomName }}">{{ roomName }}</option>
+                    <option 
+                        {{ roomName == app.request.get("screeningRoomName") ? "selected" : null }}
+                        value="{{ roomName }}">{{ roomName }}
+                    </option>
                 {% endfor %}
             </select>
         </div>
