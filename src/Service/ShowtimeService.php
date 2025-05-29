@@ -6,6 +6,7 @@ use App\Entity\Cinema;
 use App\Entity\Movie;
 use App\Entity\ReservationSeat;
 use App\Entity\Showtime;
+use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSeatRepository;
 use App\Repository\ShowtimeRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,7 +21,7 @@ class ShowtimeService
         private ScreeningRoomSeatRepository $screeningRoomSeatRepository,
         private EntityManagerInterface $em,
         private ValidatorInterface $validator,
-        #[Autowire('%timezone_offset_hours%')] private int $timezoneOffsetHours
+        #[Autowire('%timezone_offset_hours%')] private int $timezoneOffsetHours,
     ) {}
 
     /**
@@ -124,13 +125,19 @@ class ShowtimeService
     }
 
 
-    public function publishShowtime(Showtime $showtime)
+    public function publishShowtime(Showtime $showtime): void
     {
-        $showtimeRoomSeats = $this->screeningRoomSeatRepository->findBy(
-            ["screeningRoom" => $showtime->getScreeningRoom()]
-        );
-        $this->em->wrapInTransaction(function ($em) use ($showtime, $showtimeRoomSeats) {
-            foreach ($showtimeRoomSeats as $showtimeRoomSeat) {
+
+        $this->em->wrapInTransaction(function ($em) use ($showtime) {
+
+            $screeningRoomSeatQuery = $this->screeningRoomSeatRepository
+                ->findByScreeningRoomQuery($showtime->getScreeningRoom());
+
+            $batchSize = 100;
+            $i = 0;
+
+            foreach ($screeningRoomSeatQuery->toIterable() as $showtimeRoomSeat) {
+
                 $reservationSeat = new ReservationSeat();
                 $reservationSeat->setShowtime($showtime);
                 $reservationSeat->setSeat($showtimeRoomSeat);
@@ -143,11 +150,18 @@ class ShowtimeService
                     $reservationSeat->setPriceTierPrice($priceTier->getPrice());
                     $reservationSeat->setPriceTierColor($priceTier->getColor());
                 }
-
+                ++$i;
                 $em->persist($reservationSeat);
+                if (($i % $batchSize) === 0) {
+                    $em->flush();
+                    foreach ($this->em->getUnitOfWork()->getIdentityMap()['App\Entity\ReservationSeat'] ?? [] as $entity) {
+                        $this->em->detach($entity);
+                    }
+                }
             }
             $showtime->setPublished(true);
             $em->flush();
+            $em->clear();
         });
     }
 }

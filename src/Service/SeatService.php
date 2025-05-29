@@ -60,7 +60,7 @@ class SeatService
 
             $seatsByRow = $this->groupSeatsByRow($rowsAndSeats);
 
-            $batchSize = 50;
+            $batchSize = 100;
 
             foreach ($rowsAndSeats as $row => $lastSeatInRow) {
                 $seatsForRow = array_slice($seatsByRow[$row] ?? [], 0, $lastSeatInRow);
@@ -73,6 +73,9 @@ class SeatService
                     $em->persist($screeningRoomSeat);
                     if ((($seat->getRowNum() * $seat->getSeatNumInRow()) % $batchSize) === 0) {
                         $em->flush();
+                        foreach ($this->em->getUnitOfWork()->getIdentityMap()['App\Entity\ScreeningRoomSeat'] ?? [] as $entity) {
+                            $this->em->detach($entity);
+                        }
                     }
                 }
             }

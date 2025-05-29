@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\ScreeningRoom;
 use App\Entity\ScreeningRoomSeat;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -56,6 +57,12 @@ class ScreeningRoomSeatRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-
-
+    public function findByScreeningRoomQuery(ScreeningRoom $screeningRoom): Query
+    {
+        return $this->createQueryBuilder('srs')
+            ->andWhere('srs.screeningRoom = :screeningRoom')
+            ->innerJoin('srs.priceTier', 'pt')
+            ->setParameter('screeningRoom', $screeningRoom)
+            ->getQuery();
+    }
 }

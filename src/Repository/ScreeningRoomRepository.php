@@ -22,12 +22,12 @@ class ScreeningRoomRepository extends ServiceEntityRepository
     public function findDistinctRoomNames(Cinema $cinema): array
     {
         return $this->createQueryBuilder('sr')
-                    ->select("sr.name")
-                    ->distinct()
-                    ->andWhere("sr.cinema = :cinema")
-                    ->setParameter("cinema", $cinema)
-                    ->getQuery()
-                    ->getSingleColumnResult();
+            ->select("sr.name")
+            ->distinct()
+            ->andWhere("sr.cinema = :cinema")
+            ->setParameter("cinema", $cinema)
+            ->getQuery()
+            ->getSingleColumnResult();
     }
 
     /**
@@ -45,7 +45,6 @@ class ScreeningRoomRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getResult();
-    
     }
 
 
@@ -60,5 +59,4 @@ class ScreeningRoomRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult() !== null;
     }
-
 }
