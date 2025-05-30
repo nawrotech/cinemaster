@@ -6,7 +6,6 @@ use App\Entity\Cinema;
 use App\Entity\Movie;
 use App\Entity\ReservationSeat;
 use App\Entity\Showtime;
-use App\Repository\ScreeningRoomRepository;
 use App\Repository\ScreeningRoomSeatRepository;
 use App\Repository\ShowtimeRepository;
 use Doctrine\ORM\EntityManagerInterface;

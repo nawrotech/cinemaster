@@ -15,9 +15,7 @@ final class SeatFactory extends PersistentProxyObjectFactory
      *
      * @todo inject services if required
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public static function class(): string
     {
@@ -40,7 +38,7 @@ final class SeatFactory extends PersistentProxyObjectFactory
     public static function createGrid(int $rows = 25, int $seatsPerRow = 25): void
     {
         self::createSequence(
-            function() use($rows, $seatsPerRow) {
+            function () use ($rows, $seatsPerRow) {
                 foreach (range(1, $rows) as $row) {
                     foreach (range(1, $seatsPerRow) as $col) {
                         yield [
@@ -48,11 +46,9 @@ final class SeatFactory extends PersistentProxyObjectFactory
                             "seatNumInRow" => $col
                         ];
                     }
-                  
                 }
             }
         );
-
     }
 
     /**

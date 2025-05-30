@@ -9,21 +9,25 @@ use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 
-class Mailer {
+class Mailer
+{
     public function __construct(
         private MailerInterface $mailer,
         private ReservationSeatRepository $reservationSeatRepository,
         private BuilderInterface $qrBuilder,
         private QrCodeService $qrCodeService,
-        )
+    ) {}
+
+    public function sendReservationDetails(Reservation $reservation): void
     {
-    }
-    
-    public function sendReservationDetails(Reservation $reservation): void {
 
         $email = $reservation->getEmail();
         $reservationSeats = $this->reservationSeatRepository->findBy(["reservation" => $reservation]);
-        $total = count($reservationSeats) * $reservation->getShowtime()->getPrice();
+
+        $total = 0;
+        foreach ($reservationSeats as $reservationSeat) {
+            $total += $reservationSeat->getSeat()->getPriceTier()->getPrice();
+        }
 
         $reservationQrCode = $this->qrCodeService->generateReservationQrCode($reservation);
 
@@ -32,7 +36,7 @@ class Mailer {
             ->to(new Address($email))
             ->subject("Cinemaster - showtime reservation details")
             ->htmlTemplate('emails/showtime_receipt.html.twig')
-             ->context([
+            ->context([
                 "reservation" => $reservation,
                 "reservationSeats" => $reservationSeats,
                 "total" => $total,
@@ -40,9 +44,5 @@ class Mailer {
             ]);
 
         $this->mailer->send($email);
-
     }
-
-    
-
 }

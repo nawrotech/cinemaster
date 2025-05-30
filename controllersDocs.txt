@@ -1,5 +1,0 @@
-1. CinemaController:
-    a.create:
-        - currently seats built based on the form, might change to seats picker UI
-
-

@@ -6,6 +6,7 @@ use App\Contract\PaymentProviderInterface;
 use App\Entity\Showtime;
 use App\Service\CartService;
 use App\Service\LemonSqueezyService;
+use App\Service\ReservationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,7 +51,7 @@ final class OrderController extends AbstractController
         Request $request,
         Showtime $showtime,
         CartService $cartService,
-        RequestStack $requestStack
+        RequestStack $requestStack,
     ): Response {
         $redirectParams =  [
             'slug' => $showtime->getCinema()->getSlug(),
@@ -69,8 +70,8 @@ final class OrderController extends AbstractController
         }
 
         $cartService->clearCartForShowtimeId($showtime->getId());
-        $session = $requestStack->getSession();
 
+        $session = $requestStack->getSession();
         $session->remove('email');
         $session->remove('firstName');
 
