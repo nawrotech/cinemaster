@@ -10,6 +10,7 @@ use App\Form\ScreeningRoomType;
 use App\Form\SeatRowType;
 use App\Repository\CinemaRepository;
 use App\Repository\ScreeningRoomRepository;
+use App\Repository\ScreeningRoomSeatRepository;
 use App\Repository\ScreeningRoomSetupRepository;
 use App\Service\ScreeningRoomSeatService;
 use App\Service\SeatService;
@@ -170,7 +171,8 @@ class ScreeningRoomController extends AbstractController
         #[MapEntity(mapping: ["screening_room_slug" => "slug"])]
         ScreeningRoom $screeningRoom,
         ScreeningRoomSeatService $screeningRoomSeatService,
-        Request $request
+        Request $request,
+        ScreeningRoomSeatRepository $screeningRoomSeatRepository
     ): Response {
 
         $groupedSeats = $screeningRoomSeatService->groupSeatsForLayout($screeningRoom);
@@ -184,7 +186,7 @@ class ScreeningRoomController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $screeningRoomSeatService->updateSeatTypeForRow(
+            $screeningRoomSeatRepository->updateSeatsInRange(
                 $screeningRoom,
                 $form->get("rowStart")->getData(),
                 $form->get("rowEnd")->getData(),
